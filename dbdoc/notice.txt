@@ -1,0 +1,15 @@
+
+drop table  notice;
+
+create table  notice (
+  id int auto_increment primary key,
+  title   char(50) not null default '' comment '공지제목',
+  content text     not null default '' comment '공지내용',
+  udate  datetime,
+  idate datetime
+);
+
+  role    char(20) not null default '' comment '공지대상(팀)',
+
+alter table notice drop column role;
+

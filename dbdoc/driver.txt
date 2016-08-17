@@ -1,0 +1,86 @@
+
+drop table  driver ;
+create table  driver (
+  id int auto_increment primary key,
+  driver_name   char(50) not null default '' comment '이름',
+  driver_no     char(20) not null default '' comment '고유번호',
+
+  driver_stat   char(20) not null default '' comment '운전자 상태',
+  driver_tel    char(20) not null default '' comment '휴대폰번호',
+
+  did           char(200) not null default '' comment 'DID',
+  phone_hash    char(100) not null default '' comment '폰번호해쉬',
+  phone_os      char(10) not null default '' comment '폰OS종류',
+  role          char(10) not null default '' comment '역할',
+
+  apikey     char(50) default '' comment 'API 사용키',
+  pushkey    char(100) default '' comment '푸쉬알람 키',
+  rflag      tinyint default 0 comment '가입 여부',
+
+  run_id     int not null default 0 comment 'run.id',
+  car_id     int not null default 0 comment '운전중인 차량ID값',
+  person_id  int  comment '의전대상자 person.id',
+
+  lat  double   comment '운전자 현재 위치',
+  lng  double   comment '운전자 현재 위치',
+  is_driving   tinyint default 0 comment '운행중인지 여부',
+
+  udate  datetime,
+  idate datetime
+);
+
+  alter table driver add column lat  double   comment '운전자 현재 위치' after person_id;
+  alter table driver add column lng  double   comment '운전자 현재 위치' after lat;
+
+alter table driver add column
+  is_driving   tinyint default 0 comment '운행중인지 여부' after lng;
+
+alter table driver add column
+  run_id     int not null default 0 comment 'run.id'
+  after rflag;
+
+alter table driver add column own1 char(10) comment '지파명';
+alter table driver add column own2 char(20) comment '교회명';
+alter table driver add column own3 char(20) comment '실소유자';
+alter table driver add column own4 char(20) comment '연락처';
+alter table driver add column own5 char(20) comment '모델명';
+alter table driver add column own6 char(20) comment '차량번호';
+alter table driver add column own7 char(20) comment '차종';
+alter table driver add column own8 char(20) comment '색상';
+alter table driver add column own9 char(20) comment '배기량';
+alter table driver add column own10 char(20) comment '연식';
+
+alter table driver add column drv1 char(20) comment '지파';
+alter table driver add column drv2 char(20) comment '교회';
+alter table driver add column drv3 char(20) comment '이름';
+alter table driver add column drv4 char(20) comment '연령';
+alter table driver add column drv5 char(20) comment '연락처';
+
+
+
+
+alter table driver add column
+  role          char(10) not null default '' comment '역할'
+  after phone_os;
+
+alter table driver add column
+  address  char(50) comment '현재 주소'
+  after lng;
+
+alter table driver add column
+  dep_id   int  default 0 commnet '현재여정 출발지 location id'
+  after address;
+alter table driver add column
+  des_id   int  default 0 commnet '현재여정 목적지 location id'
+  after address;
+alter table driver add column
+  dep_name char(100) default '' commnet '현재여정 출발지 제목'
+  after address;
+alter table driver add column
+  des_name char(100) default '' commnet '현재여정 목적지 제목'
+  after address;
+
+alter table driver add column
+  is_driving   tinyint default 0 comment '운행중인지 여부'
+  after driver_stat;
+

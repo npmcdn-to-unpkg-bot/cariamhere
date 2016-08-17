@@ -1,0 +1,19 @@
+
+drop TABLE `login` ;
+
+CREATE TABLE `login` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` char(30) DEFAULT NULL,
+  `password` char(200) DEFAULT NULL,
+  apikey     char(50) default '' comment 'API 사용키',
+  PRIMARY KEY (`id`),
+  KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8;
+
+insert into login set username='admin', password='865502fc096226beca15c90b23cd0767';
+
+alter table login add column
+  apikey     char(50) default '' comment 'API 사용키'
+  after password;
+
+

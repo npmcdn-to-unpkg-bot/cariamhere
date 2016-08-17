@@ -1,0 +1,18 @@
+
+
+drop table location;
+
+create table location (
+  id            int auto_increment primary key,
+  loc_title     char(30) not null default '' comment '장소명칭',
+  loc_group     char(20) not null default '' comment '그룹 호텔,공항',
+  lat  double   comment '좌표 위치',
+  lng  double   comment '좌표 위치',
+  udate         datetime,
+  idate         datetime
+);
+
+alter table location add column
+  loc_group     char(20) not null default '' comment '그룹 호텔,공항'
+  after loc_title;
+

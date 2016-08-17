@@ -1,0 +1,32 @@
+
+drop table  run;
+
+create table  run (
+  id int auto_increment primary key,
+
+  driver_id     int,
+
+  start_time  datetime comment '운행시작시간',
+  end_time    datetime comment '운행종료시간',
+
+  depart_from   int comment '출발지 ID',
+  going_to      int comment '목적지 ID',
+
+  lat_s  double   comment '출발 위치',
+  lng_s  double   comment '출발 위치',
+
+  lat  double   comment '현재 위치',
+  lng  double   comment '현재 위치',
+
+  lat_e  double   comment '도착 위치',
+  lng_e  double   comment '도착 위치',
+
+  udate  datetime,
+  idate datetime
+);
+
+ desc run ;
+
+
+
+

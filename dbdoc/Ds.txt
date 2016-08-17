@@ -1,0 +1,43 @@
+
+create table Ds (
+  Ds           char(10) not null default '' comment '운전자 상태 코드',
+  DsName       char(20) not null default '' comment '운전자 상태',
+  key(Ds)
+) comment 'Driver Status';
+
+
+MariaDB [carmaxscj]> select * from Ds;
++------------+----------------------------+
+| Ds         | DsName                     |
++------------+----------------------------+
+| DS_PICKUP  | 공항 픽업                  |
+| DS_AIRPORT | 공항 대기                  |
+| DS_TOHOTEL | 호텔로 출발                |
+| DS_ARRIVEH | 호텔로 도착/대기중         |
+| DS_PARKING | 주차장대기                 |
+| DS_TOVENUE | 행사장으로 출발            |
+| DS_SIGHTSE | 관광                       |
++------------+----------------------------+
+7 rows in set (0.00 sec)
+
+
+insert into Ds set Ds='DS_PICKUP',DsName='공항 픽업';
+insert into Ds set Ds='DS_AIRPORTWAIT',DsName='공항 대기';
+insert into Ds set Ds='DS_TOHOTEL',DsName='호텔로 출발';
+insert into Ds set Ds='DS_ARRIVEHOTEL',DsName='호텔로 도착/대기중';
+insert into Ds set Ds='DS_PARKING',DsName='주차장대기';
+insert into Ds set Ds='DS_TOVENUE',DsName='행사장으로 출발';
+insert into Ds set Ds='DS_SIGHTSEE',DsName='관광';
+
+alter table Ds rename to Ds_0816;
+
+
+insert into Ds set Ds='DS_STOP',DsName='대기중';
+insert into Ds set Ds='DS_DRIVE',DsName='운전중';
+insert into Ds set Ds='DS_WAITING',DsName='배차대기중';
+
+DS_STOP     대기중
+DS_DRIVE    운전중
+DS_WAITING  배차대기중
+
+

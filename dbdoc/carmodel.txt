@@ -1,0 +1,25 @@
+
+
+drop table carmodel;
+
+create table carmodel (
+  id            int auto_increment primary key,
+  car_model     char(30) not null default '' comment '차량모델',
+  udate         datetime,
+  idate         datetime
+);
+
+insert into carmodel set car_model='쏘나타';
+insert into carmodel set car_model='제네시스';
+insert into carmodel set car_model='벤츠';
+insert into carmodel set car_model='아우디';
+insert into carmodel set car_model='BMW';
+insert into carmodel set car_model='렉서스';
+insert into carmodel set car_model='시트로엥';
+insert into carmodel set car_model='그랜저';
+insert into carmodel set car_model='캐딜락';
+insert into carmodel set car_model='아반떼';
+insert into carmodel set car_model='쉐보레';
+insert into carmodel set car_model='폭스바겐';
+insert into carmodel set car_model='테슬라';
+insert into carmodel set car_model='마세라티';

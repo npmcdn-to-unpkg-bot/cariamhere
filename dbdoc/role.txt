@@ -1,0 +1,7 @@
+drop table  role ;
+create table  role (
+  id int auto_increment primary key,
+  role        char(20) not null default '' comment '역할',
+  role_title  char(20) not null default '' comment '역할'
+);
+

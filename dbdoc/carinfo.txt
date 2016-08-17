@@ -1,0 +1,35 @@
+
+
+drop table carinfo;
+
+create table carinfo (
+  id            int auto_increment primary key,
+  car_no        char(20) not null default '' comment '차량번호',
+  car_model     char(30) not null default '' comment '차량모델',
+  car_color     char(10) not null default '' comment '차량색깔',
+  car_memo      char(255) not null default '' comment '메모',
+  driver_id     int comment '현재 운전자',
+  lat  double   comment '현재 위치',
+  lng  double   comment '현재 위치',
+  udate         datetime,
+  idate         datetime
+);
+
+alter table carinfo add column
+   driver_id     int comment '현재 운전자'
+  after car_memo;
+
+
+alter table carinfo add column own1 char(10) comment '지파명';
+alter table carinfo add column own2 char(20) comment '교회명';
+alter table carinfo add column own3 char(20) comment '실소유자';
+alter table carinfo add column own4 char(20) comment '연락처';
+alter table carinfo add column own5 char(20) comment '모델명';
+alter table carinfo add column own6 char(20) comment '차량번호';
+alter table carinfo add column own7 char(20) comment '차종';
+alter table carinfo add column own8 char(20) comment '색상';
+alter table carinfo add column own9 char(20) comment '배기량';
+alter table carinfo add column own10 char(20) comment '연식';
+
+car_no=own6, car_model=own5, car_color=own8
+

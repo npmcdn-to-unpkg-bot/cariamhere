@@ -1,0 +1,19 @@
+
+drop table messaging;
+
+create table messaging (
+  idx bigint not null primary key auto_increment,
+  id int,
+  mmm text comment '메시지 내용',
+  reg_date datetime comment '등록 날짜',
+  chk_date datetime default '0000-00-00 00:00:00',
+  send_id  int   comment '보낸 사람',
+  chkd bool default 0,
+  used int(1) default 1
+);
+
+alter table  messaging  add column
+  send_id  int   comment '보낸 사람'
+  after chk_date;
+
+

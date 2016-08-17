@@ -1,0 +1,25 @@
+
+drop table  app_version;
+
+create table  app_version (
+  id int auto_increment primary key,
+
+  phone_os      char(20)  not null default '' comment 'OS 종류(ios,android)',
+
+  version_int  int not null default 0 comment '버전 정수값',
+  version_str  char(20) not null default 0 comment '버전 문자열',
+  version_date datetime comment '버전 날짜',
+
+  protocol_ver int not null default 0 comment '프로토콜 버전',
+
+  udate  datetime,
+  idate datetime,
+
+  unique(phone_os)
+);
+
+
+alter table  app_version  add column
+   protocol_ver int not null default 0 comment '프로토콜 버전'
+  after version_date;
+

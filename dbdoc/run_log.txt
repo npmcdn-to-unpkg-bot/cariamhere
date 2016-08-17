@@ -1,0 +1,16 @@
+
+drop table  run_log ;
+
+create table  run_log (
+  id int auto_increment primary key,
+
+  driver_id  int,
+  run_id     int,
+
+  lat  double   comment '현재 위치',
+  lng  double   comment '현재 위치',
+
+  idate  datetime
+);
+
+

@@ -1,0 +1,46 @@
+
+drop table  person;
+
+create table  person (
+  id int auto_increment primary key,
+  person_name   char(50) not null default '' comment '의전대상자 이름',
+  person_cho    char(50) not null default '' comment '의전대상자 이름 초성분리',
+  person_group   char(10) not null default '' comment '의전대상자 그룹',
+  person_fflag   tinyint default 0 comment '깃발부착대상자여부',
+  person_nation  int     default 0 comment '국가',
+  memo    text  comment '메모',
+  udate  datetime,
+  idate datetime
+);
+
+alter table person add column
+  person_cho    char(50) not null default '' comment '의전대상자 이름 초성분리'
+  after person_name;
+
+alter table person add column
+  memo    text  comment '메모'
+  after person_nation;
+
+alter table person add column per1 char(50) comment '이름';
+alter table person add column per2 char(10) comment '그룹';
+alter table person add column per3 char(2) comment '깃발여부';
+alter table person add column per4 char(30) comment '국가';
+
+
+person_name=per1, person_group=per2, person_fflag=per3,
+
+
+
+MariaDB [carmaxscj]> desc Nat;
++--------+-------------+------+-----+---------+-------+
+| Field  | Type        | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| nname  | char(40)    | YES  |     | NULL    |       |
+| nnum   | smallint(4) | NO   | PRI | 0       |       |
+| ncode3 | char(3)     | YES  |     | NULL    |       |
+| ncode2 | char(2)     | YES  |     | NULL    |       |
+| inuse  | tinyint(1)  | YES  |     | 1       |       |
++--------+-------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+

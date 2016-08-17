@@ -1,0 +1,72 @@
+@charset "UTF-8"; 
+
+#top_blue {  position:fixed; left:0px; top:0px; width:100%; height:2px; background-color:#5076C6; z-index:1000; }
+
+/** 레프트 전체 폼 **/
+#menu_wrap  {  float:left;   width:205px; background:#ffffff;  }
+
+/** 로고 **/
+#header  {  float:left; width:205px; margin:14px 0px 17px 0px;text-align:center;}
+
+/** 국문메뉴 **/
+#gnb {float:left; width:205px;line-height:16px;}
+#gnb li a {color:#333333; display:block ; }
+#gnb li.depth1 .menu1 {font-size:16px;font-weight:bold; padding:13px 0 17px 18px;background:#ffffff url(../images/include/bg_depth1_off.png) no-repeat 176px 23px;  }
+#gnb li.depth1 { border-top:1px solid #dddddd;  }
+#gnb li.depth1 a {padding:0 0 9px 20px;background:#ffffff; color:#333333;}
+#gnb li.view a.menu1 { padding:13px 0 17px 18px;  text-decoration: none;}
+#gnb li.view a.menu1 {background: url(../images/include/bg_depth1_on.png) no-repeat right 0; color:#ffffff;}
+#wrap #gnb li.off a.menu1 {border:1px solid red;background: url(../images/include/bg_depth1_off.png) no-repeat right 0 !imprtant; color:#ffffff;}
+#gnb ul.depth2 {padding:0px 0px 0px 0px;  }
+#gnb ul.depth2 li a.first {  border-top:1px solid #dddddd;   }
+#gnb ul.depth2 li a {font-size:13px; height:24px;  padding:6px 0px 0px 26px; background: url(../images/include/bg_depthall_off.png) no-repeat 0px 0px; }
+#gnb ul.depth2 li a:hover {font-weight:bold; background: url(../images/include/bg_depthall_on.png) no-repeat 0px 0px; color:#333333;  text-decoration: none;}
+#gnb ul.depth2 li a.on {font-weight:bold; background: url(../images/include/bg_depthall_on.png) no-repeat 0px 0px; color:#333333; }
+.end_line  {   border-bottom:1px solid #dddddd;  }
+#gnb ul.depth3 {padding-left:25px;}
+#gnb ul.depth4 {padding-left:35px;}
+
+
+/** 영문메뉴 **/
+#gnb {float:left; width:205px;line-height:16px;}
+#gnb li a {color:#333333; display:block ; }
+#gnb li.e_depth1 .menu2 { font-size:14px;font-weight:bold; height:45px; padding:6px 0px 0px 18px; background:#ffffff url(../images/include/ebg_depth1_off.png) no-repeat 179px 21px;  }
+#gnb li.e_depth1 .menu2on { font-size:14px;font-weight:bold; height:45px; color:#FFFFFF; text-decoration:none; padding:6px 0px 0px 18px; background: url(../images/include/ebg_depth1_on.png) no-repeat 0px 0px;  }
+#gnb li.e_depth1 { border-top:1px solid #dddddd;  }
+#gnb li.e_depth1 a {padding:0px 0px 7px 20px;background:#ffffff; color:#333333}
+#gnb li.e_depth1 a:hover.menu2 { height:45px; padding:6px 0px 0px 18px;  text-decoration: none;}
+#gnb li.e_depth1 a:hover.menu2 {background: url(../images/include/ebg_depth1_on.png) no-repeat right 0; color:#ffffff;}
+#wrap #gnb li.off a.menu2 {border:1px solid red;background: url(../images/include/ebg_depth1_off.png) no-repeat right 0 !imprtant; color:#ffffff;}
+
+/** 영문컨텐츠 이미지 **/
+.e_img {  float:left; width:720px; margin-top:10px;   }
+
+/** 이용안내 **/
+#guide_wrap  {  float:right; width:190px;  margin-top:13px;  }
+#guide_wrap ul.step1  {  float:left; width:95px;  }
+#guide_wrap ul.step2  {  float:right; width:95px;  }
+#guide_wrap ul li  {margin-bottom:5px;  background: url(../images/include/icon_ar.gif) no-repeat 0px 0px;  }
+#guide_wrap ul li a  { margin:0px 0px 0px 15px; }
+
+#footer_new  {  float:left; position:relative;   margin-top:0px;  padding:0px 0px 0px 0px;  width:100%; background:#555555; font-size: 12px; }
+#f_wrap_new  { width:1200px;  }
+#f_left_new  {  float:left;width:100%; margin-left:63px; }
+#f_left_new .logo  {  float:left; clear:both; margin:0px 0px 0px 0px; }
+#f_left_new ul.link  {  float:left; width:930px;  margin:0px 0px 8px 63px; }
+#f_left_new ul.link li {  float:left; list-style:inline; }
+#f_left_new ul.link li a {color:#ffffff;}
+#f_left_new ul.link li a strong {color:#81B8D5;}
+#f_left_new .map  {  float:left;  width:930px; margin:0px 0px 0px 63px; letter-spacing:0em; }
+
+/*퀵메뉴*/
+#divMenu_quick {  float:left; width:92px;  }
+#divMenu_quick ul { text-align:center; }
+#divMenu_quick ul li { padding:0px 0px 13px 0px; }
+#divMenu_quick ul li p {  font-size:12px; font-weight:none; margin-top:3px; }
+
+/* 국문 상단 이미지 */
+div.titWrap_0  {  width:1780px; height:50px; border-bottom:1px solid #D8D8D8; }
+div.titWrap_0  h2 {  font-size:20px;  padding:40px 0px 18px 0px;  color:#000000; font-weight:bold; }
+
+div.location  {  float:right; font-size:12px;  margin:8px 0px 8px 0px;  }
+

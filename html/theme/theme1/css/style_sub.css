@@ -1,0 +1,12 @@
+@charset "UTF-8"; 
+
+#back_wrap {    float:left; width:100%;  background-color:#ffffff; }
+
+#sub_contents_wrap {  float:left;  width:1200px; background-image: url(../images/include/body_bg.png);background-repeat: repeat-y ;background-position: left top;  }
+#sub_wrap  {  float:left; width:895px;  }
+
+#sub_cont  {  width:1780px; margin-left:20px; }
+
+#sub_back {  width:1720px; margin-top:10px; margin-left:10px}
+
+
