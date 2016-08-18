@@ -172,7 +172,7 @@ EOS;
 //dd($form);
 
   $w = array('1');
-  $w[] = "s.user_id='$id'";
+  $w[] = "r.driver_id='$id'";
 
   //$d1 = $form['date1']; if ($d1) $w[] = "l.idate >= '$d1'";
   //$d2 = $form['date2']; if ($d2) $w[] = "l.idate <= '$d2'";
@@ -180,8 +180,8 @@ EOS;
   $sql_where = sql_where_join($w, $d=0, 'AND');
 
   $id = $form['id'];
-  $qry = "SELECT s.*"
-." FROM driving_session s"
+  $qry = "SELECT r.*"
+." FROM run r"
 .$sql_where
 ." ORDER BY idate DESC"
  ;
