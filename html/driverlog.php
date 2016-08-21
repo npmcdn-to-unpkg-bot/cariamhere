@@ -179,7 +179,7 @@ EOS;
 
   $id = $form['id'];
   $qry = "SELECT l.*"
-." FROM run l"
+." FROM run_log l"
 .$sql_where
 ." ORDER BY idate DESC"
 ." LIMIT $start,$ipp"
@@ -192,10 +192,7 @@ EOS;
   $btn = button_general('지도에서보기', 0, "_map()", $style='', $class='btn btn-primary');
   print<<<EOS
 <script>
-function _map() {
-  document.form.mode = 'map';
-  document.form.submit();
-}
+function _map() { document.form.mode = 'map'; document.form.submit(); }
 </script>
 EOS;
 

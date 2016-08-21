@@ -331,7 +331,9 @@ EOS;
 
   $apikey = $row['apikey'];
   $html = $row['apikey'];
-  print _data_tr('AppKey', $html);
+  print _data_tr('appKey', $html);
+
+  print _data_tr('is_driving', $row['is_driving']);
 
   $lat = textinput_general('lat', $row['lat'], '15', '', $click_select, $maxlength=0);
   $lng = textinput_general('lng', $row['lng'], '15', '', $click_select, $maxlength=0);
@@ -448,7 +450,7 @@ function sf_log() {
   urlGo(url);
 }
 function sf_sess() {
-  var url = "driversess.php?mode=sess&id=$id";
+  var url = "run.php?mode=sess&id=$id";
   urlGo(url);
 }
 
@@ -483,9 +485,16 @@ EOS;
 .", c.car_no"
 .", Ds.DsName"
 .", IF(d.rflag,'O','X') _rflag"
+.", l1.loc_title loc1"
+.", l2.loc_title loc2"
+.", TIME(r.start_time) stime"
+.", TIME(r.end_time) etime"
 ." FROM driver d"
 ." LEFT JOIN carinfo c ON d.car_id=c.id"
 ." LEFT JOIN Ds ON d.driver_stat=Ds.Ds"
+." LEFT JOIN run r ON d.run_id=r.id"
+." LEFT JOIN location l1 ON r.depart_from=l1.id"
+." LEFT JOIN location l2 ON r.going_to=l2.id"
  ;
 
   $ret = db_query($qry);
@@ -498,7 +507,7 @@ $buttons
 </div>
 <table class='table table-striped'>
 EOS;
-  print table_head_general(array('ID','이름','상태','차량','출발지','목적지'));
+  print table_head_general(array('ID','이름','상태','차량','출발시간','도착시간','출발지','목적지'));
 
   $cnt = 0;
   $info = array();
@@ -520,8 +529,10 @@ EOS;
 <td>{$edit}</td>
 <td>{$row['DsName']}</td>
 <td>{$row['car_no']}</td>
-<td>{$row['des_name1']}</td>
-<td>{$row['dep_name1']}</td>
+<td>{$row['stime']}</td>
+<td>{$row['etime']}</td>
+<td>{$row['loc1']}</td>
+<td>{$row['loc2']}</td>
 </tr>
 EOS;
   }

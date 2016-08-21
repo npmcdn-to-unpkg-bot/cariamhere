@@ -181,6 +181,7 @@ EOS;
 
   $id = $form['id'];
   $qry = "SELECT r.*"
+.", r.id run_id"
 ." FROM run r"
 .$sql_where
 ." ORDER BY idate DESC"
@@ -210,7 +211,7 @@ $btn
 </div>
 <table class='table table-striped'>
 EOS;
-  print table_head_general(array('번호','시작','종료'));
+  print table_head_general(array('run_id','시작시간','종료시간','출발지','도착지'));
 
   $a = array();
   $b = array();
@@ -229,9 +230,11 @@ EOS;
 
     print<<<EOS
 <tr>
-<td>{$cnt}</td>
+<td>{$row['run_id']}</td>
 <td>{$row['start_time']}</td>
 <td>{$row['end_time']}</td>
+<td>({$row['lat_s']}, {$row['lng_s']})</td>
+<td>({$row['lat_e']}, {$row['lng_e']})</td>
 </tr>
 EOS;
   }
