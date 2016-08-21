@@ -29,6 +29,8 @@ create table  driver (
   idate datetime
 );
 
+
+
   alter table driver add column lat  double   comment '운전자 현재 위치' after person_id;
   alter table driver add column lng  double   comment '운전자 현재 위치' after lat;
 

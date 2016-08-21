@@ -339,11 +339,12 @@ function start_driving($driver_id, $depart_from, $going_to, &$interval, &$run_id
   $interval = $conf['interval_driving'];
 
   // run 정보를 driver 에 반영
-  $qry = "UPDATE driver SET run_id='$run_id', is_driving=1 WHERE id='$driver_id'";
+  $qry = "UPDATE driver"
+   ." SET run_id='$run_id', is_driving=1, driver_stat='DS_DRIVE'"
+   ." WHERE id='$driver_id'";
   $ret = db_query($qry);
 
 }
-
 
 
 // 운전자 위치 설정
@@ -418,16 +419,20 @@ function finish_driving($row_driver, $driver_id, $run_id, &$elapsed) {
 
   // run 정보 갱신
   $s = array();
-  $s[] = "end_time=now()";
-  $s[] = "udate=now()";
+  $s[] = "end_time=NOW()";
+  $s[] = "udate=NOW()";
   $s[] = "lat_e=lat"; // 최종 좌표
   $s[] = "lng_e=lng";
   $sql_set = " SET ".join(",", $s);
-  $qry = "UPDATE run $sql_set where id='$run_id' AND driver_id='$driver_id'";
+  $qry = "UPDATE run $sql_set"
+    ." WHERE id='$run_id' AND driver_id='$driver_id'";
   $ret = db_query($qry);
 
   // driver 에 반영
-  $qry = "UPDATE driver SET run_id=null, is_driving=0 WHERE id='$driver_id'";
+  $qry = "UPDATE driver"
+    // run_id 는 지우지 않음 (최근 운행 기록을 조회하기 위해)
+    ." SET is_driving=0, driver_stat='DS_STOP'"
+    ." WHERE id='$driver_id'";
   $ret = db_query($qry);
 
 }
