@@ -3,6 +3,8 @@ drop table  driver ;
 create table  driver (
   id int auto_increment primary key,
   driver_name   char(50) not null default '' comment '이름',
+  driver_cho    char(50) not null default '' comment '이름 초성',
+
   driver_no     char(20) not null default '' comment '고유번호',
 
   driver_stat   char(20) not null default '' comment '운전자 상태',
@@ -30,6 +32,8 @@ create table  driver (
 );
 
 
+  alter table driver add column
+  driver_cho    char(50) not null default '' comment '이름 초성' after driver_name;
 
   alter table driver add column lat  double   comment '운전자 현재 위치' after person_id;
   alter table driver add column lng  double   comment '운전자 현재 위치' after lat;

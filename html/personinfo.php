@@ -1,14 +1,14 @@
 <?php
 
+// 의전대상자
+
   include_once("./path.php");
   include_once("$env[prefix]/inc/common.php");
   include_once("$env[prefix]/inc/class.person.php");
 
   $source_title = '의전대상자';
-  $env['menu']['1-3'] = true;
 
   $clsperson = new person();
-
 
   $sql_select = "SELECT p.*, Nat.*"
     .", IF(p.person_fflag, 'O', 'X') _fflag";
@@ -410,15 +410,9 @@ function searchq() {
         //console.log(item);
 
         var id = item['id'];
-        var name = item['person_name'];
 
-        var row = "<tr>"
-          +"<td>"+i+"</td>"
-          +"<td><span class=link onclick=\"_edit('"+id+"')\">"+name+"</span></td>"
-          +"<td>"+item['person_group']+"</td>"
-          +"<td>"+item['nname']+"</td>"
-          +"<td>"+item['_fflag']+"</td>"
-          +"</tr>";
+        var row = _data_row(i, id, item);
+
         $("#resultTable ").append(row);
       }
 
@@ -432,6 +426,18 @@ function _detail_view(id) {
     //console.log(data);
     $("#detailView").html(data);
   });
+}
+
+function _data_row(i, id, item) {
+  var name = item['person_name'];
+  var row = "<tr>"
+    +"<td>"+i+"</td>"
+    +"<td><span class=link onclick=\"_edit('"+id+"')\">"+name+"</span></td>"
+    +"<td>"+item['person_group']+"</td>"
+    +"<td>"+item['nname']+"</td>"
+    +"<td>"+item['_fflag']+"</td>"
+    +"</tr>";
+  return row;
 }
 
 </script>

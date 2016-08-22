@@ -33,7 +33,7 @@ function get_notice() {
 
   //if (!$role) $role = $user_role;
 
-  $qry = "SELECT * FROM notice WHERE 1";
+  $qry = "SELECT * FROM notice WHERE 1 ORDER BY idate DESC";
   $ret = db_query($qry);
 
   $info = array();

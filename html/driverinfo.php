@@ -12,6 +12,25 @@
   $clscar = new carinfo();
   $clsloc = new location();
 
+  $sql_select = "SELECT d.*"
+.", c.car_no"
+.", Ds.DsName"
+.", IF(d.rflag,'O','X') _rflag"
+.", l1.loc_title loc1"
+.", l2.loc_title loc2"
+.", TIME(r.start_time) stime"
+.", TIME(r.end_time) etime";
+
+  $sql_from = " FROM driver d";
+  $sql_join = ''
+." LEFT JOIN carinfo c ON d.car_id=c.id"
+." LEFT JOIN Ds ON d.driver_stat=Ds.Ds"
+." LEFT JOIN run r ON d.run_id=r.id"
+." LEFT JOIN location l1 ON r.depart_from=l1.id"
+." LEFT JOIN location l2 ON r.going_to=l2.id"
+ ;
+
+
 ### {{{
 function _data_tr($title, $html) {
   $str=<<<EOS
@@ -31,8 +50,13 @@ function _get($id) {
 
 function _sqlset(&$s) {
   global $form;
+
   $s[] = "driver_no='{$form['driver_no']}'";
   $s[] = "driver_name='{$form['driver_name']}'";
+
+  $driver_cho = cho_hangul($form['driver_name']);
+  $s[] = "driver_cho='{$driver_cho}'";
+
   $s[] = "driver_tel='{$form['driver_tel']}'";
   $s[] = "driver_stat='{$form['driver_stat']}'";
   $s[] = "person_id='{$form['person_id']}'";
@@ -465,6 +489,48 @@ EOS;
   exit;
 }
 
+if ($mode == 'searchq') {
+  //dd($form);
+  $s = $form['searchVal'];
+  if ($s == '') exit;
+
+  $k = trim($s);
+  $sql_where = " WHERE (driver_name LIKE '%$k%') OR (driver_cho LIKE '%$k%')";
+
+  $qry = $sql_select.$sql_from.$sql_join.$sql_where;
+  $ret = db_query($qry);
+
+  $data = array();
+  while ($row = db_fetch($ret)) {
+    //dd($row);
+    //print($row);
+    $data[] = $row;
+  }
+
+  print json_encode($data);
+  exit;
+}
+
+if ($mode == 'detail') {
+  dd($form);
+  $id = $form['id'];
+exit;
+
+  $row = $personObj->get_person($id);
+  //dd($row);
+
+  print<<<EOS
+<table class='table table-striped'>
+EOS;
+
+  print _data_tr('이름', $row['person_name']);
+  print _data_tr('그룹', $row['person_group']);
+  print _data_tr('국가', $row['nname']);
+  print _data_tr('메모', $row['memo']);
+
+  print("</table>");
+  exit;
+}
 
 ### }}}
 
@@ -474,29 +540,95 @@ EOS;
   $btn = array();
   $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
   $btn[] = button_general('운전자 일괄입력', 0, "_add2()", $style='', $class='btn btn-info');
+  $btn[] =<<<EOS
+검색(이름,초성):<input type='text' name='search' onkeyup="searchq();" onclick='this.select()'>
+EOS;
+
   print<<<EOS
 <script>
 function _add() { var url = "$env[self]?mode=add"; urlGo(url); }
 function _add2() { var url = "$env[self]?mode=add2"; urlGo(url); }
+
+var qcall = 0;
+var tbody_origin = null;
+function searchq() {
+  //console.log(qcall);
+
+  var searchTxt = $("input[name='search']").val();
+  var i = 0
+  //console.log(searchTxt);
+
+  if (searchTxt == '') {
+    if (tbody_origin) {
+      $("#resultTable > tbody").remove();
+      tbody_origin.appendTo("#resultTable");
+    }
+  } else {
+    qcall++;
+    if (qcall == 1) {
+      tbody_origin = $("#resultTable > tbody").detach();
+    }
+  }
+
+  $.post("$env[self]", {searchVal: searchTxt, mode:'searchq'}, function(data) {
+
+    try {
+
+      //console.log(data);
+
+      var list = JSON.parse(data);
+      //console.log(list);
+      //console.log(list.length);
+
+      if (qcall == 1) {
+        //console.log(tbody_origin);
+      } else {
+        $("#resultTable > tbody").remove();
+        $("#resultTable ").append("<tbody></tbody>");
+      }
+
+      if (list.length == 1) {
+        id = list[0]['id'];
+        _detail_view(id);
+      }
+
+      for (i = 0; i < list.length; i++) {
+        var item = list[i];
+        //console.log(item);
+        var id = item['id'];
+        var row = _data_row(i, id, item);
+        $("#resultTable ").append(row);
+      }
+
+    } catch(e) {
+    }
+  });
+}
+function _detail_view(id) {
+  console.log("detail view "+ id);
+  $.post("$env[self]", {id: id, mode:'detail'}, function(data) {
+    //console.log(data);
+    $("#detailView").html(data);
+  });
+}
+
+function _data_row(i, id, item) {
+ //console.log(item);
+  var name = item['driver_name'];
+  var row = "<tr>"
+   +"<td>"+i+"</td>"
+   +"<td><span class=link onclick=\"_edit('"+id+"')\">"+name+"</span></td>"
+   +"<td>"+item['DsName']+"</td>"
+   +"<td>"+item['car_no']+"</td>"
+   +"<td><input type='button' value='운행기록' onclick=\"_run("+id+")\" class='btn btn-primary'></td>"
+   +"</tr>";
+  return row;
+}
+
 </script>
 EOS;
 
-  $qry = "SELECT d.*"
-.", c.car_no"
-.", Ds.DsName"
-.", IF(d.rflag,'O','X') _rflag"
-.", l1.loc_title loc1"
-.", l2.loc_title loc2"
-.", TIME(r.start_time) stime"
-.", TIME(r.end_time) etime"
-." FROM driver d"
-." LEFT JOIN carinfo c ON d.car_id=c.id"
-." LEFT JOIN Ds ON d.driver_stat=Ds.Ds"
-." LEFT JOIN run r ON d.run_id=r.id"
-." LEFT JOIN location l1 ON r.depart_from=l1.id"
-." LEFT JOIN location l2 ON r.going_to=l2.id"
- ;
-
+  $qry = $sql_select.$sql_from.$sql_join;
   $ret = db_query($qry);
 
   $buttons = join(' ', $btn);
@@ -505,9 +637,12 @@ EOS;
 <div class="panel-heading">
 $buttons
 </div>
-<table class='table table-striped'>
 EOS;
-  print table_head_general(array('ID','이름','상태','차량','출발시간','도착시간','출발지','목적지'));
+  print("<table class='table table-striped dataC' id='resultTable'>");
+
+  print table_head_general(array('ID','이름','상태','차량','운행기록'
+    ,'출발시간','도착시간','출발지','목적지'));
+  print("<tbody>");
 
   $cnt = 0;
   $info = array();
@@ -523,12 +658,14 @@ EOS;
     $info[] = array($id, $row['lat'], $row['lng']);
 
 //<td>{$row['_rflag']}</td>
+    $btn = "<input type='button' value='운행기록' onclick=\"_run('$id')\" class='btn btn-primary'>";
     print<<<EOS
 <tr>
 <td>{$id}</td>
 <td>{$edit}</td>
 <td>{$row['DsName']}</td>
 <td>{$row['car_no']}</td>
+<td>{$btn}</td>
 <td>{$row['stime']}</td>
 <td>{$row['etime']}</td>
 <td>{$row['loc1']}</td>
@@ -537,17 +674,18 @@ EOS;
 EOS;
   }
   print<<<EOS
+</tbody>
 </table>
 </div>
 EOS;
 
+  print("<div id='detailView'></div>");
+
   $json = json_encode($info);
   print<<<EOS
 <script>
-function _edit(id) {
-  var url = "$env[self]?mode=edit&id="+id;
-  urlGo(url);
-}
+function _run(id) { var url = "run.php?mode=sess&id="+id; urlGo(url); }
+function _edit(id) { var url = "$env[self]?mode=edit&id="+id; urlGo(url); }
 
 // 주소를 업데이트하기.. 이렇게 하면 API 요청 횟수가 너무 많아질듯.
 function _update_address_all() {
@@ -583,7 +721,7 @@ function _update_address_all() {
 
 // onload
 $(function() {
-  //_update_address_all();
+  $("input[name='search']").focus();
 });
 </script>
 EOS;
