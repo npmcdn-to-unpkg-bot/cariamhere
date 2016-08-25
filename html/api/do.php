@@ -384,13 +384,17 @@ if ($action == 'start_driving') {
   // $going_to : 목적지 ID
   // $interval : 위치 전송 주기 (output)
   // $driving_session_id : 세션ID (output)
-  $clsdriver->start_driving($driver_id, $depart_from, $going_to, $interval, $driving_session_id);
-  //$interval = $clsdriver->get_interval($row['driver_stat']);
+  $clsdriver->start_driving($row, $driver_id, $depart_from, $going_to, $interval, $driving_session_id);
 
   $resp = array(
     'driver_id'=>$driver_id,
     'gps_interval'=>$interval,
     'run_id'=>$driving_session_id,
+    'person'=> array(
+      'person_id'=>$row['person_id'],
+      'name'=>$row['person_name'],
+      'group'=>$row['person_group'],
+     )
   );
   ok_response($resp);
   exit;
@@ -439,6 +443,48 @@ if ($action == 'finish_driving') {
   ok_response($resp);
   exit;
 }
+
+// VIP 조회
+if ($action == 'query_person') {
+  $appkey = _check_appkey();
+  $row = _get_driver($appkey);
+  $driver_id = $row['id'];
+
+  $resp = array(
+    'driver_id'=>$driver_id,
+    'person'=> array(
+      'person_id'=>$row['person_id'],
+      'name'=>$row['person_name'],
+      'group'=>$row['person_group'],
+     )
+  );
+  ok_response($resp);
+  exit;
+}
+
+// VIP 설정
+if ($action == 'set_person') {
+  $appkey = _check_appkey();
+  $row = _get_driver($appkey);
+  $driver_id = $row['id'];
+  $person_id = $row['person_id'];
+
+  // VIP 설정
+  $error = $clsdriver->set_person($row, $person_id);
+  if ($error) error_response($error);
+
+  $resp = array(
+    'driver_id'=>$driver_id,
+    'person'=> array(
+      'person_id'=>$row['person_id'],
+      'name'=>$row['person_name'],
+      'group'=>$row['person_group'],
+     )
+  );
+  ok_response($resp);
+  exit;
+}
+
 
 
 

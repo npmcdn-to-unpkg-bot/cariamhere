@@ -10,21 +10,56 @@
   $clsdriver= new driver();
   $clscar = new carinfo();
 
+### {{{
+
+function _edit_link($title, $id) {
+  if (!$title) $title = '--';
+  $html = <<<EOS
+<span class=link onclick="_edit('$id')">{$title}</span>
+EOS;
+  return $html;
+}
+
+### }}}
 
 ### {{{
 if ($mode == 'map') {
 
-  //dd($form);
-  $pos = $form['pos'];
-  $points = urldecode($pos);
-  //dd($points);
+  $run_id = $form['id'];
 
-  $date = $form['date'];
-  $dates = urldecode($date);
+  $qry = "SELECT * FROM run WHERE id='$run_id'";
+  $run_row = db_fetchone($qry);
+
+  $qry = "SELECT * FROM run_log where run_id='$run_id'";
+  $ret = db_query($qry);
+  $pts = array();
+  $dts = array();
+  $cnt = 0;
+  while ($row = db_fetch($ret)) {
+    $cnt++;
+    //dd($row);
+    $pts[] = array($row['lat'], $row['lng']);
+    $dts[] = $row['idate'];
+  }
+  //dd($pts);
+  //dd($dts);
+  $points = json_encode($pts);
+  $dates = json_encode($dts);
+  $num_points = $cnt;
+
 
   MainPageHead($source_title);
   ParagraphTitle($source_title);
   //dd($a);
+dd($run_row);
+
+  print<<<EOS
+<div>
+{$row['start_time']}
+{$row['end_time']}
+$num_points
+</div>
+EOS;
 
   script_daum_map();
   print<<<EOS
@@ -117,15 +152,14 @@ if ($mode == 'sess') {
   MainPageHead($source_title);
   ParagraphTitle($source_title);
 
-  $id = $form['id'];
+  $id = $form['id']; //  driver_id
 
-/*
   ## {{
   $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn');
   print<<<EOS
 <form name='search_form' method='get'>
 $btn
-<input type='hidden' name='mode' value='log'>
+<input type='hidden' name='mode' value='$mode'>
 <input type='hidden' name='id' value='$id'>
 <input type='hidden' name='page' value='{$form['page']}'>
 EOS;
@@ -140,7 +174,7 @@ EOS;
 
 <script>
 $('input.datetimepicker').datetimepicker({
-  format: "YYYY-MM-DD HH:mm:ss"
+  format: "YYYY-MM-DD"
 });
 function sf_1() {
   document.search_form.submit();
@@ -157,7 +191,6 @@ EOS;
 </form>
 EOS;
 
-
   $page = $form['page'];
 
   $total = 100000;
@@ -167,9 +200,8 @@ EOS;
 
   print pagination_bootstrap2($page, $total, $ipp, '_page');
   ## }}
-*/
 
-//dd($form);
+  //dd($form);
 
   $w = array('1');
   $w[] = "r.driver_id='$id'";
@@ -180,68 +212,77 @@ EOS;
   $sql_where = sql_where_join($w, $d=0, 'AND');
 
   $id = $form['id'];
-  $qry = "SELECT r.*"
-.", r.id run_id"
-." FROM run r"
-.$sql_where
-." ORDER BY idate DESC"
+
+  $sql_from = " FROM run r";
+  $sql_join = ''
+." LEFT JOIN driver d ON r.driver_id=d.id"
+." LEFT JOIN carinfo c ON d.car_id=c.id"
+." LEFT JOIN Ds ON d.driver_stat=Ds.Ds"
+." LEFT JOIN location l1 ON r.depart_from=l1.id"
+." LEFT JOIN location l2 ON r.going_to=l2.id"
+." LEFT JOIN person p ON r.person_id=p.id"
  ;
+
+  $sql_select = "SELECT d.driver_name"
+.", r.id run_id"
+.", c.car_no"
+.", Ds.DsName"
+.", IF(d.rflag,'O','X') _rflag"
+.", l1.loc_title loc1"
+.", l2.loc_title loc2"
+.", TIME(r.start_time) stime"
+.", TIME(r.end_time) etime"
+.", p.id person_id, p.person_name, p.person_group"
+;
+
+  $qry = $sql_select.$sql_from.$sql_join.$sql_where
+    ." ORDER BY r.idate DESC";
 
  //dd($qry);
 
   $ret = db_query($qry);
 
-
-  $btn = button_general('지도에서보기', 0, "_map()", $style='', $class='btn btn-primary');
-  print<<<EOS
-<script>
-function _map() {
-  document.form.mode = 'map';
-  document.form.submit();
-}
-</script>
-EOS;
-
   print<<<EOS
 <div class="panel panel-default">
 <div class="panel-heading">
-<!--
-$btn
--->
+운전자:
 </div>
 <table class='table table-striped'>
 EOS;
-  print table_head_general(array('run_id','시작시간','종료시간','출발지','도착지'));
+  print table_head_general(array('ID','이름','상태','차량','운행기록' ,'출발시간','도착시간','출발지','목적지','VIP'));
+  print("<tbody>");
 
   $a = array();
   $b = array();
   $cnt = 0;
   while ($row = db_fetch($ret)) {
     $cnt++;
+
     //dd($row);
 
-    $id = $row['id'];
+    $id = $row['run_id'];
 
-    //$lat = $row['lat'];
-    //$lng = $row['lng'];
-    //$idate = $row['idate'];
-    //$a[] = array($lat, $lng);
-    //$b[] = $idate;
+    $name = _edit_link($row['driver_name'], $id);
+    $btn = button_general('지도', 0, "_map('$id')", $style='', $class='btn btn-primary');
 
     print<<<EOS
 <tr>
-<td>{$row['run_id']}</td>
-<td>{$row['start_time']}</td>
-<td>{$row['end_time']}</td>
-<td>({$row['lat_s']}, {$row['lng_s']})</td>
-<td>({$row['lat_e']}, {$row['lng_e']})</td>
+<td>{$id}</td>
+<td>{$name}</td>
+<td>{$row['DsName']}</td>
+<td>{$row['car_no']}</td>
+<td>{$btn}</td>
+<td>{$row['stime']}</td>
+<td>{$row['etime']}</td>
+<td>{$row['loc1']}</td>
+<td>{$row['loc2']}</td>
+<td>{$row['person_name']}</td>
 </tr>
 EOS;
   }
-  print<<<EOS
-</table>
-</div>
-EOS;
+  print("</tbody>");
+  print("</table>");
+  print("</div>");
   //dd($a);
 
   // 지도 표시를 위한 폼
@@ -254,6 +295,16 @@ EOS;
 <input type='hidden' name='mode' value="map">
 </form>
 EOS;
+
+  print<<<EOS
+<script>
+function _map(id) {
+  var url = "$env[self]?mode=map&id="+id;
+  urlGo(url);
+}
+</script>
+EOS;
+
 
   MainPageTail();
   exit;

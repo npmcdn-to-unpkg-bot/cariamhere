@@ -458,7 +458,7 @@ $buttons
 
 <table class='table table-striped dataC' id='resultTable'>
 EOS;
-  print table_head_general(array('번호','이름','그룹','국가','깃발'));
+  print table_head_general(array('ID','이름','그룹','국가','깃발'));
   print("<tbody>");
 
   $cnt = 0;
@@ -472,7 +472,7 @@ EOS;
 
     print<<<EOS
 <tr>
-<td>{$cnt}</td>
+<td>{$id}</td>
 <td>{$edit}</td>
 <td>{$row['person_group']}</td>
 <td>{$row['nname']}</td>

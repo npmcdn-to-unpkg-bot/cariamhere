@@ -267,7 +267,7 @@ EOS;
   $html .= _panel($title, $content, $comment);
 
 
-  $title = "사용자 정보 (get_driver_info) (사용금지)";
+  $title = "사용자 정보 (get_driver_info) (------------ 사용금지)";
   $action = 'get_driver_info';
   $info = array( 'appkey'=>'',);
   $rinfo = array('result'=>'성공여부', 'driver_id'=>'운전자 ID값', 'role'=>'사용자 역할');
@@ -362,7 +362,7 @@ EOS;
 ";
   $html .= _panel($title, $content, $comment);
 
-  $title = "운전자 현재 상태 변경(set_driver_status) (사용금지)";
+  $title = "운전자 현재 상태 변경(set_driver_status) (------------ 사용금지)";
   $action = 'set_driver_status';
   $info = array( 'appkey'=>'',
     'user_id'=>'사용자ID값',
@@ -390,7 +390,7 @@ EOS;
 
 
 
-  $title = "출발지/도착지 설정(set_schedule) (사용금지)";
+  $title = "출발지/도착지 설정(set_schedule) (------------ 사용금지)";
   $action = 'set_schedule';
   $info = array( 'appkey'=>'',
     'user_id'=>'운전자ID값',
@@ -448,6 +448,29 @@ EOS;
   $content = _content($action, $info, $rinfo);
   $comment = " ";
   $html .= _panel($title, $content, $comment);
+
+  $title = "VIP조회(query_person)";
+  $action = 'query_person';
+  $info = array( 'appkey'=>'',
+  );
+  $rinfo = array('result'=>'성공여부',
+    'person'=>'VIP 정보',
+  );
+  $content = _content($action, $info, $rinfo);
+  $comment = " ";
+  $html .= _panel($title, $content, $comment);
+
+  $title = "VIP설정(set_person)";
+  $action = 'set_person';
+  $info = array( 'appkey'=>'',
+    'person_id'=>'VIP ID(person.ID)'
+  );
+  $rinfo = array('result'=>'성공여부',
+  );
+  $content = _content($action, $info, $rinfo);
+  $comment = " ";
+  $html .= _panel($title, $content, $comment);
+
 
 
   // 목차

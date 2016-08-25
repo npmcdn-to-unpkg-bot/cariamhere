@@ -1287,4 +1287,62 @@ function cho_hangul($str) {
 //echo cho_hangul("안녕하세요");
 
 
+// 한글 영타를 한글로
+// http://phpschool.com/gnuboard4/bbs/board.php?bo_table=tipntech&wr_id=27132&sca=&sfl=wr_subject%7C%7Cwr_content&stx=%C3%CA%BC%BA+%C1%DF%BC%BA+%C1%BE%BC%BA&sop=and
+function eng2han ($str) {
+  static $convTable = null;
+  if (is_null($convTable)) {
+    // 초성
+    $convTable[] = array('r'=>0, 'R'=>1, 's'=>2, 'e'=>3, 'E'=>4, 'f'=>5, 'a'=>6, 'q'=>7, 'Q'=>8, 't'=>9, 'T'=>10, 'd'=>11, 'w'=>12, 'W'=>13, 'c'=>14, 'z'=>15, 'x'=>16, 'v'=>17, 'g'=>18);
+
+    // 중성
+    $convTable[] = array('k'=>0, 'o'=>1, 'i'=>2, 'O'=>3, 'j'=>4, 'p'=>5, 'u'=>6, 'P'=>7, 'h'=>8, 'hk'=>9, 'ho'=>10, 'hl'=>11, 'y'=>12, 'n'=>13, 'nj'=>14, 'np'=>15, 'nl'=>16, 'b'=>17, 'm'=> 18, 'ml'=>19, 'l'=>20);
+
+    // 종성
+    $convTable[] = array('r'=>1, 'R'=>2, 'rt'=>3, 's'=>4, 'sw'=>5, 'sg'=>6, 'e'=>7, 'f'=>8, 'fr'=>9, 'fa'=>10, 'fq'=>11, 'ft'=>12, 'fx'=>13, 'fv'=>14, 'fg'=>15, 'a'=>16, 'q'=>17, 'qt'=>18, 't'=>19, 'T'=>20, 'd'=>21, 'w'=>22, 'c'=>23, 'z'=>24, 'x'=>25, 'v'=>26, 'g'=>27);
+  }
+
+  $retText = array(); $hanChar = '';
+  $len = strlen($str);
+  for ($idx = 0; $idx < $len; $idx++) {
+    if ( is_numeric($convTable[0][$str[$idx]]) ) {
+      // 초성
+      $hanChar = 0xAC00 + $convTable[0][$str[$idx]]*21*28;
+      $idx++;
+
+      // 중성
+      if ( $convTable[1][$str[$idx].$str[$idx+1]] ) {
+        $hanChar += $convTable[1][$str[$idx].$str[$idx+1]]*28;
+        $idx+=2;
+      } elseif ( is_numeric($convTable[1][$str[$idx]]) ) {
+        $hanChar += $convTable[1][$str[$idx]]*28;
+        $idx++;
+      }
+
+      // 종성
+      if ( $convTable[2][$str[$idx].$str[$idx+1]] && (!is_numeric($convTable[1][$str[$idx+2]]) || $idx+2 >= $len) ) {
+        $hanChar += $convTable[2][$str[$idx].$str[$idx+1]];
+        $idx++;
+      } elseif ( $convTable[2][$str[$idx]] && (!is_numeric($convTable[1][$str[$idx+1]]) || $idx+1 >= $len) ) {
+        $hanChar += $convTable[2][$str[$idx]];
+      } else {
+        $idx--;
+      }
+
+      $hanChar = dechex($hanChar);
+      $hanChar = iconv("UCS-2", "UTF-8", chr(hexdec(substr($hanChar, 0, 2))).chr(hexdec(substr($hanChar, -2))));
+
+      $retText[] = $hanChar;
+    } else {
+      $retText[] = $str[$idx];
+      continue;
+    }
+  }
+
+  return implode('', $retText);
+}
+
+//테스트
+//echo eng2han('dkssudgktpdy?');
+
 ?>

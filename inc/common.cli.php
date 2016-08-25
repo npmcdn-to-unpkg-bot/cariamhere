@@ -1,8 +1,7 @@
 <?php
 
-  $env['path_include'] = $env['prefix']."/inc";
   include("$env[prefix]/config/config.php");
-  include("$env[path_include]/func.php");
+  include("$env[prefix]/inc/func.php");
 
   db_connect();
 
@@ -10,7 +9,6 @@
   @$mode = $form['mode'];
 
   //$env['self'] = $_SERVER['SCRIPT_NAME'];
-
   //session_start();
   //print_r($_SESSION);
 

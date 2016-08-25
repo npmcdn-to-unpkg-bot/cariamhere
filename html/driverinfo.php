@@ -19,10 +19,13 @@
 .", l1.loc_title loc1"
 .", l2.loc_title loc2"
 .", TIME(r.start_time) stime"
-.", TIME(r.end_time) etime";
+.", TIME(r.end_time) etime"
+.", p.person_name, p.person_group"
+;
 
   $sql_from = " FROM driver d";
   $sql_join = ''
+." LEFT JOIN person p ON d.person_id=p.id"
 ." LEFT JOIN carinfo c ON d.car_id=c.id"
 ." LEFT JOIN Ds ON d.driver_stat=Ds.Ds"
 ." LEFT JOIN run r ON d.run_id=r.id"
@@ -284,6 +287,7 @@ if ($mode == 'add' || $mode == 'edit') {
   MainPageHead($source_title);
   ParagraphTitle($source_title);
   ParagraphTitle($title, 1);
+
 
   print<<<EOS
 <table class='table table-striped'>
@@ -624,7 +628,6 @@ function _data_row(i, id, item) {
    +"</tr>";
   return row;
 }
-
 </script>
 EOS;
 
@@ -640,8 +643,18 @@ $buttons
 EOS;
   print("<table class='table table-striped dataC' id='resultTable'>");
 
-  print table_head_general(array('ID','이름','상태','차량','운행기록'
-    ,'출발시간','도착시간','출발지','목적지'));
+  $head = array();
+  $head[] = 'ID';
+  $head[] = '이름';
+  $head[] = '상태';
+  $head[] = '차량';
+  $head[] = '운행기록';
+  $head[] = '출발시간';
+  $head[] = '도착시간';
+  $head[] = '출발지';
+  $head[] = '목적지';
+  $head[] = '의전대상자';
+  print table_head_general($head);
   print("<tbody>");
 
   $cnt = 0;
@@ -670,6 +683,7 @@ EOS;
 <td>{$row['etime']}</td>
 <td>{$row['loc1']}</td>
 <td>{$row['loc2']}</td>
+<td>{$row['person_name']}</td>
 </tr>
 EOS;
   }

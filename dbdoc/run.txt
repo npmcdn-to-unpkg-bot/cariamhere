@@ -22,11 +22,13 @@ create table  run (
   lng_e  double   comment '도착 위치',
 
   udate  datetime,
-  idate datetime
+  idate datetime,
+
+  person_id     int default 0 comment '의전대상자',
+
 );
 
  desc run ;
 
-
-
+alter table run add column person_id     int default 0 comment '의전대상자';
 
