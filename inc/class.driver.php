@@ -418,6 +418,32 @@ function set_driver_location($driver_id, $lat, $lng) {
  //dd($qry);
   }
 
+  function sql_select_run_1() {
+    $sql_select = "SELECT d.driver_name, d.id driver_id"
+    .", r.id run_id"
+    .", c.car_no"
+    .", Ds.DsName"
+    .", IF(d.rflag,'O','X') _rflag"
+    .", l1.loc_title loc1"
+    .", l2.loc_title loc2"
+    .", TIME(r.start_time) stime"
+    .", TIME(r.end_time) etime"
+    .", p.id person_id, p.person_name, p.person_group"
+    ;
+    return $sql_select;
+  }
+  // driver와 run 테이블에 대한 join 은 pre_join에 넣을 것
+  function sql_join_run_1($pre_join='') {
+    $sql_join = ''
+    .$pre_join
+    ." LEFT JOIN carinfo c ON d.car_id=c.id"
+    ." LEFT JOIN Ds ON d.driver_stat=Ds.Ds"
+    ." LEFT JOIN location l1 ON r.depart_from=l1.id"
+    ." LEFT JOIN location l2 ON r.going_to=l2.id"
+    ." LEFT JOIN person p ON r.person_id=p.id"
+     ;
+    return $sql_join;
+  }
 
 }; // class
 

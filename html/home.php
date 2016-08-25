@@ -6,10 +6,11 @@
   MainPageHead('Home');
   ParagraphTitle('Home');
 
- print("<li><a href='/carinfo.php'>차량(car)</a></li>");
- print("<li><a href='/driverinfo.php'>운전자(driver)</a></li>");
- print("<li><a href='/personinfo.php'>의전대상자(person)</a></li>");
- print("<li><a href='/locationinfo.php'>장소(location)</a></li>");
+ print("<li><a href='/car.php'>차량(car)</a></li>");
+ print("<li><a href='/driver.php'>운전자(driver)</a></li>");
+ print("<li><a href='/person.php'>의전대상자(person)</a></li>");
+ print("<li><a href='/location.php'>장소(location)</a></li>");
+
  print("<li><a href='/map.php'>실시간 차량위치</a></li>");
  print("<li><a href='/index.php?mode=logout'>로그아웃</a></li>");
  print("<li><a href='#'>-----------------</a></li>");

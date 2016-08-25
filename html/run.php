@@ -152,7 +152,7 @@ if ($mode == 'sess') {
   MainPageHead($source_title);
   ParagraphTitle($source_title);
 
-  $id = $form['id']; //  driver_id
+  $driver_id = $form['id']; //  driver_id
 
   ## {{
   $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn');
@@ -160,7 +160,7 @@ if ($mode == 'sess') {
 <form name='search_form' method='get'>
 $btn
 <input type='hidden' name='mode' value='$mode'>
-<input type='hidden' name='id' value='$id'>
+<input type='hidden' name='id' value='$driver_id'>
 <input type='hidden' name='page' value='{$form['page']}'>
 EOS;
 
@@ -203,42 +203,27 @@ EOS;
 
   //dd($form);
 
+  $driver_id = $form['id'];
+
   $w = array('1');
-  $w[] = "r.driver_id='$id'";
+  $w[] = "r.driver_id='$driver_id'";
 
   //$d1 = $form['date1']; if ($d1) $w[] = "l.idate >= '$d1'";
   //$d2 = $form['date2']; if ($d2) $w[] = "l.idate <= '$d2'";
 
   $sql_where = sql_where_join($w, $d=0, 'AND');
 
-  $id = $form['id'];
-
   $sql_from = " FROM run r";
-  $sql_join = ''
-." LEFT JOIN driver d ON r.driver_id=d.id"
-." LEFT JOIN carinfo c ON d.car_id=c.id"
-." LEFT JOIN Ds ON d.driver_stat=Ds.Ds"
-." LEFT JOIN location l1 ON r.depart_from=l1.id"
-." LEFT JOIN location l2 ON r.going_to=l2.id"
-." LEFT JOIN person p ON r.person_id=p.id"
- ;
 
-  $sql_select = "SELECT d.driver_name"
-.", r.id run_id"
-.", c.car_no"
-.", Ds.DsName"
-.", IF(d.rflag,'O','X') _rflag"
-.", l1.loc_title loc1"
-.", l2.loc_title loc2"
-.", TIME(r.start_time) stime"
-.", TIME(r.end_time) etime"
-.", p.id person_id, p.person_name, p.person_group"
-;
+  $pj = " LEFT JOIN driver d ON r.driver_id=d.id";
+  $sql_join   = $clsdriver->sql_join_run_1($pj);
+
+  $sql_select = $clsdriver->sql_select_run_1();
 
   $qry = $sql_select.$sql_from.$sql_join.$sql_where
     ." ORDER BY r.idate DESC";
 
- //dd($qry);
+ dd($qry);
 
   $ret = db_query($qry);
 
