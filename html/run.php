@@ -27,8 +27,12 @@ if ($mode == 'map') {
 
   $run_id = $form['id'];
 
-  $qry = "SELECT * FROM run WHERE id='$run_id'";
-  $run_row = db_fetchone($qry);
+  $sql_from = " FROM run r";
+  $sql_select = $clsdriver->sql_select_run_1();
+  $sql_join   = $clsdriver->sql_join_3();
+  $sql_where = " WHERE r.id='$run_id'";
+  $qry = $sql_select.$sql_from.$sql_join.$sql_where;
+  $info = db_fetchone($qry);
 
   $qry = "SELECT * FROM run_log where run_id='$run_id'";
   $ret = db_query($qry);
@@ -47,17 +51,16 @@ if ($mode == 'map') {
   $dates = json_encode($dts);
   $num_points = $cnt;
 
-
   MainPageHead($source_title);
   ParagraphTitle($source_title);
-  //dd($a);
-dd($run_row);
 
+  //dd($info);
   print<<<EOS
 <div>
-{$row['start_time']}
-{$row['end_time']}
-$num_points
+운전자:{$info['driver_name']}
+시작:{$info['stime']}
+종료:{$info['etime']}
+데이터:$num_points
 </div>
 EOS;
 
@@ -215,15 +218,14 @@ EOS;
 
   $sql_from = " FROM run r";
 
-  $pj = " LEFT JOIN driver d ON r.driver_id=d.id";
-  $sql_join   = $clsdriver->sql_join_run_1($pj);
+  //$pj = " LEFT JOIN driver d ON r.driver_id=d.id";
+  $sql_join   = $clsdriver->sql_join_3();
 
   $sql_select = $clsdriver->sql_select_run_1();
 
   $qry = $sql_select.$sql_from.$sql_join.$sql_where
     ." ORDER BY r.idate DESC";
-
- dd($qry);
+  //dd($qry);
 
   $ret = db_query($qry);
 

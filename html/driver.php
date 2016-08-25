@@ -15,8 +15,8 @@
   $sql_from = " FROM driver d";
 
   $sql_select = $clsdriver->sql_select_run_1();
-  $pj = " LEFT JOIN run r ON d.run_id=r.id";
-  $sql_join   = $clsdriver->sql_join_run_1($pj);
+  //$pj = " LEFT JOIN run r ON d.run_id=r.id";
+  $sql_join   = $clsdriver->sql_join_2();
 
 #  $sql_select = "SELECT d.*"
 #.", c.car_no"

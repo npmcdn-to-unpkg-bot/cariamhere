@@ -418,6 +418,9 @@ function set_driver_location($driver_id, $lat, $lng) {
  //dd($qry);
   }
 
+  // $sql_select = $clsdriver->sql_select_run_1();
+  // $sql_join   = $clsdriver->sql_join_run_1($pj);
+  //   $qry = $sql_select.$sql_from.$sql_join.$sql_where;
   function sql_select_run_1() {
     $sql_select = "SELECT d.driver_name, d.id driver_id"
     .", r.id run_id"
@@ -443,6 +446,14 @@ function set_driver_location($driver_id, $lat, $lng) {
     ." LEFT JOIN person p ON r.person_id=p.id"
      ;
     return $sql_join;
+  }
+  function sql_join_2() {
+    $pj = " LEFT JOIN run r ON d.run_id=r.id";
+    return $this->sql_join_run_1($pj);
+  }
+  function sql_join_3() {
+    $pj = " LEFT JOIN driver d ON r.driver_id=d.id";
+    return $this->sql_join_run_1($pj);
   }
 
 }; // class
