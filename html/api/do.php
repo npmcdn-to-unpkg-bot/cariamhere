@@ -448,7 +448,7 @@ if ($action == 'finish_driving') {
 if ($action == 'query_person') {
   $appkey = _check_appkey();
   $row = _get_driver($appkey);
-  $driver_id = $row['id'];
+  $driver_id = $data['id'];
 
   $resp = array(
     'driver_id'=>$driver_id,
@@ -466,8 +466,8 @@ if ($action == 'query_person') {
 if ($action == 'set_person') {
   $appkey = _check_appkey();
   $row = _get_driver($appkey);
-  $driver_id = $row['id'];
-  $person_id = $row['person_id'];
+  $driver_id = $data['id'];
+  $person_id = $data['person_id'];
 
   // VIP 설정
   $error = $clsdriver->set_person($row, $person_id);
@@ -480,6 +480,26 @@ if ($action == 'set_person') {
       'name'=>$row['person_name'],
       'group'=>$row['person_group'],
      )
+  );
+  ok_response($resp);
+  exit;
+}
+
+// 비상상황
+if ($action == 'do_emergency') {
+  $appkey = _check_appkey();
+  $driver_row = _get_driver($appkey);
+  $driver_id = $driver_row['id'];
+
+  $info = array(
+    'EMER_1' => '차량고장',
+    'EMER_2' => '접촉사고',
+    'EMER_3' => '기타사항',
+  );
+
+  $resp = array(
+    'driver_id'=>$driver_id,
+    'select'=> $info,
   );
   ok_response($resp);
   exit;

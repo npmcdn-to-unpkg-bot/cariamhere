@@ -18,7 +18,7 @@ if ($mode == 'push') {
 
   $objUser = new driver();
   $row = $objUser->get_driver_by_id($id);
-  $is_driving = $objUser->status_is_driving($row['driver_stat']);
+  //$is_driving = $objUser->status_is_driving($row['driver_stat']);
 //dd($is_driving);
 
   $objUser->set_driver_location($id, $lat, $lng, $car_location_update=true);

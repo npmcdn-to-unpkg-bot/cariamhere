@@ -34,6 +34,8 @@
 <select id='time' name='time' class="" data-style="btn-primary" onchange="_change_time()">
 <option value='0'>수동</option>
 <option value='1'>자동 1초</option>
+<option value='2'>자동 2초</option>
+<option value='3'>자동 3초</option>
 <option value='5'>자동 5초</option>
 <option value='10'>자동 10초</option>
 <option value='30'>자동 30초</option>

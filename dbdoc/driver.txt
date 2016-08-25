@@ -61,6 +61,7 @@ alter table driver add column drv2 char(20) comment '교회';
 alter table driver add column drv3 char(20) comment '이름';
 alter table driver add column drv4 char(20) comment '연령';
 alter table driver add column drv5 char(20) comment '연락처';
+alter table driver add column drv6 char(20) comment '고유번호';
 
 
 

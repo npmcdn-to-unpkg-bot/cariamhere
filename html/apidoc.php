@@ -471,6 +471,15 @@ EOS;
   $comment = " ";
   $html .= _panel($title, $content, $comment);
 
+  $title = "비상상황(do_emergency) (---- 작업중)";
+  $action = 'do_emergency';
+  $info = array( 'appkey'=>'',
+  );
+  $rinfo = array('result'=>'성공여부',
+  );
+  $content = _content($action, $info, $rinfo);
+  $comment = " ";
+  $html .= _panel($title, $content, $comment);
 
 
   // 목차

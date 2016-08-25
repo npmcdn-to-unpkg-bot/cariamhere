@@ -151,11 +151,10 @@ EOS;
 }
 
 
-if ($mode == 'sess') {
   MainPageHead($source_title);
   ParagraphTitle($source_title);
 
-  $driver_id = $form['id']; //  driver_id
+  $driver_id = $form['driver_id']; //  driver_id
 
   ## {{
   $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn');
@@ -163,30 +162,41 @@ if ($mode == 'sess') {
 <form name='search_form' method='get'>
 $btn
 <input type='hidden' name='mode' value='$mode'>
-<input type='hidden' name='id' value='$driver_id'>
 <input type='hidden' name='page' value='{$form['page']}'>
 EOS;
+
+  print<<<EOS
+운전자ID:<input type='text' name='driver_id' value='$driver_id' size='2'>
+EOS;
+
+  $v = $form['driver_name'];
+  $ti = textinput_general('driver_name', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
+  print("운전자이름:$ti");
+
+  $v = $form['person_name'];
+  $ti = textinput_general('person_name', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
+  print("VIP이름:$ti");
 
   $d1 = $form['date1']; if (!$d1) $d1 = get_now();
   $d2 = $form['date2']; if (!$d2) $d2 = get_now();
   print<<<EOS
 기간:
-<input type="text" name='date1' class="form-control datetimepicker" style='width:160px; display:inline' value='$d1'>
+<input type="text" name='date1' class="form-control datetimepicker" style='width:120px; display:inline' value='$d1'>
 ~
-<input type="text" name='date2' class="form-control datetimepicker" style='width:160px; display:inline' value='$d2'>
+<input type="text" name='date2' class="form-control datetimepicker" style='width:120px; display:inline' value='$d2'>
 
 <script>
 $('input.datetimepicker').datetimepicker({
   format: "YYYY-MM-DD"
 });
+
 function sf_1() {
   document.search_form.submit();
 }
 
-function _page(page) {
-  document.search_form.page.value = page;
-  sf_1();
-}
+function _page(page) { document.search_form.page.value = page; sf_1(); }
+function keypress_text() { if (event.keyCode != 13) return; sf_1(); }
+
 </script>
 EOS;
 
@@ -197,7 +207,7 @@ EOS;
   $page = $form['page'];
 
   $total = 100000;
-  $ipp = 200;
+  $ipp = 30;
   //$last = $total / $ipp;
   list($start, $last, $page) = calc_page($ipp, $total);
 
@@ -206,25 +216,31 @@ EOS;
 
   //dd($form);
 
-  $driver_id = $form['id'];
-
   $w = array('1');
-  $w[] = "r.driver_id='$driver_id'";
 
-  //$d1 = $form['date1']; if ($d1) $w[] = "l.idate >= '$d1'";
-  //$d2 = $form['date2']; if ($d2) $w[] = "l.idate <= '$d2'";
+  $v = $form['driver_id'];
+  if ($v) $w[] = "r.driver_id='$v'";
+
+  $v = $form['driver_name'];
+  if ($v) $w[] = "(d.driver_name LIKE '%$v%' OR d.driver_cho LIKE '%$v%')";
+
+  $v = $form['person_name'];
+  if ($v) $w[] = "(p.person_name LIKE '%$v%' OR p.person_cho LIKE '%$v%')";
+
+  $d1 = $form['date1']; if ($d1) $w[] = "DATE(r.idate) >= '$d1'";
+  $d2 = $form['date2']; if ($d2) $w[] = "DATE(r.idate) <= '$d2'";
 
   $sql_where = sql_where_join($w, $d=0, 'AND');
 
   $sql_from = " FROM run r";
 
-  //$pj = " LEFT JOIN driver d ON r.driver_id=d.id";
   $sql_join   = $clsdriver->sql_join_3();
-
   $sql_select = $clsdriver->sql_select_run_1();
 
   $qry = $sql_select.$sql_from.$sql_join.$sql_where
-    ." ORDER BY r.idate DESC";
+    ." ORDER BY r.idate DESC"
+    ." LIMIT $start,$ipp";
+
   //dd($qry);
 
   $ret = db_query($qry);
@@ -232,7 +248,7 @@ EOS;
   print<<<EOS
 <div class="panel panel-default">
 <div class="panel-heading">
-운전자:
+운행기록
 </div>
 <table class='table table-striped'>
 EOS;
@@ -252,11 +268,15 @@ EOS;
     $name = _edit_link($row['driver_name'], $id);
     $btn = button_general('지도', 0, "_map('$id')", $style='', $class='btn btn-primary');
 
+    $ds = $row['DsName'];
+    if ($clsdriver->is_driving_status($ds)) $ds = "<span class='ds_driving'>$ds</span>";
+    else $ds = "<span class='ds_not_driving'>$ds</span>";
+
     print<<<EOS
 <tr>
 <td>{$id}</td>
 <td>{$name}</td>
-<td>{$row['DsName']}</td>
+<td>{$ds}</td>
 <td>{$row['car_no']}</td>
 <td>{$btn}</td>
 <td>{$row['stime']}</td>
@@ -295,7 +315,6 @@ EOS;
 
   MainPageTail();
   exit;
-}
 
 ### }}}
 

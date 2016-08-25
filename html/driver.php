@@ -14,30 +14,6 @@
 
   $sql_from = " FROM driver d";
 
-  $sql_select = $clsdriver->sql_select_run_1();
-  //$pj = " LEFT JOIN run r ON d.run_id=r.id";
-  $sql_join   = $clsdriver->sql_join_2();
-
-#  $sql_select = "SELECT d.*"
-#.", c.car_no"
-#.", Ds.DsName"
-#.", IF(d.rflag,'O','X') _rflag"
-#.", l1.loc_title loc1"
-#.", l2.loc_title loc2"
-#.", TIME(r.start_time) stime"
-#.", TIME(r.end_time) etime"
-#.", p.person_name, p.person_group"
-#;
-
-#  $sql_join = ''
-#." LEFT JOIN person p ON d.person_id=p.id"
-#." LEFT JOIN carinfo c ON d.car_id=c.id"
-#." LEFT JOIN Ds ON d.driver_stat=Ds.Ds"
-#." LEFT JOIN run r ON d.run_id=r.id"
-#." LEFT JOIN location l1 ON r.depart_from=l1.id"
-#." LEFT JOIN location l2 ON r.going_to=l2.id"
-# ;
-
 
 ### {{{
 function _data_tr($title, $html) {
@@ -84,6 +60,15 @@ EOS;
   return $html;
 }
 
+function _summary() {
+  global $clsdriver;
+  $info = $clsdriver->driver_summary();
+  $a = array();
+  foreach ($info as $ds=>$count) {
+    $a[] = "$ds: {$count}명";
+  }
+  print join(", ", $a);
+}
 
 ### }}}
 
@@ -143,139 +128,6 @@ if ($mode == 'doadd') {
   exit;
 }
 
-// 일괄입력
-if ($mode == 'add2') {
-  MainPageHead($source_title);
-  ParagraphTitle('운전자 일괄입력');
-  print<<<EOS
-<form name='form' action='$env[self]' method='post'>
-
-<a href='driver_form.xlsx'>양식엑셀파일 다운받기</a>
-
-<p> 아래 내용을 지우고 엑셀양식 파일의 내용을 복사해서 붙이세요.
-
-<input type='hidden' name='mode' value='add2b'>
-EOS;
-
-  $content = $form['content'];
-  if (!$content) $content =<<<EOS
-지파	교회	이름	전화번호	모델	차량번호	차종	색상	배기량	연식	지파	교회	이름	나이	전화번호	고유번호
-요한	과천	임세환	1234-1440	BMW330d	12서1234	SE	검정	3000	2010	요한	과천	홍길동	27	1234-4411	00221122-44444
-요한	과천	임세환	1234-1440	BMW330d	12서1234	SE	검정	3000	2016	요한	과천	홍길동	27	1234-4411	00221122-44444
-EOS;
-
-  print<<<EOS
-<textarea rows='10' cols='80' name='content' style='width:100%' onclick='this.select()'>
-$content
-</textarea>
-<input type='button' value='미리보기' onclick='sf_1()'>
-<input type='button' value='저장하기' onclick='sf_2()'>
-</form>
-
-<script>
-function sf_1() { document.form.mode.value = 'add2'; document.form.submit(); }
-function sf_2() { document.form.mode.value = 'add2do'; document.form.submit(); }
-</script>
-EOS;
-
-  $content = $form['content'];
-  $rows = preg_split("/\n/", $content);
-
-  print<<<EOS
-<table class='table table-striped'>
-<tr>
-<th>지파명</th>
-<th>교회명</th>
-<th>실소유자</th>
-<th>연락처</th>
-<th>모델명</th>
-<th>차량번호</th>
-<th>차종</th>
-<th>색상</th>
-<th>배기량</th>
-<th>연식</th>
-<th>지파</th>
-<th>교회</th>
-<th>이름</th>
-<th>연령</th>
-<th>연락처</th>
-<th>고유번호</th>
-</tr>
-EOS;
-
-  foreach ($rows as $line) {
-    $line = trim($line);
-    if (!$line) continue;
-    $cols = preg_split("/[ ,\t]/", $line);
-    print<<<EOS
-<tr>
-<td>{$cols[0]}</td>
-<td>{$cols[1]}</td>
-<td>{$cols[2]}</td>
-<td>{$cols[3]}</td>
-<td>{$cols[4]}</td>
-<td>{$cols[5]}</td>
-<td>{$cols[6]}</td>
-<td>{$cols[7]}</td>
-<td>{$cols[8]}</td>
-<td>{$cols[9]}</td>
-<td>{$cols[10]}</td>
-<td>{$cols[11]}</td>
-<td>{$cols[12]}</td>
-<td>{$cols[13]}</td>
-<td>{$cols[14]}</td>
-<td>{$cols[15]}</td>
-</tr>
-EOS;
-  }
-  print<<<EOS
-</table>
-EOS;
-
-
-  MainPageTail();
-  exit;
-}
-if ($mode == 'add2do') {
-
-  $content = $form['content'];
-  $rows = preg_split("/\n/", $content);
-
-  foreach ($rows as $line) {
-    $line = trim($line);
-    if (!$line) continue;
-    $cols = preg_split("/[ ,\t]/", $line);
-
-    $s = array();
-    $s[] = "own1='{$cols[0]}'";
-    $s[] = "own2='{$cols[1]}'";
-    $s[] = "own3='{$cols[2]}'";
-    $s[] = "own4='{$cols[3]}'";
-    $s[] = "own5='{$cols[4]}'";
-    $s[] = "own6='{$cols[5]}'";
-    $s[] = "own7='{$cols[6]}'";
-    $s[] = "own8='{$cols[7]}'";
-    $s[] = "own9='{$cols[8]}'";
-    $s[] = "own10='{$cols[9]}'";
-    $s[] = "drv1='{$cols[10]}'";
-    $s[] = "drv2='{$cols[11]}'";
-    $s[] = "drv3='{$cols[12]}'";
-    $s[] = "drv4='{$cols[13]}'";
-    $s[] = "drv5='{$cols[14]}'";
-    $s[] = "drv6='{$cols[15]}'";
-    $sql_set = " SET ".join(",", $s);
-    $qry = "insert into driver $sql_set";
-    $ret = db_query($qry);
-  }
-
-  $qry = "update driver set driver_name=drv3,driver_tel=drv5,driver_no=drv6 where driver_name=''";
-  $ret = db_query($qry);
-  print<<<EOS
-<a href='$env[self]'>업로드 완료. 돌아가기</a>
-EOS;
-  exit;
-}
-
 if ($mode == 'add' || $mode == 'edit') {
 
   if ($mode == 'edit') {
@@ -304,8 +156,10 @@ EOS;
 <td colspan='2' class='c'>
 <input type='button' value='확인' onclick='sf_1()' class='btn btn-primary'>
 <input type='button' value='삭제' onclick='sf_del()' class='btn btn-danger'>
+<!--
 <input type='button' value='로그보기' onclick='sf_log()' class='btn btn-primary'>
-<input type='button' value='운행기록' onclick='sf_sess()' class='btn btn-primary'>
+<input type='button' value='운행기록' onclick='sf_runs()' class='btn btn-primary'>
+-->
 </td>
 </tr>
 EOS;
@@ -325,9 +179,6 @@ EOS;
   $html = "<select name='driver_stat'>$opt</select>";
   print _data_tr('상태', $html);
 
-# $html = $row['is_driving'];
-# print _data_tr('is_driving', $html);
-
   $preset = $row['person_id'];
   $opt = $personObj->select_option_person($preset);
   $html=<<<EOS
@@ -335,23 +186,9 @@ EOS;
 EOS;
   print _data_tr('의전대상자', $html);
 
-# $html = $row['start_time'];
-# print _data_tr('start_time', $html);
-
-
   $opt = $clscar->car_select_option($row['car_id']);
   $html = "<select name='car_id'>$opt</select>";
   print _data_tr('차량', $html);
-
-# $opt = $clsloc->select_option_location($row['dep_id']);
-# $html = "<select name='dep_id'>$opt</select>";
-# $ti = textinput_general('dep_name', $row['dep_name'], '20', '', $click_select, $maxlength=0);
-# print _data_tr('출발지', $html.$ti);
-
-# $opt = $clsloc->select_option_location($row['des_id']);
-# $html = "<select name='des_id'>$opt</select>";
-# $ti = textinput_general('des_name', $row['des_name'], '20', '', $click_select, $maxlength=0);
-# print _data_tr('목적지', $html.$ti);
 
   $html = $row['phone_hash'];
   print _data_tr('phone_hash', $html);
@@ -458,8 +295,10 @@ EOS;
 <input type='hidden' name='id' value='$id'>
 <input type='button' value='확인' onclick='sf_1()' class='btn btn-primary'>
 <input type='button' value='삭제' onclick='sf_del()' class='btn btn-danger'>
+<!--
 <input type='button' value='로그보기' onclick='sf_log()' class='btn btn-primary'>
-<input type='button' value='운행기록' onclick='sf_sess()' class='btn btn-primary'>
+<input type='button' value='운행기록' onclick='sf_runs()' class='btn btn-primary'>
+-->
 </td>
 </tr>
 EOS;
@@ -478,14 +317,8 @@ function sf_del() {
   var url = "$env[self]?mode=dodel&id=$id";
   urlGo(url);
 }
-function sf_log() {
-  var url = "driverlog.php?mode=log&id=$id";
-  urlGo(url);
-}
-function sf_sess() {
-  var url = "run.php?mode=sess&id=$id";
-  urlGo(url);
-}
+function sf_log() { var url = "driverlog.php?mode=log&id=$id"; urlGo(url); }
+function sf_runs() { var url = "run.php?driver_id=$id"; urlGo(url); }
 
 $(function() {
   _address();
@@ -506,6 +339,9 @@ if ($mode == 'searchq') {
   $k = trim($s);
   $sql_where = " WHERE (driver_name LIKE '%$k%') OR (driver_cho LIKE '%$k%')";
 
+  $sql_select = $clsdriver->sql_select_run_1();
+  $sql_join   = $clsdriver->sql_join_2();
+
   $qry = $sql_select.$sql_from.$sql_join.$sql_where;
   $ret = db_query($qry);
 
@@ -521,6 +357,7 @@ if ($mode == 'searchq') {
 }
 
 if ($mode == 'detail') {
+  dd('mode = detail');
   dd($form);
   $id = $form['id'];
 exit;
@@ -546,9 +383,60 @@ EOS;
   MainPageHead($source_title);
   ParagraphTitle($source_title);
 
+  _summary();
+
+
+  ## {{
+  $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn');
+  print<<<EOS
+<form name='search_form' method='get'>
+$btn
+<input type='hidden' name='mode' value='$mode'>
+<input type='hidden' name='page' value='{$form['page']}'>
+EOS;
+
+  $v = $form['driver_name'];
+  $ti = textinput_general('driver_name', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
+  print("운전자이름:$ti");
+
+  $v = $form['person_name'];
+  $ti = textinput_general('person_name', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
+  print("VIP이름:$ti");
+
+  $ds = $form['ds'];
+  $opt = $clsdriver->driver_status_option($ds);
+  print<<<EOS
+상태:<select name='ds'>$opt</select>
+EOS;
+
+  print<<<EOS
+</form>
+EOS;
+
+
+  print<<<EOS
+<script>
+function sf_1() {
+  document.search_form.submit();
+}
+
+function _page(page) { document.search_form.page.value = page; sf_1(); }
+function keypress_text() { if (event.keyCode != 13) return; sf_1(); }
+</script>
+EOS;
+
+  $page = $form['page'];
+
+  $total = 100000;
+  $ipp = 30;
+  list($start, $last, $page) = calc_page($ipp, $total);
+
+  print pagination_bootstrap2($page, $total, $ipp, '_page');
+  ## }}
+
   $btn = array();
   $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
-  $btn[] = button_general('운전자 일괄입력', 0, "_add2()", $style='', $class='btn btn-info');
+  $btn[] = button_general('운전자/차량 업로드', 0, "_add2()", $style='', $class='btn btn-info');
   $btn[] =<<<EOS
 검색(이름,초성):<input type='text' name='search' onkeyup="searchq();" onclick='this.select()'>
 EOS;
@@ -556,7 +444,7 @@ EOS;
   print<<<EOS
 <script>
 function _add() { var url = "$env[self]?mode=add"; urlGo(url); }
-function _add2() { var url = "$env[self]?mode=add2"; urlGo(url); }
+function _add2() { var url = "upload.php"; urlGo(url); }
 
 var qcall = 0;
 var tbody_origin = null;
@@ -582,7 +470,6 @@ function searchq() {
   $.post("$env[self]", {searchVal: searchTxt, mode:'searchq'}, function(data) {
 
     try {
-
       //console.log(data);
 
       var list = JSON.parse(data);
@@ -622,21 +509,44 @@ function _detail_view(id) {
 }
 
 function _data_row(i, id, item) {
- //console.log(item);
-  var name = item['driver_name'];
+  console.log(item);
+  var driver_id= item['driver_id'];
   var row = "<tr>"
    +"<td>"+i+"</td>"
-   +"<td><span class=link onclick=\"_edit('"+id+"')\">"+name+"</span></td>"
+   +"<td><span class=link onclick=\"_edit('"+driver_id+"')\">"+item['driver_name']+"</span></td>"
    +"<td>"+item['DsName']+"</td>"
    +"<td>"+item['car_no']+"</td>"
    +"<td><input type='button' value='운행기록' onclick=\"_run("+id+")\" class='btn btn-primary'></td>"
+   +"<td>"+item['stime']+"</td>"
+   +"<td>"+item['etime']+"</td>"
+   +"<td>"+item['loc1']+"</td>"
+   +"<td>"+item['loc2']+"</td>"
+   +"<td>"+item['person_name']+"</td>"
    +"</tr>";
   return row;
 }
 </script>
 EOS;
 
-  $qry = $sql_select.$sql_from.$sql_join;
+  $w = array('1');
+
+  $v = $form['driver_name'];
+  if ($v) $w[] = "(d.driver_name LIKE '%$v%' OR d.driver_cho LIKE '%$v%')";
+
+  $v = $form['person_name'];
+  if ($v) $w[] = "(p.person_name LIKE '%$v%' OR p.person_cho LIKE '%$v%')";
+
+  $ds = $form['ds'];
+  if ($ds != '' && $ds != 'all') $w[] = "d.driver_stat='$ds'";
+
+  $sql_where = sql_where_join($w, $d=0, 'AND');
+
+  $sql_select = $clsdriver->sql_select_run_1();
+  $sql_join   = $clsdriver->sql_join_4();
+
+  $qry = $sql_select.$sql_from.$sql_join.$sql_where
+    ." LIMIT $start,$ipp";
+
   $ret = db_query($qry);
 
   $buttons = join(' ', $btn);
@@ -673,6 +583,10 @@ EOS;
     $edit = _edit_link($row['driver_name'], $driver_id);
     $pos = sprintf("%s,%s", $row['lat'], $row['lng']);
 
+    $ds = $row['DsName'];
+    if ($clsdriver->is_driving_status($ds)) $ds = "<span class='ds_driving'>$ds</span>";
+    else $ds = "<span class='ds_not_driving'>$ds</span>";
+
     //$info[] = array($run_id, $row['lat'], $row['lng']);
 
     $btn = "<input type='button' value='운행기록' onclick=\"_run('$driver_id')\" class='btn btn-primary'>";
@@ -680,7 +594,7 @@ EOS;
 <tr>
 <td>{$driver_id}</td>
 <td>{$edit}</td>
-<td>{$row['DsName']}</td>
+<td>{$ds}</td>
 <td>{$row['car_no']}</td>
 <td>{$btn}</td>
 <td>{$row['stime']}</td>
@@ -702,7 +616,7 @@ EOS;
   $json = json_encode($info);
   print<<<EOS
 <script>
-function _run(id) { var url = "run.php?mode=sess&id="+id; urlGo(url); }
+function _run(id) { var url = "run.php?driver_id="+id; urlGo(url); }
 function _edit(id) { var url = "$env[self]?mode=edit&id="+id; urlGo(url); }
 
 // 주소를 업데이트하기.. 이렇게 하면 API 요청 횟수가 너무 많아질듯.

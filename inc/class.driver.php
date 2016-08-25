@@ -6,7 +6,6 @@ class driver {
   var $debug = false;
 
   function driver() {
-
   }
 
   // apikey 갱신
@@ -32,7 +31,6 @@ class driver {
       return false; // 실패
     }
   }
-
 
   function _get_driver($sql_where) {
     $qry = "SELECT d.*"
@@ -61,7 +59,6 @@ class driver {
     $row = $this->_get_driver($sql_where);
     return $row;
   }
-
 
   // 운전자 등록
   function register_driver($goyu, $tel, $sosok, $did, $push_key, $phone_os, &$phone_hash, &$name) {
@@ -116,17 +113,43 @@ class driver {
     return $a;
   }
 
+  function is_driving_status($st) {
+    if ($st == '운전중') return true;
+    return false;
+  }
+
+  function driver_summary() {
+    $qry = "SELECT COUNT(*) count, d.driver_stat, Ds.DsName"
+ ." FROM driver d"
+ ." LEFT JOIN Ds ON d.driver_stat=Ds.Ds"
+ ." GROUP BY d.driver_stat";
+    $ret = db_query($qry);
+
+    $info = array();
+    while ($row = db_fetch($ret)) {
+       $ds = $row['DsName'];
+       if (!$ds) $ds = 'Unknown';
+
+       $count = $row['count'];
+       $info[$ds] = $count;
+    }
+    return $info;
+  }
 
   // 운전자 상태 select 옵션
-  function driver_status_option($preset='') {
+  function driver_status_option($preset='', $show_code=false) {
     $opt = '';
+    $opt .= "<option value='all'>=전체=</option>";
+
     $list = $this->driver_all_status();
 
     $match = false;
     foreach ($list as $item) {
       list($ds, $dsname) = $item;
 
-      $title = "($ds) $dsname";
+      if ($show_code) $title = "($ds) $dsname";
+      else $title = "$dsname";
+
       if ($preset == $ds) {
         $sel = ' selected';
         $match = true;
@@ -139,85 +162,7 @@ class driver {
     return $opt;
   }
 
-/*
-  function status_is_driving($status) {
-    $is_driving = false;
-    if ($status == 'DS_AIRPORT') $is_driving = true;
-    if ($status == 'DS_TOVENUE') $is_driving = true;
-    if ($status == 'DS_TOHOTEL') $is_driving = true;
-    return $is_driving;
-  }
-
-// API call
-// 운전자 상태 변경 (사용금지)
-function set_driver_status($driver_id, $status) {
-  $s = array();
-
-  // 상태에 따라 운행 시작인지 아닌지 판단
-  $is_driving = $this->status_is_driving($status);
-  if ($is_driving) {
-    $s[] = "is_driving='1'"; 
-    $s[] = "sess_st=NOW()"; // 운행시작시간을 기록
-    $s[] = "sess_fg1=0";
-    //$s[] = "sess_lat=0";
-    //$s[] = "sess_lng=0";
-  } else {
-    $s[] = "is_driving='0'";
-  }
-
-  $s[] = "driver_stat='$status'";
-  $s[] = "udate=now()";
-  $sql_set = " SET ".join(",", $s);
-
-  $qry = "UPDATE driver $sql_set where id='$driver_id'";
-  $ret = db_query($qry);
-
-  // 로그에 저장
-  $this->accu_driver_log($driver_id, 0, $status, 0,0, $is_driving);
-
-  if (!$is_driving) { // 운행이 끝남, 세션 정보를 따로 보관시킴
-    $this->record_session($driver_id);
-  }
-
-}
-
-function record_session($driver_id) {
-  $row = $this->get_driver_by_id($driver_id);
-  $st = $row['start_time']; // 운행시작시간
-
-  $s = array();
-  $s[] = "start_time='$st'";
-  $s[] = "end_time=now()";
-  $s[] = "driver_id='$driver_id'";
-  $s[] = "idate=now()";
-  $s[] = "udate=now()";
-  $sql_set = " SET ".join(",", $s);
-
-  $qry = "INSERT INTO driving_session $sql_set";
-  $ret = db_query($qry);
-}
-*/
-
-/*
-// API call
-// 경로 설정
-// des_id : 목적지 장소 ID     des_name : 목적지 장소 기타
-// dep_id : 출발지 장소 ID     dep_name : 출발지 장소 기타
-function set_scheudle($driver_id, $dep_id, $des_id, $dep_name, $des_name) {
-
-  $s = array();
-  $s[] = "des_id='$des_id'";
-  $s[] = "dep_id='$dep_id'";
-  $s[] = "udate=now()";
-  $sql_set = " SET ".join(",", $s);
-  $qry = "UPDATE driver $sql_set WHERE id='$driver_id'"; 
-  $ret = db_query($qry);
-
-}
-
-// API call
-// 운전자 위치 설정
-// $objUser->set_driver_location($driver_id, $lat, $lng, $car_location_update=false);
+// 운전자 위치 설정 (디버깅용)
 function set_driver_location($driver_id, $lat, $lng) {
   $row = $this->get_driver_by_id($driver_id);
 
@@ -235,19 +180,15 @@ function set_driver_location($driver_id, $lat, $lng) {
   $s[] = "lat='$lat'";
   $s[] = "lng='$lng'";
   $s[] = "udate=now()";
-  if ($row['sess_fg1'] == 0) { // 출발 위치 설정이 안되었으면
-    $s[] = "sess_fg1='1'";
-    $s[] = "sess_lat='$lat'";
-    $s[] = "sess_lng='$lng'";
-  }
   $sql_set = " SET ".join(",", $s);
 
-  $qry = "UPDATE driver $sql_set where id='$driver_id'";
+  $qry = "UPDATE driver $sql_set WHERE id='$driver_id'";
   $ret = db_query($qry);
 
-  $this->accu_driver_log($driver_id, 0, '', $lat, $lng, $is_driving);
+  //$this->accu_driver_log($driver_id, 0, '', $lat, $lng, $is_driving);
 }
 
+/*
   // 운전자 로그
   function accu_driver_log($driver_id, $car_id=0, $status='', $lat=0, $lng=0, $is_driving=0) {
     $s = array();
@@ -415,11 +356,10 @@ function set_driver_location($driver_id, $lat, $lng) {
 
     $qry = "UPDATE driver SET person_id='$person_id' WHERE id='$driver_id'";
     $ret = db_query($qry);
- //dd($qry);
   }
 
   // $sql_select = $clsdriver->sql_select_run_1();
-  // $sql_join   = $clsdriver->sql_join_run_1($pj);
+  // $sql_join   = $clsdriver->sql_join_##($pj);
   //   $qry = $sql_select.$sql_from.$sql_join.$sql_where;
   function sql_select_run_1() {
     $sql_select = "SELECT d.driver_name, d.id driver_id"
@@ -435,25 +375,40 @@ function set_driver_location($driver_id, $lat, $lng) {
     ;
     return $sql_select;
   }
-  // driver와 run 테이블에 대한 join 은 pre_join에 넣을 것
-  function sql_join_run_1($pre_join='') {
+# function sql_select_run_2() {
+#   $sql_select = $this->sql_select_run_1();
+#   $sql_select .= ", (SELECT COUNT(*) FROM run WHERE run_id=r.id) num_points";
+#   return $sql_select;
+# }
+  function sql_join_common_1() {
     $sql_join = ''
-    .$pre_join
     ." LEFT JOIN carinfo c ON d.car_id=c.id"
     ." LEFT JOIN Ds ON d.driver_stat=Ds.Ds"
     ." LEFT JOIN location l1 ON r.depart_from=l1.id"
     ." LEFT JOIN location l2 ON r.going_to=l2.id"
-    ." LEFT JOIN person p ON r.person_id=p.id"
-     ;
+    ;
     return $sql_join;
   }
   function sql_join_2() {
-    $pj = " LEFT JOIN run r ON d.run_id=r.id";
-    return $this->sql_join_run_1($pj);
+    $sql_join = ''
+       ." LEFT JOIN run r ON d.run_id=r.id"
+       ." LEFT JOIN person p ON d.person_id=p.id"
+       .$this->sql_join_common_1();
+    return $sql_join;
   }
   function sql_join_3() {
-    $pj = " LEFT JOIN driver d ON r.driver_id=d.id";
-    return $this->sql_join_run_1($pj);
+    $sql_join = ''
+       ." LEFT JOIN driver d ON r.driver_id=d.id"
+       ." LEFT JOIN person p ON r.person_id=p.id"
+       .$this->sql_join_common_1();
+    return $sql_join;
+  }
+  function sql_join_4() {
+    $sql_join = ''
+       ." LEFT JOIN run r ON d.run_id=r.id"
+       ." LEFT JOIN person p ON d.person_id=p.id"
+       .$this->sql_join_common_1();
+    return $sql_join;
   }
 
 }; // class

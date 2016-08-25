@@ -268,3 +268,8 @@ a.cbtn:hover {border: 1px solid #091940; background-color:#1f326a; color:#fff;}
 div#logMessage {
   font-family: "맑은 고딕"; font-size:9pt;
 }
+
+span.ds_not_driving { background-color: green; color:white; padding:3 3 3 3px; }
+span.ds_driving { background-color: red; color:white; padding:3 3 3 3px; }
+
+

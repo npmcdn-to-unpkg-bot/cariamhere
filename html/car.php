@@ -5,11 +5,6 @@
 
   $source_title = '차량';
 
-  $env['menu']['1-1'] = true;
-
-  $pathh = $env['prefix']."/www/theme/theme1/head.php";
-  $pathf = $env['prefix']."/www/theme/theme1/foot.php";
-
 ### {{{
 function _data_tr($title, $html) {
   $str=<<<EOS
@@ -121,7 +116,7 @@ if ($mode == 'add' || $mode == 'edit') {
     $title = "차량입력";
   }
 
-  MainPageHead($source_title, $pathh);
+  MainPageHead($source_title);
   ParagraphTitle($source_title);
   ParagraphTitle($title, 1);
 
@@ -221,10 +216,11 @@ function sf_del() {
 </script>
 EOS;
 
-  MainPageTail($pathf);
+  MainPageTail();
   exit;
 }
 
+/*
 // 일괄입력
 if ($mode == 'add2') {
   MainPageHead($source_title);
@@ -341,20 +337,21 @@ if ($mode == 'add2do') {
 EOS;
   exit;
 }
+*/
 
 ### }}}
 
-  MainPageHead($source_title, $pathh);
+  MainPageHead($source_title);
   ParagraphTitle($source_title);
 
   $btn = array();
   $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
-  $btn[] = button_general('차량 일괄입력', 0, "_add2()", $style='', $class='btn btn-info');
+  $btn[] = button_general('운전자/차량 업로드', 0, "_add2()", $style='', $class='btn btn-info');
 
   print<<<EOS
 <script>
 function _add() { var url = "$env[self]?mode=add"; urlGo(url); }
-function _add2() { var url = "$env[self]?mode=add2"; urlGo(url); }
+function _add2() { var url = "upload.php"; urlGo(url); }
 </script>
 EOS;
 
@@ -406,7 +403,7 @@ function _edit(id) {
 </script>
 EOS;
 
-  MainPageTail($pathf);
+  MainPageTail();
   exit;
 
 ?>

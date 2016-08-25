@@ -63,28 +63,23 @@
             <ul class="sidebar-nav">
 EOS;
 
- print("<li class='sidebar-brand'><a href='/'>Home</a></li>");
+ print("<li class='sidebar-brand'><a href='/'>Home</a>");
+ //print("<a href='/index.php?mode=logout'>로그아웃</a>");
+ print("</li>");
 
  print("<li><a href='/car.php'>차량(car)</a></li>");
  print("<li><a href='/driver.php'>운전자(driver)</a></li>");
  print("<li><a href='/person.php'>의전대상자(person)</a></li>");
  print("<li><a href='/location.php'>장소(location)</a></li>");
  print("<li><a href='/notice.php'>공지(notice)</a></li>");
-
+ print("<li><a href='/run.php'>운행기록(run)</a></li>");
  print("<li><a href='/map.php'>실시간 차량위치</a></li>");
  print("<li><a href='/index.php?mode=logout'>로그아웃</a></li>");
  print("<li><a href='#'>-----------------</a></li>");
 
- print("<li><a href='/push_ui.php'>위치입력(개발자용)</a></li>");
- print("<li><a href='/dbdoc.php'>DB 테이블</a></li>");
  print("<li><a href='/apidoc.php'>API 설명서</a></li>");
+ print("<li><a href='/push_ui.php'>위치입력(개발자용)</a></li>");
  print("<li><a href='/app_version.php'>어플버전(app version)</a></li>");
-
- //print("<li><a href='http://apis.map.daum.net/web/' target='_blank'>Daum Map API</a></li>");
- //print("<li><a href='http://developers.google.com/maps/documentation/javascript/examples/?hl=ko' target='_blank'>Google Map API</a></li>");
- //print("<li><a href='http://getbootstrap.com/components/' target='_blank'>Bootstrap Docs</a></li>");
- //print("<li><a href='/mgruser.php'>사용자관리</a></li>");
- //print("<li><a href='/mobile/'>mobile</a></li>");
 
  print<<<EOS
 </ul>

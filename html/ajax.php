@@ -5,11 +5,11 @@
 
   include_once("$env[prefix]/inc/class.role.php");
   include_once("$env[prefix]/inc/class.person.php");
-  include_once("$env[prefix]/inc/class.user.php");
+  include_once("$env[prefix]/inc/class.driver.php");
   include_once("$env[prefix]/inc/class.carinfo.php");
 
   $objCar = new carinfo();
-  $objUser = new user();
+  $objDriver = new driver();
   $objPerson = new person();
 
   $debug = $form['debug'];
@@ -17,7 +17,7 @@
 
 
 // 차량 정보 얻기
-// http://carmaxscj.cafe24.com/ajax.php?mode=car_status&debug=1
+// ajax.php?mode=car_status&debug=1
 if ($mode == 'car_status') {
 
   $opt = array();
