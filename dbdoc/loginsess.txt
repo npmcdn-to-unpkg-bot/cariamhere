@@ -1,0 +1,17 @@
+
+
+drop table  loginsess;
+
+create table  loginsess (
+  id int auto_increment primary key,
+  sessrand    int,
+
+  last_alert_id  int comment '마지막 확인한 alert 메시지',
+
+  idate datetime
+);
+
+ desc loginsess;
+
+
+

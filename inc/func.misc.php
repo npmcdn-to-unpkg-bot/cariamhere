@@ -1345,4 +1345,26 @@ function eng2han ($str) {
 //테스트
 //echo eng2han('dkssudgktpdy?');
 
+function getHumanTime($s) {
+  //$unit = array('D'=>' days','H'=>' hours','M'=>' mins','S'=>' secs');
+  $unit = array('D'=>'일','H'=>'시간','M'=>'분','S'=>'초');
+
+  $m = $s / 60;
+  $h = $s / 3600;
+  $d = $s / 86400;
+  if ($m > 1) {
+    if ($h > 1) {
+      if ($d > 1) {
+        return (int)$d.$unit['D'];
+      } else {
+        return (int)$h.$unit['H'];
+      }
+    } else {
+      return (int)$m.$unit['M'];
+    }
+  } else {
+    return (int)$s.$unit['S'];
+  }
+}
+
 ?>

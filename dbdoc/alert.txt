@@ -1,0 +1,15 @@
+
+
+drop table  alert;
+
+create table  alert (
+  id int auto_increment primary key,
+  group1      char(10)  comment '분류',
+  message     char(100) comment '메시지 내용',
+  idate datetime
+);
+
+ desc alert ;
+
+
+

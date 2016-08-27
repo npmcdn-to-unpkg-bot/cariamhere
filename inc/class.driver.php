@@ -185,7 +185,6 @@ function set_driver_location($driver_id, $lat, $lng) {
   $qry = "UPDATE driver $sql_set WHERE id='$driver_id'";
   $ret = db_query($qry);
 
-  //$this->accu_driver_log($driver_id, 0, '', $lat, $lng, $is_driving);
 }
 
 /*
@@ -226,13 +225,13 @@ function set_driver_location($driver_id, $lat, $lng) {
   // $interval : 위치 전송 주기
   function start_driving($driver_row, $driver_id, $depart_from, $going_to, &$interval, &$run_id) {
 
-
     // run 정보를 새로 만든다
     $s = array();
     $s[] = "driver_id='$driver_id'";
     $s[] = "depart_from='$depart_from'";
     $s[] = "going_to='$going_to'";
     $s[] = "start_time=now()";
+    $s[] = "is_driving=1";
     $s[] = "idate=now()";
     $s[] = "udate=now()";
 
@@ -334,6 +333,7 @@ function set_driver_location($driver_id, $lat, $lng) {
     $s[] = "udate=NOW()";
     $s[] = "lat_e=lat"; // 최종 좌표
     $s[] = "lng_e=lng";
+    $s[] = "is_driving=0";
     $sql_set = " SET ".join(",", $s);
     $qry = "UPDATE run $sql_set"
       ." WHERE id='$run_id' AND driver_id='$driver_id'";
@@ -363,12 +363,14 @@ function set_driver_location($driver_id, $lat, $lng) {
   //   $qry = $sql_select.$sql_from.$sql_join.$sql_where;
   function sql_select_run_1() {
     $sql_select = "SELECT d.driver_name, d.id driver_id"
-    .", r.id run_id"
+    .", r.id run_id, r.is_driving run_driving"
     .", c.car_no"
     .", Ds.DsName"
     .", IF(d.rflag,'O','X') _rflag"
     .", l1.loc_title loc1"
     .", l2.loc_title loc2"
+    .", r.start_time "
+    .", r.end_time"
     .", TIME(r.start_time) stime"
     .", TIME(r.end_time) etime"
     .", p.id person_id, p.person_name, p.person_group"

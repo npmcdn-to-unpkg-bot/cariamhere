@@ -25,10 +25,17 @@ create table  run (
   idate datetime,
 
   person_id     int default 0 comment '의전대상자',
+  is_driving   tinyint default 0 comment '운행중인지 여부',
 
 );
 
  desc run ;
 
-alter table run add column person_id     int default 0 comment '의전대상자';
+alter table run add column
+ person_id     int default 0 comment '의전대상자';
+
+alter table run add column
+  is_driving   tinyint default 0 comment '운행중인지 여부';
+
+
 

@@ -13,7 +13,8 @@ create table  driver (
   did           char(200) not null default '' comment 'DID',
   phone_hash    char(100) not null default '' comment '폰번호해쉬',
   phone_os      char(10) not null default '' comment '폰OS종류',
-  role          char(10) not null default '' comment '역할',
+  role          char(10) not null default '' comment '역할 xxx',
+  driver_team   char(10) not null default '' comment '소속팀',
 
   apikey     char(50) default '' comment 'API 사용키',
   pushkey    char(100) default '' comment '푸쉬알람 키',
@@ -27,10 +28,14 @@ create table  driver (
   lng  double   comment '운전자 현재 위치',
   is_driving   tinyint default 0 comment '운행중인지 여부',
 
+  flagTerm  tinyint default 0 comment '서버에서 운행기록을 강제로 중지함',
+
   udate  datetime,
   idate datetime
 );
 
+  alter table driver add column
+  driver_team   char(10) not null default '' comment '소속팀' after role;
 
   alter table driver add column
   driver_cho    char(50) not null default '' comment '이름 초성' after driver_name;
@@ -39,7 +44,10 @@ create table  driver (
   alter table driver add column lng  double   comment '운전자 현재 위치' after lat;
 
 alter table driver add column
-  is_driving   tinyint default 0 comment '운행중인지 여부' after lng;
+  flagTerm  tinyint default 0 comment '서버에서 운행기록을 강제로 중지함';
+
+alter table driver add column
+  flagTerm  tinyint default 0 comment '서버에서 운행기록을 강제로 중지함',
 
 alter table driver add column
   run_id     int not null default 0 comment 'run.id'

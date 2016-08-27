@@ -252,11 +252,13 @@ EOS;
 </div>
 <table class='table table-striped'>
 EOS;
-  print table_head_general(array('ID','이름','상태','차량','운행기록' ,'출발시간','도착시간','출발지','목적지','VIP'));
+  print table_head_general(array('ID','이름','상태','차량','운행기록' ,'출발시간','도착시간',
+'소요시간',
+'출발지','목적지','VIP'));
   print("<tbody>");
 
-  $a = array();
-  $b = array();
+  //$a = array();
+  //$b = array();
   $cnt = 0;
   while ($row = db_fetch($ret)) {
     $cnt++;
@@ -265,12 +267,22 @@ EOS;
 
     $id = $row['run_id'];
 
-    $name = _edit_link($row['driver_name'], $id);
+    $driver_id = $row['driver_id'];
+    $name = _edit_link($row['driver_name'], $driver_id);
     $btn = button_general('지도', 0, "_map('$id')", $style='', $class='btn btn-primary');
 
-    $ds = $row['DsName'];
-    if ($clsdriver->is_driving_status($ds)) $ds = "<span class='ds_driving'>$ds</span>";
-    else $ds = "<span class='ds_not_driving'>$ds</span>";
+    $rdg = $row['run_driving'];
+    if ($rdg) {
+      $ds = "<span class='ds_driving'>기록중</span>";
+    } else {
+      $ds = "<span class='ds_not_driving'>종료</span>";
+    }
+
+    if ($row['start_time'] && $row['end_time']) {
+      $et = mktime_date_string($row['end_time']);
+      $st = mktime_date_string($row['start_time']);
+      $elap = getHumanTime($et-$st);
+    } else $elap = '';
 
     print<<<EOS
 <tr>
@@ -281,6 +293,7 @@ EOS;
 <td>{$btn}</td>
 <td>{$row['stime']}</td>
 <td>{$row['etime']}</td>
+<td>{$elap}</td>
 <td>{$row['loc1']}</td>
 <td>{$row['loc2']}</td>
 <td>{$row['person_name']}</td>
@@ -292,6 +305,7 @@ EOS;
   print("</div>");
   //dd($a);
 
+/*
   // 지도 표시를 위한 폼
   $positions = urlencode(json_encode($a));
   $idate = urlencode(json_encode($b));
@@ -302,13 +316,12 @@ EOS;
 <input type='hidden' name='mode' value="map">
 </form>
 EOS;
+*/
 
   print<<<EOS
 <script>
-function _map(id) {
-  var url = "$env[self]?mode=map&id="+id;
-  urlGo(url);
-}
+function _map(id) { var url = "$env[self]?mode=map&id="+id; urlGo(url); }
+function _edit(id) { var url = "driver.php?mode=edit&id="+id; urlGo(url); }
 </script>
 EOS;
 
