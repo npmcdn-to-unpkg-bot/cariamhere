@@ -8,10 +8,14 @@ create table  loginsess (
 
   last_alert_id  int comment '마지막 확인한 alert 메시지',
 
-  idate datetime
+  idate datetime,
+
+  ip  char(20) default ''
 );
 
  desc loginsess;
 
 
+ alter table loginsess add column
+  ip  char(20) default '';
 

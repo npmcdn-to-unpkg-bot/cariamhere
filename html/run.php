@@ -272,10 +272,12 @@ EOS;
     $btn = button_general('지도', 0, "_map('$id')", $style='', $class='btn btn-primary');
 
     $rdg = $row['run_driving'];
+    $ft = $row['flagTerm'];
     if ($rdg) {
       $ds = "<span class='ds_driving'>기록중</span>";
     } else {
-      $ds = "<span class='ds_not_driving'>종료</span>";
+      if ($ft) $str = '강제종료'; else $str = '종료';
+      $ds = "<span class='ds_not_driving'>$str</span>";
     }
 
     if ($row['start_time'] && $row['end_time']) {

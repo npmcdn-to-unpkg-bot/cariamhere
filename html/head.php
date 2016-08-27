@@ -69,7 +69,7 @@ EOS;
 
  print("<li><a href='/car.php'>차량(car)</a></li>");
  print("<li><a href='/driver.php'>운전자(driver)</a></li>");
- print("<li><a href='/person.php'>의전대상자(person)</a></li>");
+ print("<li><a href='/person.php'>의전인사(person)</a></li>");
  print("<li><a href='/location.php'>장소(location)</a></li>");
  print("<li><a href='/notice.php'>공지(notice)</a></li>");
  print("<li><a href='/run.php'>운행기록(run)</a></li>");
@@ -77,6 +77,7 @@ EOS;
  print("<li><a href='/index.php?mode=logout'>로그아웃</a></li>");
  print("<li><a href='#'>-----------------</a></li>");
 
+ print("<li><a href='/alert.php'>alert</a></li>");
  print("<li><a href='/apidoc.php'>API 설명서</a></li>");
  print("<li><a href='/push_ui.php'>위치입력(개발자용)</a></li>");
  print("<li><a href='/app_version.php'>어플버전(app version)</a></li>");

@@ -35,18 +35,26 @@ function _get($id) {
 function _sqlset(&$s) {
   global $form;
 
-  $s[] = "driver_no='{$form['driver_no']}'";
+  $driver_no = $form['driver_no'];
+  $s[] = "driver_no='{$driver_no}'";
+
+  $driver_tel = $form['driver_tel'];
+  $s[] = "driver_tel='{$driver_tel}'";
+
   $s[] = "driver_name='{$form['driver_name']}'";
+
+  $s[] = "driver_team='{$form['driver_team']}'";
 
   $driver_cho = cho_hangul($form['driver_name']);
   $s[] = "driver_cho='{$driver_cho}'";
 
-  $s[] = "driver_tel='{$form['driver_tel']}'";
   $s[] = "driver_stat='{$form['driver_stat']}'";
+
   $s[] = "person_id='{$form['person_id']}'";
 
   $s[] = "lat='{$form['lat']}'";
   $s[] = "lng='{$form['lng']}'";
+
   $s[] = "car_id='{$form['car_id']}'";
 //dd($s); exit;
 
@@ -184,11 +192,15 @@ EOS;
   $html=<<<EOS
 <select name='person_id'>$opt</select>
 EOS;
-  print _data_tr('의전대상자', $html);
+  print _data_tr('의전인사', $html);
 
   $opt = $clscar->car_select_option($row['car_id']);
   $html = "<select name='car_id'>$opt</select>";
   print _data_tr('차량', $html);
+
+  $opt = $clsdriver->select_team_option($row['driver_team']);
+  $html = "<select name='driver_team'>$opt</select>";
+  print _data_tr('소속팀', $html);
 
   $html = $row['phone_hash'];
   print _data_tr('phone_hash', $html);
@@ -405,14 +417,13 @@ EOS;
 
   $ds = $form['ds'];
   $opt = $clsdriver->driver_status_option($ds);
-  print<<<EOS
-상태:<select name='ds'>$opt</select>
-EOS;
+  print("상태:<select name='ds'>$opt</select>");
 
-  print<<<EOS
-</form>
-EOS;
+  $v = $form['team'];
+  $opt = $clsdriver->select_team_option($v);
+  print("팀:<select name='team'>$opt</select>");
 
+  print("</form>");
 
   print<<<EOS
 <script>
@@ -536,6 +547,9 @@ EOS;
   $v = $form['person_name'];
   if ($v) $w[] = "(p.person_name LIKE '%$v%' OR p.person_cho LIKE '%$v%')";
 
+  $v = $form['team'];
+  if ($v && $v != 'all') $w[] = "d.driver_team='$v'";
+
   $ds = $form['ds'];
   if ($ds != '' && $ds != 'all') $w[] = "d.driver_stat='$ds'";
 
@@ -559,8 +573,9 @@ EOS;
   print("<table class='table table-striped dataC' id='resultTable'>");
 
   $head = array();
-  $head[] = 'ID';
+  $head[] = '번호';
   $head[] = '이름';
+  $head[] = '팀';
   $head[] = '상태';
   $head[] = '차량';
   $head[] = '운행기록';
@@ -568,7 +583,7 @@ EOS;
   $head[] = '도착시간';
   $head[] = '출발지';
   $head[] = '목적지';
-  $head[] = '의전대상자';
+  $head[] = '의전인사';
   print table_head_general($head);
   print("<tbody>");
 
@@ -594,6 +609,7 @@ EOS;
 <tr>
 <td>{$driver_id}</td>
 <td>{$edit}</td>
+<td>{$row['driver_team']}</td>
 <td>{$ds}</td>
 <td>{$row['car_no']}</td>
 <td>{$btn}</td>

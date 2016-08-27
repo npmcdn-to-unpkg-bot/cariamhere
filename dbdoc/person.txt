@@ -3,15 +3,56 @@ drop table  person;
 
 create table  person (
   id int auto_increment primary key,
-  person_name   char(50) not null default '' comment '의전대상자 이름',
-  person_cho    char(50) not null default '' comment '의전대상자 이름 초성분리',
-  person_group   char(10) not null default '' comment '의전대상자 그룹',
+
+  per_no        int      comment '인사 번호',
+  person_name   char(50) not null default '' comment '인사 이름',
+  person_cho    char(50) not null default '' comment '인사 이름 초성분리',
+
+  person_group   char(10) not null default '' comment '인사 그룹',
+
+  person_position   char(20) not null default '' comment '대표직책(한글)',
+  person_hotel      char(10) not null default '' comment '호텔',
+
   person_fflag   tinyint default 0 comment '깃발부착대상자여부',
+
   person_nation  int     default 0 comment '국가',
   memo    text  comment '메모',
   udate  datetime,
-  idate datetime
+  idate datetime,
+  per1   char(10) comment '인사번호',
+  per2   char(30) comment '공식한글이름',
+  per3   char(10) comment '인사계층(그룹)',
+  per4   char(10) comment '대표직책(한)',
+  per5   char(10) comment '호텔명',
+  per6   char(10) comment '국적',
 );
+
+
+person_no=per1
+person_name=per2
+person_group=per3
+person_position=per4
+person_hotel=per5
+
+alter table person add column per1   char(10) comment '인사번호';
+alter table person add column per2   char(30) comment '공식한글이름';
+alter table person add column per3   char(10) comment '인사계층(그룹)';
+alter table person add column per4   char(10) comment '대표직책(한)';
+alter table person add column per5   char(10) comment '호텔명';
+alter table person add column per6   char(10) comment '국적';
+
+
+alter table person add column
+  per_no        char(4) not null default '' comment '인사' after id;
+
+
+alter table person add column
+  person_position   char(20) not null default '' comment '대표직책(한글)'
+  after person_group;
+
+alter table person add column
+  person_hotel      char(10) not null default '' comment '호텔'
+  after person_position;
 
 alter table person add column
   person_cho    char(50) not null default '' comment '의전대상자 이름 초성분리'
@@ -29,18 +70,26 @@ alter table person add column per4 char(30) comment '국가';
 
 person_name=per1, person_group=per2, person_fflag=per3,
 
-
-
-MariaDB [carmaxscj]> desc Nat;
-+--------+-------------+------+-----+---------+-------+
-| Field  | Type        | Null | Key | Default | Extra |
-+--------+-------------+------+-----+---------+-------+
-| nname  | char(40)    | YES  |     | NULL    |       |
-| nnum   | smallint(4) | NO   | PRI | 0       |       |
-| ncode3 | char(3)     | YES  |     | NULL    |       |
-| ncode2 | char(2)     | YES  |     | NULL    |       |
-| inuse  | tinyint(1)  | YES  |     | 1       |       |
-+--------+-------------+------+-----+---------+-------+
-5 rows in set (0.00 sec)
-
+mysql> desc person;
++-----------------+------------+------+-----+---------+----------------+
+| Field           | Type       | Null | Key | Default | Extra          |
++-----------------+------------+------+-----+---------+----------------+
+| id              | int(11)    | NO   | PRI | NULL    | auto_increment |
+| per_no          | char(4)    | NO   |     |         |                |
+| person_name     | char(50)   | NO   |     |         |                |
+| person_cho      | char(50)   | NO   |     |         |                |
+| person_group    | char(10)   | NO   |     |         |                |
+| person_position | char(20)   | NO   |     |         |                |
+| person_hotel    | char(10)   | NO   |     |         |                |
+| person_fflag    | tinyint(4) | YES  |     | 0       |                |
+| person_nation   | int(11)    | YES  |     | 0       |                |
+| memo            | text       | YES  |     | NULL    |                |
+| udate           | datetime   | YES  |     | NULL    |                |
+| idate           | datetime   | YES  |     | NULL    |                |
+| per1            | char(50)   | YES  |     | NULL    |                |
+| per2            | char(10)   | YES  |     | NULL    |                |
+| per3            | char(2)    | YES  |     | NULL    |                |
+| per4            | char(30)   | YES  |     | NULL    |                |
++-----------------+------------+------+-----+---------+----------------+
+16 rows in set (0.00 sec)
 

@@ -1,0 +1,15 @@
+
+
+mysql> desc Nat;
++--------+-------------+------+-----+---------+-------+
+| Field  | Type        | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| nname  | char(40)    | YES  |     | NULL    |       |
+| nnum   | smallint(4) | NO   | PRI | 0       |       |
+| ncode3 | char(3)     | YES  |     | NULL    |       |
+| ncode2 | char(2)     | YES  |     | NULL    |       |
+| inuse  | tinyint(1)  | YES  |     | 1       |       |
++--------+-------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+

@@ -61,17 +61,21 @@ function select_option_person($preset='') {
 
   $flag = false;
   foreach ($list as $item) {
-    $person = $item['person_id'];
-    $name = $item['name'];
-    $group = $item['group'];
+    $id = $item['id'];
+    $name = $item['person_name'];
+    $group = $item['person_group'];
+    $post = $item['person_position'];
 
-    $tit = "$name ($group)";
+    $v = $item['per_no'];
+    $_no = sprintf("%04d", $item['per_no']);
 
-    if ($preset == $person) {
+    $tit = "[$_no] $name (그룹:$group)";
+
+    if ($preset == $v) {
       $sel = ' selected';
       $flag = true;
     } else $sel = '';
-    $opt .= "<option value='$person'$sel>$tit</option>";
+    $opt .= "<option value='$v'$sel>$tit</option>";
   }
   if (!$flag) {
     $opt .= "<option value='$preset' selected>$preset</option>";
@@ -85,13 +89,14 @@ function list_person() {
   $ret = db_query($qry);
   $info = array();
   while ($row = db_fetch($ret)) {
-    $info[] = array(
-      'person_id'=>$row['id'],
-      'name'=>$row['person_name'],
-      'group'=>$row['person_group'],
-      'flag'=>$row['person_fflag'],
-      'nation'=>$row['person_nation'],
-    );
+    $info[] = $row;
+#     array(
+#     'person_id'=>$row['id'],
+#     'name'=>$row['person_name'],
+#     'group'=>$row['person_group'],
+#     'flag'=>$row['person_fflag'],
+#     'nation'=>$row['person_nation'],
+#   );
   }
   return $info;
 }

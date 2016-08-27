@@ -486,15 +486,15 @@ if ($action == 'set_person') {
 }
 
 // 비상상황
-if ($action == 'do_emergency') {
+if ($action == 'list_emergency') {
   $appkey = _check_appkey();
   $driver_row = _get_driver($appkey);
   $driver_id = $driver_row['id'];
 
   $info = array(
-    'EMER_1' => '차량고장',
-    'EMER_2' => '접촉사고',
-    'EMER_3' => '기타사항',
+    'EMER1' => '차량고장',
+    'EMER2' => '접촉사고',
+    'EMER3' => '기타사항',
   );
 
   $resp = array(
@@ -504,6 +504,22 @@ if ($action == 'do_emergency') {
   ok_response($resp);
   exit;
 }
+
+// 비상상황
+if ($action == 'do_emergency') {
+  $appkey = _check_appkey();
+  $driver_row = _get_driver($appkey);
+  $driver_id = $driver_row['id'];
+  $code = $data['code'];
+
+  $resp = array(
+    'message'=> "$code 비상상황 접수 완료. 긴급 전화 010-1234-1234",
+    'e_phone'=> '01012341234',
+  );
+  ok_response($resp);
+  exit;
+}
+
 
 
 

@@ -471,8 +471,8 @@ EOS;
   $comment = " ";
   $html .= _panel($title, $content, $comment);
 
-  $title = "비상상황(do_emergency) (---- 작업중)";
-  $action = 'do_emergency';
+  $title = "비상상황(list_emergency)";
+  $action = 'list_emergency';
   $info = array( 'appkey'=>'',
   );
   $rinfo = array('result'=>'성공여부',
@@ -480,6 +480,19 @@ EOS;
   $content = _content($action, $info, $rinfo);
   $comment = " ";
   $html .= _panel($title, $content, $comment);
+
+  $title = "비상상황(do_emergency)";
+  $action = 'do_emergency';
+  $info = array( 'appkey'=>'',
+     'code'=>'비상 상황코드(EMER1, EMER2)',
+  );
+  $rinfo = array('result'=>'성공여부',
+     'message'=>'처리 메시지',
+  );
+  $content = _content($action, $info, $rinfo);
+  $comment = " ";
+  $html .= _panel($title, $content, $comment);
+
 
 
   // 목차

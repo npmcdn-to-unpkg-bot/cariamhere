@@ -21,7 +21,6 @@ function notifyMe(title, text, url) {
     notification.onclick = function () {
       if (url) window.open(url);      
     };
-    
   }
 
 }

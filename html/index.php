@@ -29,9 +29,24 @@ if ($mode == 'login_check') {
 
   }
 
+function _create_login_session($sessrand) {
+  $ip = $_SERVER['REMOTE_ADDR'];
+  $qry = "INSERT INTO loginsess"
+    ." SET sessrand='$sessrand'"
+    .", ip='$ip'"
+    .", last_alert_id=0"
+    .", idate=NOW()";
+  $ret = db_query($qry);
+}
+
   $debug = false;
 
+  $sessrand = rand();
+  $_SESSION['sessrand'] = $sessrand;
+
   // 세션 설정
+  _create_login_session($sessrand);
+
   $_SESSION['logined'] = true;
   $_SESSION['username'] = $f_username;
 

@@ -1,17 +1,21 @@
 <?php
 
-// 의전대상자
+// 인사
 
   include_once("./path.php");
   include_once("$env[prefix]/inc/common.php");
   include_once("$env[prefix]/inc/class.person.php");
 
-  $source_title = '의전대상자';
+  $source_title = '인사정보';
+
+  $debug = true;
+  $debug = false;
 
   $clsperson = new person();
 
   $sql_select = "SELECT p.*, Nat.*"
-    .", IF(p.person_fflag, 'O', 'X') _fflag";
+    //.", IF(p.person_fflag, 'O', 'X') _fflag"
+    ;
   $sql_from = " FROM person p";
   $sql_join = " LEFT JOIN Nat ON p.person_nation=Nat.nnum";
 
@@ -114,11 +118,11 @@ if ($mode == 'add' || $mode == 'edit') {
     $id = $form['id'];
     $row = _get($id);
     $nextmode = 'doedit';
-    $title = "의전대상자 수정";
+    $title = "인사정보 수정";
   } else {
     $row = array();
     $nextmode = 'doadd';
-    $title = "의전대상자 입력";
+    $title = "인사정보 입력";
   }
 
   MainPageHead($source_title);
@@ -243,19 +247,18 @@ if ($mode == 'searchq') {
 // 일괄입력
 if ($mode == 'add2') {
   MainPageHead($source_title);
-  ParagraphTitle('의전대상자 일괄입력');
+  ParagraphTitle('인사정보 일괄입력');
+
   print<<<EOS
 <form name='form' action='$env[self]' method='post'>
 
-<a href='person_form.xlsx'>양식엑셀파일 다운받기</a>
-
-<p> 아래 내용을 지우고 엑셀양식 파일의 내용을 복사해서 붙이세요.
+<p> 형식 : 인사번호,공식한글이름,행사계층,대표직책(한),호텔명,국적
 
 <input type='hidden' name='mode' value='add2b'>
 EOS;
   $content = $form['content'];
   if (!$content) $content =<<<EOS
-이름	그룹	깃발부착대상여부	국가
+인사번호	공식한글이름	행사계층	대표직책(한)	호텔명	국적
 EOS;
 
   print<<<EOS
@@ -278,10 +281,12 @@ EOS;
   print<<<EOS
 <table class='table table-striped'>
 <tr>
-<th>이름</th>
-<th>그룹</th>
-<th>깃발부착대상</th>
-<th>국가</th>
+<th>인사번호</th>
+<th>공식한글이름</th>
+<th>행사계층</th>
+<th>대표직책(한)</th>
+<th>호텔명</th>
+<th>국적</th>
 </tr>
 EOS;
 
@@ -296,6 +301,8 @@ EOS;
 <td>{$cols[1]}</td>
 <td>{$cols[2]}</td>
 <td>{$cols[3]}</td>
+<td>{$cols[4]}</td>
+<td>{$cols[5]}</td>
 </tr>
 EOS;
   }
@@ -303,11 +310,15 @@ EOS;
 </table>
 EOS;
 
-
   MainPageTail();
   exit;
 }
+
 if ($mode == 'add2do') {
+
+  // 업로드전 모두 삭제
+  $qry = "DELETE FROM person";
+  $ret = db_query($qry);
 
   $content = $form['content'];
   $rows = preg_split("/\n/", $content);
@@ -317,27 +328,33 @@ if ($mode == 'add2do') {
     if (!$line) continue;
     $cols = _person_split($line);
 
+
     $s = array();
-    $s[] = "per1='{$cols[0]}'";
-    $s[] = "person_name='{$cols[0]}'";
+    $s[] = "per1='{$cols[0]}'"; // 번호
+    $s[] = "per2='{$cols[1]}'"; // 이름
+    $s[] = "per3='{$cols[2]}'";
+    $s[] = "per4='{$cols[3]}'";
+    $s[] = "per5='{$cols[4]}'";
+    $s[] = "per6='{$cols[5]}'";
 
-    $s[] = "per2='{$cols[1]}'";
-    $s[] = "person_group='{$cols[1]}'";
-
-    $fflag = $cols[2];
-    if ($fflag == '1') $s[] = "per3='1'"; else $s[] = "per3='0'";
-
-    $nation = $cols[3];
+    $nation = $cols[5];
     $nation_code = $personObj->get_nation_code($nation);
-    $s[] = "per4='{$nation_code}'"; // 국가
+    $s[] = "person_nation='{$nation_code}'"; // 국가
+
+    $person_cho = cho_hangul($cols[1]);
+    $s[] = "person_cho='{$person_cho}'"; // 초성
 
     $sql_set = " SET ".join(",", $s);
     $qry = "INSERT INTO person $sql_set";
-    $ret = db_query($qry);
+    if ($debug) dd($qry);
+    else $ret = db_query($qry);
   }
 
-  //$qry = "update person $sql_set where person_name=''";
-  //$ret = db_query($qry);
+  $qry = "UPDATE person"
+     ." SET per_no=per1, person_name=per2, person_group=per3, person_position=per4, person_hotel=per5"
+     ." WHERE person_name=''";
+  $ret = db_query($qry);
+
   print<<<EOS
 <a href='$env[self]'>업로드 완료. 돌아가기</a>
 EOS;
@@ -458,7 +475,7 @@ $buttons
 
 <table class='table table-striped dataC' id='resultTable'>
 EOS;
-  print table_head_general(array('ID','이름','그룹','국가','깃발'));
+  print table_head_general(array('인사번호','이름','그룹','직책','국가','호텔'));
   print("<tbody>");
 
   $cnt = 0;
@@ -472,11 +489,12 @@ EOS;
 
     print<<<EOS
 <tr>
-<td>{$id}</td>
+<td>{$row['per_no']}</td>
 <td>{$edit}</td>
 <td>{$row['person_group']}</td>
+<td>{$row['person_position']}</td>
 <td>{$row['nname']}</td>
-<td>{$row['_fflag']}</td>
+<td>{$row['person_hotel']}</td>
 </tr>
 EOS;
   }

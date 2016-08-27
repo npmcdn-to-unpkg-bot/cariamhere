@@ -5,8 +5,8 @@
 
   $source_title = '운전자/차량 정보 업로드';
 
-  $debug = 1;
   $debug = 0;
+  $debug = 1;
 
 ### {{{
 
@@ -23,6 +23,16 @@ function _split_cols(&$cols, &$line) {
 ### {{{
 // 저장하기
 if ($mode == 'add2do') {
+
+  // 업로드 직전 데이터는 삭제 id 20 이전은 개발자용
+  $qry = "DELETE FROM driver where id > 20";
+  if ($debug) dd($qry);
+  $ret = db_query($qry);
+
+  // 차량정보 삭제
+  $qry = "DELETE FROM carinfo";
+  if ($debug) dd($qry);
+  $ret = db_query($qry);
 
   $content = $form['content'];
   _split_list($rows, $content);
@@ -48,27 +58,47 @@ if ($mode == 'add2do') {
     $sql_set = " SET ".join(",", $s);
     $qry = "INSERT INTO carinfo $sql_set";
     if ($debug) dd($qry);
-    else $ret = db_query($qry);
+    $ret = db_query($qry);
+
+    $qry = "SELECT LAST_INSERT_ID() as id";
+    if ($debug) dd($qry);
+    $row = db_fetchone($qry);
+    $car_id = $row['id'];
 
     $s[] = "drv1='{$cols[10]}'";
     $s[] = "drv2='{$cols[11]}'";
     $s[] = "drv3='{$cols[12]}'";
     $s[] = "drv4='{$cols[13]}'";
-    $s[] = "drv5='{$cols[14]}'";
+
+    $tel = $cols[14];
+    if (strlen($tel) == 9) $tel = "010-$tel";
+    $s[] = "drv5='{$tel}'";
+
     $s[] = "drv6='{$cols[15]}'";
+    $driver_id = $cols[16];
+    $s[] = "id='{$driver_id}'";
     $sql_set = " SET ".join(",", $s);
     $qry = "INSERT INTO driver $sql_set";
     if ($debug) dd($qry);
-    else $ret = db_query($qry);
+    $ret = db_query($qry);
+
+    $qry = "update driver set car_id='$car_id' where id='$driver_id'";
+    if ($debug) dd($qry);
+    $ret = db_query($qry);
+
+    $qry = "update carinfo set driver_id='$driver_id' where id='$car_id'";
+    if ($debug) dd($qry);
+    $ret = db_query($qry);
   }
 
   $qry = "UPDATE driver SET driver_name=drv3,driver_tel=drv5,driver_no=drv6 WHERE driver_name=''";
   if ($debug) dd($qry);
-  else $ret = db_query($qry);
+  $ret = db_query($qry);
+
 
   $qry = "UPDATE carinfo SET car_no=own6, car_model=own5, car_color=own8 WHERE car_no=''";
   if ($debug) dd($qry);
-  else $ret = db_query($qry);
+  $ret = db_query($qry);
 
   print<<<EOS
 <a href='/home.php'>업로드 완료. 돌아가기</a>
@@ -84,8 +114,6 @@ EOS;
   print<<<EOS
 <form name='form' action='$env[self]' method='post'>
 
-<a href='car_form.xlsx'>양식엑셀파일 다운받기</a>
-
 <p> 아래 내용을 지우고 엑셀양식 파일의 내용을 복사해서 붙이세요.
 
 <input type='hidden' name='mode' value='add2b'>
@@ -95,12 +123,7 @@ EOS;
   // 운전자 정보 (지파명~고유번호)
   $content = $form['content'];
   if (!$content) $content =<<<EOS
-지파명	교회명	실소유자명	연락처	모델명	차량번호	차종	색상	배기량	연식	지파	교회	이름	연령	연락처	고유번호
-요한	과천	임O환	2614-1440	BMW330d	31서9814	S	검정	3000	2010	요한	과천	임세환	37	2614-1440	00010101-00001
-요한	과천	양O환	5272-6550	토요타 켐리	26구0837	S	은색	2500	2016	요한	과천	양명환	54	5272-6550	00010101-00002
-요한	과천	이O완	2343-1440	BMW730D	67두3733	S	회색	3500	2014	요한	과천	김용곤	34	9429-5962	00010101-00003
-요한	과천	김O수	7135-7532	BMW735i	47오7982	S	흰색	3500	2004	요한	과천	이성구	52	8419-4567	00010101-00004
-요한	과천	박O홍	8351-1331	BMW X5	14수1418	S	은색	3000	2004	요한	과천	최창렬	53	9563-0787	00010101-00005
+지파명	교회명	실소유자명	연락처	모델명	차량번호	차종	색상	배기량	연식	지파	교회	이름	연령	연락처	고유번호	번호
 EOS;
 
  print<<<EOS
@@ -125,7 +148,7 @@ EOS;
 <table class='table table-striped'>
 <tr>
 <th colspan='10'>차량정보</th>
-<th colspan='6'>운전자정보</th>
+<th colspan='7'>운전자정보</th>
 </tr>
 
 <tr>
@@ -145,6 +168,7 @@ EOS;
 <th>연력</th>
 <th>연락처</th>
 <th>고유번호</th>
+<th>번호</th>
 </tr>
 EOS;
 
@@ -157,7 +181,7 @@ EOS;
 
     $cnt++;
     print("<tr>");
-    for ($i = 0; $i < 16; $i++) {
+    for ($i = 0; $i < 17; $i++) {
       print("<td>{$cols[$i]}</td>");
     }
     print("</tr>");

@@ -1367,4 +1367,38 @@ function getHumanTime($s) {
   }
 }
 
+// 알람 메시지 띄우기
+// 최대 $limit 개수만
+function get_alert_messages($limit=10) {
+  $sessrand = $_SESSION['sessrand'];
+  //dd($sessrand);
+  $qry = "select * from loginsess where sessrand='$sessrand'";
+  $row = db_fetchone($qry);
+  $laid = $row['last_alert_id'];
+
+  $info = array();
+  if (!$laid) {
+
+    $qry = "select max(id) max from alert";
+    $row = db_fetchone($qry);
+    $max = $row['max'];
+    $qry = "update loginsess set last_alert_id='$max' where sessrand='$sessrand'";
+    $ret = db_query($qry);
+
+  } else {
+    $qry = "select * from alert WHERE id > '$laid' order by idate DESC LIMIT 0,$limit";
+    $ret = db_query($qry);
+    $max = 0;
+    while ($row = db_fetch($ret)) {
+      if ($max < $row['id']) $max = $row['id'];
+      $info[] = $row;
+    }
+    $qry = "update loginsess set last_alert_id='$max' where sessrand='$sessrand'";
+    $ret = db_query($qry);
+
+  }
+  return $info;
+
+}
+
 ?>

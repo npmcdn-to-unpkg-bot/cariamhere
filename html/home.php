@@ -8,7 +8,7 @@
 
  print("<li><a href='/car.php'>차량(car)</a></li>");
  print("<li><a href='/driver.php'>운전자(driver)</a></li>");
- print("<li><a href='/person.php'>의전대상자(person)</a></li>");
+ print("<li><a href='/person.php'>의전인사(person)</a></li>");
  print("<li><a href='/location.php'>장소(location)</a></li>");
  print("<li><a href='/map.php'>실시간 차량위치</a></li>");
 
@@ -22,8 +22,37 @@
  print("<li><a href='http://getbootstrap.com/components/' target='_blank'>Bootstrap Docs</a></li>");
  print("<li><a href='http://www.airportal.go.kr/life/airinfo/RbHanFrmMain.jsp' target='_blank'>항공기 출/도착현황</a></li>");
  
+  $now = get_now();
   print<<<EOS
-<input type='button' onclick="notifyMe('알람 테스트','테스트입니다.','http://m.daum.net')" value='알람'>
+<input type='button' onclick="notifyMe('알람 테스트','테스트입니다.','http://m.daum.net')" value='알람 테스트'>
+현재시간: $now
+EOS;
+
+  // 알람 메시지를 얻어오기
+  $info = get_alert_messages($limit=3);
+  //dd($info);
+
+  $script = "";
+  $count = 0;
+  foreach ($info as $item) {
+    $count++;
+    $msg = $item['message'];
+    $idate = $item['idate'];
+    // notifyMe('알람 테스트','테스트입니다.','http://m.daum.net');
+    $script .=<<<EOS
+notifyMe('알람 테스트','[$idate] $msg','');
+EOS;
+  }
+  print("새로운 알람: $count 개 ");
+
+  print<<<EOS
+<script>
+$(function() {
+  $script
+});
+
+setTimeout("location.reload();",10000);
+</script>
 EOS;
 
   MainPageTail();

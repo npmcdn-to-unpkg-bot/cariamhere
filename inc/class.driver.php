@@ -136,6 +136,22 @@ class driver {
     return $info;
   }
 
+  function driver_all_teams() {
+    return array('A팀', 'B팀', 'C팀');
+  }
+  function select_team_option($preset='') {
+    $opt = '';
+    $opt .= "<option value='all'>=선택=</option>";
+    $list = $this->driver_all_teams();
+    foreach ($list as $team) {
+      $v = $team;
+      $t = $team;
+      if ($preset == $v) $sel = ' selected'; else $sel = '';
+      $opt .= "<option value='$v'$sel>$t</option>";
+    }
+    return $opt;
+  }
+
   // 운전자 상태 select 옵션
   function driver_status_option($preset='', $show_code=false) {
     $opt = '';
@@ -242,9 +258,14 @@ function set_driver_location($driver_id, $lat, $lng) {
     $qry = "INSERT INTO run $sql_set";
     $ret = db_query($qry);
 
+    //  추가된 run_id 값
     $qry = "SELECT LAST_INSERT_ID() as id";
     $row = db_fetchone($qry);
     $run_id = $row['id'];
+
+    // 해당 운전자의 다른 모든 run 기록은 is_driving=0으로 설정
+    $qry = "UPDATE run SET is_driving=0, flagTerm=1 WHERE driver_id='$driver_id' AND id != '$run_id'";
+    $ret = db_query($qry);
 
     global $conf;
     $interval = $conf['interval_driving'];
@@ -362,7 +383,7 @@ function set_driver_location($driver_id, $lat, $lng) {
   // $sql_join   = $clsdriver->sql_join_##($pj);
   //   $qry = $sql_select.$sql_from.$sql_join.$sql_where;
   function sql_select_run_1() {
-    $sql_select = "SELECT d.driver_name, d.id driver_id"
+    $sql_select = "SELECT d.driver_name, d.id driver_id, d.driver_team"
     .", r.id run_id, r.is_driving run_driving"
     .", c.car_no"
     .", Ds.DsName"
@@ -394,21 +415,21 @@ function set_driver_location($driver_id, $lat, $lng) {
   function sql_join_2() {
     $sql_join = ''
        ." LEFT JOIN run r ON d.run_id=r.id"
-       ." LEFT JOIN person p ON d.person_id=p.id"
+       ." LEFT JOIN person p ON d.person_id=p.per_no"
        .$this->sql_join_common_1();
     return $sql_join;
   }
   function sql_join_3() {
     $sql_join = ''
        ." LEFT JOIN driver d ON r.driver_id=d.id"
-       ." LEFT JOIN person p ON r.person_id=p.id"
+       ." LEFT JOIN person p ON r.person_id=p.per_no"
        .$this->sql_join_common_1();
     return $sql_join;
   }
   function sql_join_4() {
     $sql_join = ''
        ." LEFT JOIN run r ON d.run_id=r.id"
-       ." LEFT JOIN person p ON d.person_id=p.id"
+       ." LEFT JOIN person p ON d.person_id=p.per_no"
        .$this->sql_join_common_1();
     return $sql_join;
   }
