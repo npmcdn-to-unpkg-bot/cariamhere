@@ -1,11 +1,12 @@
 <?php
 
+// 장소
+
   include_once("./path.php");
   include_once("$env[prefix]/inc/common.php");
   include_once("$env[prefix]/inc/class.location.php");
 
   $source_title = '장소';
-  $env['menu']['1-4'] = true;
 
   $clslocation = new location();
 

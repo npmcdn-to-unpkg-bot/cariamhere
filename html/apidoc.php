@@ -217,7 +217,7 @@ EOS;
   $html = '';
 
 
-  $title = "운전자 등록(register)";
+  $title = "[전체] 운전자 등록(register)";
   $info = array(
  'goyu'=>'고유번호',
  'tel'=>'휴대폰 번호',
@@ -241,7 +241,7 @@ EOS;
   $html .= _panel($title, $content, $comment);
 
 
-  $title = "AppKey 받아오기(get_appkey)";
+  $title = "[전체] AppKey 받아오기(get_appkey)";
   $info = array(
  'did'=>'DID',
  'phone_hash'=>'phone_hash 값');
@@ -255,7 +255,7 @@ EOS;
   $html .= _panel($title, $content, $comment);
 
 
-  $title = "버전정보(latest_version)";
+  $title = "[전체] 버전정보(latest_version)";
   $info = array( 'appkey'=>'',);
   $rinfo = array('result'=>'성공여부', 'version'=>'버전정보',
     'notice_url'=>'공지사항주소',
@@ -267,18 +267,7 @@ EOS;
   $html .= _panel($title, $content, $comment);
 
 
-  $title = "사용자 정보 (get_driver_info) (------------ 사용금지)";
-  $action = 'get_driver_info';
-  $info = array( 'appkey'=>'',);
-  $rinfo = array('result'=>'성공여부', 'driver_id'=>'운전자 ID값', 'role'=>'사용자 역할');
-  $content = _content($action, $info, $rinfo);
-  $comment = <<<EOS
-- 사용자 정보(ID, 역할)를 조회함
-EOS;
-  $html .= _panel($title, $content, $comment);
-
-
-  $title = "차량정보 리스트(list_car)";
+  $title = "[리스트] 차량정보 리스트(list_car)";
   $action = 'list_car';
   $info = array( 'appkey'=>'',);
   $rinfo = array('result'=>'성공여부', 'list'=>'차량 정보 리스트');
@@ -290,7 +279,7 @@ EOS;
   $html .= _panel($title, $content, $comment);
 
 
-  $title = "장소정보 리스트(list_location)";
+  $title = "[리스트] 장소정보 리스트(list_location)";
   $action = 'list_location';
   $info = array( 'appkey'=>'',
     'group'=>'(선택) 장소구분(행사장,공항,숙소,기타)',
@@ -305,7 +294,7 @@ EOS;
   $html .= _panel($title, $content, $comment);
 
 
-  $title = "의전대상자 리스트(list_person)";
+  $title = "[리스트] 의전인사 리스트(list_person)";
   $action = 'list_person';
   $info = array( 'appkey'=>'');
   $rinfo = array('result'=>'성공여부', 'list'=>'의전대상자 리스트');
@@ -317,7 +306,7 @@ EOS;
   $html .= _panel($title, $content, $comment);
 
 
-  $title = "공지사항 가져오기(list_notice)";
+  $title = "[리스트] 공지사항 가져오기(list_notice)";
   $action = 'list_notice';
   $info = array( 'appkey'=>'');
   $rinfo = array('result'=>'성공여부', 'list'=>'공지사항 리스트');
@@ -328,31 +317,7 @@ EOS;
   $html .= _panel($title, $content, $comment);
 
 
-/*
-  $title = "운전할 차량을 선택(bind_driver_car)";
-  $action = 'bind_driver_car';
-  $info = array( 'appkey'=>'', 'user_id'=>'사용자 ID값', 'car_id'=>'차량ID값');
-  $rinfo = array('result'=>'성공여부');
-  $content = _content($action, $info, $rinfo);
-  $comment = "
-- 사용자(운전자)가 운전할 차량을 선택함
-";
-  $html .= _panel($title, $content, $comment);
-*/
-
-/*
-  $title = "운전자 현재 상태 받아오기(get_driver_status)";
-  $action = 'get_driver_status';
-  $info = array( 'appkey'=>'','user_id'=>'운전자ID값');
-  $rinfo = array('result'=>'성공여부','status'=>'운전자상태(코드)', 'status_string'=>'운전자상태');
-  $content = _content($action, $info, $rinfo);
-  $comment = "
-- 운전자의 현재 상태를 받아옴
-";
-  $html .= _panel($title, $content, $comment);
-*/
-
-  $title = "가능한 운전자 상태 전체 리스트(get_all_driver_status)";
+  $title = "[리스트] 가능한 운전자 상태 전체 리스트(get_all_driver_status)";
   $action = 'get_all_driver_status';
   $info = array( 'appkey'=>'');
   $rinfo = array('result'=>'성공여부','list'=>'상태코드 리스트');
@@ -362,52 +327,7 @@ EOS;
 ";
   $html .= _panel($title, $content, $comment);
 
-  $title = "운전자 현재 상태 변경(set_driver_status) (------------ 사용금지)";
-  $action = 'set_driver_status';
-  $info = array( 'appkey'=>'',
-    'user_id'=>'사용자ID값',
-    'status'=>'운전자상태',
-    'echo'=>'echo');
-  $rinfo = array('result'=>'성공여부', 'gps_interval'=>'위치전송 시간주기');
-  $content = _content($action, $info, $rinfo);
-  $comment = "
-- 운전자의 현재 상태 정보를 변경함
-";
-  $html .= _panel($title, $content, $comment);
-
-
-/*
-  $title = "역할 리스트(list_role)";
-  $action = 'list_role';
-  $info = array( 'appkey'=>'');
-  $rinfo = array('result'=>'성공여부');
-  $content = _content($action, $info, $rinfo);
-  $comment = "
-- 사용자 역할 리스트 정보
-";
-  $html .= _panel($title, $content, $comment);
-*/
-
-
-
-  $title = "출발지/도착지 설정(set_schedule) (------------ 사용금지)";
-  $action = 'set_schedule';
-  $info = array( 'appkey'=>'',
-    'user_id'=>'운전자ID값',
-    'depart_from'=>'출발지장소ID',
-    'depart_from_etc'=>'(optional)출발지장소명',
-    'going_to'=>'도착지장소ID',
-    'going_to_etc'=>'(option)도착지장소명',
-    //'starttime'=>'(option)출발시간',
-    //'arrivetime'=>'(option)도착예정시간',
-  );
-  $rinfo = array('result'=>'성공여부');
-  $content = _content($action, $info, $rinfo);
-  $comment = " ";
-  $html .= _panel($title, $content, $comment);
-
-
-  $title = "운행시작(start_driving)";
+  $title = "[운행] 운행시작(start_driving)";
   $action = 'start_driving';
   $info = array( 'appkey'=>'',
     'depart_from'=>'출발지장소ID',
@@ -422,7 +342,7 @@ EOS;
   $html .= _panel($title, $content, $comment);
 
 
-  $title = "위치 정보 전송(at_location)";
+  $title = "[운행] 위치 정보 전송(at_location)";
   $action = 'at_location';
   $info = array( 'appkey'=>'',
     'run_id'=>'운행 ID값',
@@ -439,7 +359,7 @@ EOS;
   $html .= _panel($title, $content, $comment);
 
 
-  $title = "운행종료(finish_driving)";
+  $title = "[운행] 운행종료(finish_driving)";
   $action = 'finish_driving';
   $info = array( 'appkey'=>'',
     'run_id'=>'run_id',
@@ -449,7 +369,7 @@ EOS;
   $comment = " ";
   $html .= _panel($title, $content, $comment);
 
-  $title = "VIP조회(query_person)";
+  $title = "[인사] VIP조회(query_person) -------------- 사용??";
   $action = 'query_person';
   $info = array( 'appkey'=>'',
   );
@@ -460,10 +380,10 @@ EOS;
   $comment = " ";
   $html .= _panel($title, $content, $comment);
 
-  $title = "VIP설정(set_person)";
+  $title = "[인사] 특정 운전자의 의전인사 설정(set_person)";
   $action = 'set_person';
   $info = array( 'appkey'=>'',
-    'person_id'=>'VIP ID(person.ID)'
+    'person_id'=>'인사번호 (per_no)'
   );
   $rinfo = array('result'=>'성공여부',
   );
@@ -471,7 +391,20 @@ EOS;
   $comment = " ";
   $html .= _panel($title, $content, $comment);
 
-  $title = "비상상황(list_emergency)";
+  $title = "[인사] 의전인사 정보조회(person_information)";
+  $action = 'person_information';
+  $info = array( 'appkey'=>'',
+     'per_no'=>'인사 번호(4자리숫자)',
+  );
+  $rinfo = array('result'=>'성공여부',
+     'info'=>'인사정보',
+  );
+  $content = _content($action, $info, $rinfo);
+  $comment = " ";
+  $html .= _panel($title, $content, $comment);
+
+
+  $title = "[비상] 비상상황 리스트(list_emergency)";
   $action = 'list_emergency';
   $info = array( 'appkey'=>'',
   );
@@ -481,7 +414,8 @@ EOS;
   $comment = " ";
   $html .= _panel($title, $content, $comment);
 
-  $title = "비상상황(do_emergency)";
+
+  $title = "[비상] 비상상황 확인(do_emergency)";
   $action = 'do_emergency';
   $info = array( 'appkey'=>'',
      'code'=>'비상 상황코드(EMER1, EMER2)',
@@ -492,6 +426,18 @@ EOS;
   $content = _content($action, $info, $rinfo);
   $comment = " ";
   $html .= _panel($title, $content, $comment);
+
+  $title = "[비상] 비상상황 해제(exit_emergency)";
+  $action = 'exit_emergency';
+  $info = array( 'appkey'=>'',
+  );
+  $rinfo = array('result'=>'성공여부',
+     'message'=>'처리 메시지',
+  );
+  $content = _content($action, $info, $rinfo);
+  $comment = " ";
+  $html .= _panel($title, $content, $comment);
+
 
 
 

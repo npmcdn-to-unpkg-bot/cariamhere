@@ -5,8 +5,8 @@
 
   $source_title = '운전자/차량 정보 업로드';
 
-  $debug = 0;
   $debug = 1;
+  $debug = 0;
 
 ### {{{
 
@@ -24,10 +24,15 @@ function _split_cols(&$cols, &$line) {
 // 저장하기
 if ($mode == 'add2do') {
 
-  // 업로드 직전 데이터는 삭제 id 20 이전은 개발자용
-  $qry = "DELETE FROM driver where id > 20";
+  // 업로드 직전 데이터는 삭제
+  $qry = "DELETE FROM driver";
   if ($debug) dd($qry);
   $ret = db_query($qry);
+
+# // 업로드 직전 데이터는 삭제 id 20 이전은 개발자용
+# $qry = "DELETE FROM driver where id > 20";
+# if ($debug) dd($qry);
+# $ret = db_query($qry);
 
   // 차량정보 삭제
   $qry = "DELETE FROM carinfo";
@@ -91,10 +96,20 @@ if ($mode == 'add2do') {
     $ret = db_query($qry);
   }
 
-  $qry = "UPDATE driver SET driver_name=drv3,driver_tel=drv5,driver_no=drv6 WHERE driver_name=''";
+  $qry = "UPDATE driver SET driver_name=drv3,driver_tel=drv5,driver_no=drv6,driver_stat='DS_STOP'"
+     ." WHERE driver_name=''";
   if ($debug) dd($qry);
   $ret = db_query($qry);
 
+  // 전화번호에서 - 제거
+  $qry = "update driver set driver_tel = concat( substring(driver_tel,1,3), substring(driver_tel,5,4), substring(driver_tel,10,4)) where length(driver_tel)=13;";
+  if ($debug) dd($qry);
+  $ret = db_query($qry);
+
+  // 고유번호에서 - 제거
+  $qry = "update driver set driver_no=concat(substring(driver_no,1,8), substring(driver_no,10,5)) where length(driver_no)=14";
+  if ($debug) dd($qry);
+  $ret = db_query($qry);
 
   $qry = "UPDATE carinfo SET car_no=own6, car_model=own5, car_color=own8 WHERE car_no=''";
   if ($debug) dd($qry);

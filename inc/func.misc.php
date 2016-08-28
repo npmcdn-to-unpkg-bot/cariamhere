@@ -1401,4 +1401,18 @@ function get_alert_messages($limit=10) {
 
 }
 
+
+// 알람 메시지 추가
+function alert_log($msg, $grp='') {
+  $s = array();
+  $s[] = "group1='$grp'";
+  $s[] = "message='$msg'";
+  $s[] = "idate=now()";
+  $sql_set = " SET ".join(",", $s);
+
+  $qry = "INSERT INTO alert".$sql_set;
+  $ret = db_query($qry);
+}
+
+
 ?>

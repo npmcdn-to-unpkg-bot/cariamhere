@@ -599,10 +599,9 @@ EOS;
     $pos = sprintf("%s,%s", $row['lat'], $row['lng']);
 
     $ds = $row['DsName'];
-    if ($clsdriver->is_driving_status($ds)) $ds = "<span class='ds_driving'>$ds</span>";
-    else $ds = "<span class='ds_not_driving'>$ds</span>";
-
-    //$info[] = array($run_id, $row['lat'], $row['lng']);
+    if ($clsdriver->is_driving_status($ds)) $ds = "<span class='drs ds_driving'>$ds</span>";
+    else if ($clsdriver->is_emergency_status($ds)) $ds = "<span class='drs ds_emergency'>$ds</span>";
+    else $ds = "<span class='drs ds_not_driving'>$ds</span>";
 
     $btn = "<input type='button' value='운행기록' onclick=\"_run('$driver_id')\" class='btn btn-primary'>";
     print<<<EOS

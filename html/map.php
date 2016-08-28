@@ -339,8 +339,7 @@ function _map_range() {
 
 // onload
 $(function() {
-  _make_markers();
-  setTimeout(function() { _map_range(); }, 1000)
+  setTimeout("location.reload();",10000);
 });
 </script>
 EOS;

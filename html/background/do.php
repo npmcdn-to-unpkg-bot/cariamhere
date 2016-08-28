@@ -18,20 +18,9 @@ function driving_drivers(&$info) {
   }
 }
 
-function alert_log($msg, $grp='') {
-
-  $s = array();
-  $s[] = "group1='$grp'";
-  $s[] = "message='$msg'";
-  $s[] = "idate=now()";
-  $sql_set = " SET ".join(",", $s);
-
-  $qry = "INSERT INTO alert".$sql_set;
-  $ret = db_query($qry);
-}
 ### }}}
 
-  alert_log("테스트입니다.");
+  alert_log("테스트입니다.", '테스트');
   
   driving_drivers($info);
   dd($info);

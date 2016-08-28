@@ -274,10 +274,10 @@ EOS;
     $rdg = $row['run_driving'];
     $ft = $row['flagTerm'];
     if ($rdg) {
-      $ds = "<span class='ds_driving'>기록중</span>";
+      $ds = "<span class='drs ds_driving'>기록중</span>";
     } else {
       if ($ft) $str = '강제종료'; else $str = '종료';
-      $ds = "<span class='ds_not_driving'>$str</span>";
+      $ds = "<span class='drs ds_not_driving'>$str</span>";
     }
 
     if ($row['start_time'] && $row['end_time']) {

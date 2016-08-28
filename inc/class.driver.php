@@ -63,13 +63,19 @@ class driver {
   // 운전자 등록
   function register_driver($goyu, $tel, $sosok, $did, $push_key, $phone_os, &$phone_hash, &$name) {
 
-    $goyu = trim($goyu);
-    $tel = trim($tel);
+    $goyu = trim($goyu); // - 포함
+    $goyu = preg_replace("/-/", "", $goyu);
+
+    $tel = trim($tel); // - 미포함
+    $tel = preg_replace("/-/", "", $tel);
 
     // 고유번호와 전화번호로 확인
     $qry = "SELECT * FROM driver WHERE driver_no='$goyu' and driver_tel='$tel'";
     $row = db_fetchone($qry);
-    if (!$row) return array(false,"info not found *$goyu*, *$tel*"); // 정보가 없으면 실패
+    if (!$row) {
+      alert_log("등록 실패 *$goyu*, *$tel*", '등록실패');
+      return array(false,"info not found *$goyu*, *$tel*"); // 정보가 없으면 실패
+    }
 
     $name = $row['driver_name'];
     // TODO 이미 가입되어 있으면 에러/
@@ -115,6 +121,10 @@ class driver {
 
   function is_driving_status($st) {
     if ($st == '운전중') return true;
+    return false;
+  }
+  function is_emergency_status($st) {
+    if ($st == '비상상황') return true;
     return false;
   }
 
@@ -178,48 +188,31 @@ class driver {
     return $opt;
   }
 
-// 운전자 위치 설정 (디버깅용)
-function set_driver_location($driver_id, $lat, $lng) {
-  $row = $this->get_driver_by_id($driver_id);
+  // 운전자 위치 설정 (디버깅용)
+  function set_driver_location($driver_id, $lat, $lng) {
+    $row = $this->get_driver_by_id($driver_id);
 
-  // 운전자 상태에 따라서 is_driving 결정
-  $is_driving = $row['is_driving'];
+    // 운전자 상태에 따라서 is_driving 결정
+    $is_driving = $row['is_driving'];
 
-  // 차량도 함께 위치 설정
-  $car_id = $row['car_id'];
-  if ($car_id) {
-    $clscar = new carinfo();
-    $clscar->set_position($car_id, $lat, $lng);
-  }
+    // 차량도 함께 위치 설정
+    $car_id = $row['car_id'];
+    if ($car_id) {
+      $qry = "UPDATE carinfo SET lat='$lat',lng='$lng' WHERE id='$car_id'";
+      //dd($qry);
+      $ret = db_query($qry);
+    }
 
-  $s = array();
-  $s[] = "lat='$lat'";
-  $s[] = "lng='$lng'";
-  $s[] = "udate=now()";
-  $sql_set = " SET ".join(",", $s);
-
-  $qry = "UPDATE driver $sql_set WHERE id='$driver_id'";
-  $ret = db_query($qry);
-
-}
-
-/*
-  // 운전자 로그
-  function accu_driver_log($driver_id, $car_id=0, $status='', $lat=0, $lng=0, $is_driving=0) {
     $s = array();
-    $s[] = "driver_id='$driver_id'";
-    $s[] = "car_id='$car_id'";
-    $s[] = "driver_stat='$status'";
     $s[] = "lat='$lat'";
     $s[] = "lng='$lng'";
-    $s[] = "is_driving='$is_driving'";
-    $s[] = "idate=now()";
+    $s[] = "udate=now()";
     $sql_set = " SET ".join(",", $s);
 
-    $qry = "INSERT INTO driver_log $sql_set";
+    $qry = "UPDATE driver $sql_set WHERE id='$driver_id'";
+    //dd($qry);
     $ret = db_query($qry);
   }
-*/
 
   // 위치 로그
   function run_log($driver_id, $run_id, $lat, $lng) {
@@ -264,7 +257,7 @@ function set_driver_location($driver_id, $lat, $lng) {
     $run_id = $row['id'];
 
     // 해당 운전자의 다른 모든 run 기록은 is_driving=0으로 설정
-    $qry = "UPDATE run SET is_driving=0, flagTerm=1 WHERE driver_id='$driver_id' AND id != '$run_id'";
+    $qry = "UPDATE run SET is_driving=0 WHERE driver_id='$driver_id' AND id != '$run_id'";
     $ret = db_query($qry);
 
     global $conf;
@@ -275,6 +268,8 @@ function set_driver_location($driver_id, $lat, $lng) {
      ." SET run_id='$run_id', is_driving=1, driver_stat='DS_DRIVE'"
      ." WHERE id='$driver_id'";
     $ret = db_query($qry);
+
+    alert_log("운행시작 운전자ID:$driver_id", '운행시작');
   }
 
 
@@ -366,18 +361,52 @@ function set_driver_location($driver_id, $lat, $lng) {
       ." SET is_driving=0, driver_stat='DS_STOP'"
       ." WHERE id='$driver_id'";
     $ret = db_query($qry);
+
+    alert_log("운행종료 운전자ID:$driver_id", '운행종료');
   }
 
   // VIP 변경
-  function set_person($row_driver, $person_id) {
+  // API
+  function set_person($row_driver, $per_no) {
     $driver_id = $row_driver['id'];
     if ($row_driver['is_driving']) {
       return 'cannot change person during driving';
     }
 
-    $qry = "UPDATE driver SET person_id='$person_id' WHERE id='$driver_id'";
+    $qry = "UPDATE driver SET person_id='$per_no' WHERE id='$driver_id'";
     $ret = db_query($qry);
   }
+
+  // API
+  // 비상상황
+  function do_emergency($driver_row, $code) {
+    $driver_id = $driver_row['id'];
+    $name = $driver_row['driver_name'];
+    $team = $driver_row['driver_team'];
+
+    $e_name = $this->emergency_code2name($code);
+
+    $msg = "비상상황 [$code/$e_name] ($driver_id, $name, $team)";
+    alert_log($msg, '긴급');
+
+    $qry = "UPDATE driver SET driver_stat='DS_EMERGEN', emergency='$code' WHERE id='$driver_id'";
+    $ret = db_query($qry);
+  }
+
+  // API
+  // 비상상황 해제
+  function exit_emergency($driver_row) {
+    $driver_id = $driver_row['id'];
+    $name = $driver_row['driver_name'];
+    $team = $driver_row['driver_team'];
+
+    $msg = "비상상황해제 ($driver_id, $name, $team)";
+    alert_log($msg, '긴급');
+
+    $qry = "UPDATE driver SET driver_stat='DS_STOP', emergency='' WHERE id='$driver_id'";
+    $ret = db_query($qry);
+  }
+
 
   // $sql_select = $clsdriver->sql_select_run_1();
   // $sql_join   = $clsdriver->sql_join_##($pj);
@@ -398,11 +427,6 @@ function set_driver_location($driver_id, $lat, $lng) {
     ;
     return $sql_select;
   }
-# function sql_select_run_2() {
-#   $sql_select = $this->sql_select_run_1();
-#   $sql_select .= ", (SELECT COUNT(*) FROM run WHERE run_id=r.id) num_points";
-#   return $sql_select;
-# }
   function sql_join_common_1() {
     $sql_join = ''
     ." LEFT JOIN carinfo c ON d.car_id=c.id"
@@ -415,24 +439,40 @@ function set_driver_location($driver_id, $lat, $lng) {
   function sql_join_2() {
     $sql_join = ''
        ." LEFT JOIN run r ON d.run_id=r.id"
-       ." LEFT JOIN person p ON d.person_id=p.per_no"
+       ." LEFT JOIN person p ON d.person_id=p.per_no" // per_no 와 조인
        .$this->sql_join_common_1();
     return $sql_join;
   }
   function sql_join_3() {
     $sql_join = ''
        ." LEFT JOIN driver d ON r.driver_id=d.id"
-       ." LEFT JOIN person p ON r.person_id=p.per_no"
+       ." LEFT JOIN person p ON r.person_id=p.per_no" // per_no 와 조인
        .$this->sql_join_common_1();
     return $sql_join;
   }
   function sql_join_4() {
     $sql_join = ''
        ." LEFT JOIN run r ON d.run_id=r.id"
-       ." LEFT JOIN person p ON d.person_id=p.per_no"
+       ." LEFT JOIN person p ON d.person_id=p.per_no" // per_no 와 조인
        .$this->sql_join_common_1();
     return $sql_join;
   }
+
+  function emergency_list() {
+    $info = array();
+    $info['EMER1'] = '차량고장';
+    $info['EMER2'] = '접촉사고';
+    $info['EMER3'] = '긴급1';
+    $info['EMER4'] = '긴급2';
+    $info['EMER5'] = '긴급3';
+    $info['EMER9'] = '기타사항';
+    return $info;
+  }
+  function emergency_code2name($code) {
+    $list = $this->emergency_list();
+    return $list[$code];
+  }
+
 
 }; // class
 

@@ -29,10 +29,16 @@ create table  driver (
   is_driving   tinyint default 0 comment '운행중인지 여부',
 
   flagTerm  tinyint default 0 comment '서버에서 운행기록을 강제로 중지함',
+  emergency   char(10) default '' comment '비상상황',
 
   udate  datetime,
   idate datetime
 );
+
+
+  alter table driver add column
+  emergency   char(10) default '' comment '비상상황' after flagTerm ;
+
 
   alter table driver add column
   driver_team   char(10) not null default '' comment '소속팀' after role;

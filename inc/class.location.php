@@ -8,12 +8,16 @@ function location() {
 }
 
 function option_location_group($preset='') {
-  $list = array('=선택=:null','공항','숙소','행사장','기타');
+
+  $a = array('=선택=:null');
+  $b = $this->location_groups();
+  $list = array_merge($a, $b);
+
   $opt = option_general($list, $preset);
   return $opt;
 }
 function location_groups() {
-  return array('공항','숙소','행사장','기타');
+  return array('공항','숙소','행사장','기타','경유지');
 }
 
 function select_option_location($preset='') {

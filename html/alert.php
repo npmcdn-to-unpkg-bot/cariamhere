@@ -18,9 +18,10 @@
 
   ## {{
   $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn');
+  $btn2 = button_general('알림팝업', 0, "_pop()", $style='', $class='btn');
   print<<<EOS
 <form name='search_form' method='get'>
-$btn
+$btn $btn2
 <input type='hidden' name='mode' value='$mode'>
 <input type='hidden' name='page' value='{$form['page']}'>
 EOS;
@@ -29,6 +30,10 @@ EOS;
 <script>
 function sf_1() {
   document.search_form.submit();
+}
+function _pop() {
+  var url = "message.php";
+  wopen(url, 100,100,1,1);
 }
 
 function _page(page) { document.search_form.page.value = page; sf_1(); }
@@ -91,7 +96,7 @@ EOS;
 </div>
 <table class='table table-striped'>
 EOS;
-  print table_head_general(array('ID','group1','메시지','시간'));
+  print table_head_general(array('구분','시간','메시지'));
   print("<tbody>");
 
   $cnt = 0;
@@ -104,10 +109,9 @@ EOS;
 
     print<<<EOS
 <tr>
-<td>{$id}</td>
 <td>{$row['group1']}</td>
-<td>{$row['message']}</td>
 <td>{$row['idate']}</td>
+<td>{$row['message']}</td>
 </tr>
 EOS;
   }
@@ -120,6 +124,12 @@ EOS;
 <script>
 function _edit(id) { var url = "driver.php?mode=edit&id="+id; urlGo(url); }
 </script>
+
+// onload
+$(function() {
+  setTimeout(function() { _map_range(); }, 1000)
+});
+
 EOS;
 
   MainPageTail();

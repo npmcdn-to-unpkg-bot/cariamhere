@@ -56,7 +56,7 @@ function person_group_option($preset='') {
 
 function select_option_person($preset='') {
   $opt = '';
-  $list = $this->list_person();
+  $list = $this->list_person_raw();
   //dd($list);
 
   $flag = false;
@@ -84,22 +84,33 @@ function select_option_person($preset='') {
 }
 
 
-function list_person() {
+function list_person_raw() {
   $qry = "SELECT * FROM person";
   $ret = db_query($qry);
   $info = array();
   while ($row = db_fetch($ret)) {
     $info[] = $row;
-#     array(
-#     'person_id'=>$row['id'],
-#     'name'=>$row['person_name'],
-#     'group'=>$row['person_group'],
-#     'flag'=>$row['person_fflag'],
-#     'nation'=>$row['person_nation'],
-#   );
   }
   return $info;
 }
+
+// API
+function list_person() {
+  $qry = "SELECT * FROM person";
+  $ret = db_query($qry);
+  $info = array();
+  while ($row = db_fetch($ret)) {
+    $info[] = array(
+      'person_id'=>$row['per_no'], // id 가 아니라 per_no
+      'name'=>$row['person_name'],
+      'group'=>$row['person_group'],
+      'flag'=>$row['person_fflag'],
+      'nation'=>$row['person_nation'],
+    );
+  }
+  return $info;
+}
+
 
 function get_nation_code($nname) {
   $qry = "select * from Nat where nname='$nname'";
@@ -117,6 +128,26 @@ MariaDB [carmaxscj]> select * from Nat;
 
 */
 }
+
+// API
+function person_information($per_no) {
+  $qry = "SELECT p.*, n.nname
+ FROM person p
+ LEFT JOIN Nat n ON p.person_nation=n.nnum WHERE p.per_no='$per_no'";
+  $row = db_fetchone($qry);
+
+  $info = array(
+    'person_id'=>$row['per_no'],
+    'per_no'=>$row['per_no'],
+    'name'=>$row['person_name'],
+    'group'=>$row['person_group'],
+    'position'=>$row['person_position'],
+    'nation'=>$row['nname'],
+    'hotel'=>$row['person_hotel'],
+  );
+  return $info;
+}
+
 
 };
 

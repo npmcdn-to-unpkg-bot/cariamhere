@@ -144,6 +144,7 @@ if ($action == 'latest_version') {
     'app_version'=>$ver,
     'notice_url'=>$url,
     'update_url'=>$update_url,
+    'iphone_update_url'=>$conf['iphone_update_url'],
   );
   ok_response($resp);
   exit;
@@ -466,20 +467,20 @@ if ($action == 'query_person') {
 if ($action == 'set_person') {
   $appkey = _check_appkey();
   $row = _get_driver($appkey);
-  $driver_id = $data['id'];
-  $person_id = $data['person_id'];
+
+  $driver_id = $row['id'];
+
+  $per_no = $data['person_id'];
 
   // VIP 설정
-  $error = $clsdriver->set_person($row, $person_id);
+  $error = $clsdriver->set_person($row, $per_no);
   if ($error) error_response($error);
+
+  $info = $clsperson->person_information($per_no);
 
   $resp = array(
     'driver_id'=>$driver_id,
-    'person'=> array(
-      'person_id'=>$row['person_id'],
-      'name'=>$row['person_name'],
-      'group'=>$row['person_group'],
-     )
+    'person'=> $info,
   );
   ok_response($resp);
   exit;
@@ -491,11 +492,7 @@ if ($action == 'list_emergency') {
   $driver_row = _get_driver($appkey);
   $driver_id = $driver_row['id'];
 
-  $info = array(
-    'EMER1' => '차량고장',
-    'EMER2' => '접촉사고',
-    'EMER3' => '기타사항',
-  );
+  $info = $clsdriver->emergency_list();
 
   $resp = array(
     'driver_id'=>$driver_id,
@@ -510,11 +507,50 @@ if ($action == 'do_emergency') {
   $appkey = _check_appkey();
   $driver_row = _get_driver($appkey);
   $driver_id = $driver_row['id'];
+
   $code = $data['code'];
+  $e_name = $clsdriver->emergency_code2name($code);
+
+  $clsdriver->do_emergency($driver_row, $code);
+
+  $call = $conf['emergency_call']; // 비상전화
 
   $resp = array(
-    'message'=> "$code 비상상황 접수 완료. 긴급 전화 010-1234-1234",
-    'e_phone'=> '01012341234',
+    'message'=> "$e_name $code 비상상황 접수 완료. 긴급 전화 $call",
+    'e_phone'=> $call,
+  );
+  ok_response($resp);
+  exit;
+}
+
+// 비상상황 해제
+if ($action == 'exit_emergency') {
+  $appkey = _check_appkey();
+  $driver_row = _get_driver($appkey);
+  $driver_id = $driver_row['id'];
+
+  $clsdriver->exit_emergency($driver_row);
+
+  $resp = array(
+    'message'=> "비상상황 해제 완료.",
+  );
+  ok_response($resp);
+  exit;
+}
+
+
+
+// 4자리 숫자 인사 번호로 정보를 조회
+if ($action == 'person_information') {
+  $appkey = _check_appkey();
+  $driver_row = _get_driver($appkey);
+  $per_no = $data['per_no'];
+
+  $info = $clsperson->person_information($per_no);
+  if (!$info) error_response('person not found');
+
+  $resp = array(
+    'info'=> $info,
   );
   ok_response($resp);
   exit;
