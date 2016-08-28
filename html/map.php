@@ -166,10 +166,9 @@ function _get_carinfo(callback) {
 
   var data = {};
   data['mode'] = 'car_status';
+  // ajax.php?mode=car_status
 
   if (opt_only_driving) data['driving'] = '1'; // 운행중인 차량만 조회
-
-  // http://carmaxscj.cafe24.com/ajax.php?mode=car_status&debug=1
 
   $.ajax({
     method: "GET",
@@ -243,8 +242,6 @@ function _marker_info_content(item) {
   return iwContent;
 }
 
-
-
 // 마커를 처음으로 셋팅
 function _make_markers() {
   _get_carinfo(function(info) {
@@ -252,8 +249,8 @@ function _make_markers() {
     _show_car_information(info);
 
     for (var i = 0; i < info.length; i++) {
-
       var item = info[i];
+ console.log(item);
       console.log( item );
       _logd( JSON.stringify(item));
 
@@ -339,7 +336,8 @@ function _map_range() {
 
 // onload
 $(function() {
-  setTimeout("location.reload();",10000);
+  _make_markers();
+  setTimeout(function() { _map_range(); }, 1000);
 });
 </script>
 EOS;

@@ -18,10 +18,9 @@
 
   ## {{
   $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn');
-  $btn2 = button_general('알림팝업', 0, "_pop()", $style='', $class='btn');
   print<<<EOS
 <form name='search_form' method='get'>
-$btn $btn2
+$btn
 <input type='hidden' name='mode' value='$mode'>
 <input type='hidden' name='page' value='{$form['page']}'>
 EOS;
@@ -31,11 +30,6 @@ EOS;
 function sf_1() {
   document.search_form.submit();
 }
-function _pop() {
-  var url = "message.php";
-  wopen(url, 100,100,1,1);
-}
-
 function _page(page) { document.search_form.page.value = page; sf_1(); }
 function keypress_text() { if (event.keyCode != 13) return; sf_1(); }
 </script>
@@ -89,15 +83,26 @@ EOS;
 
   $ret = db_query($qry);
 
+  $now = get_now();
+  print<<<EOS
+<input type='button' onclick="notifyMe('알람 테스트','테스트입니다.','http://m.daum.net')" value='알람 테스트'>
+현재시간: $now
+EOS;
+
   print<<<EOS
 <div class="panel panel-default">
-<div class="panel-heading">
-운행기록
-</div>
 <table class='table table-striped'>
 EOS;
-  print table_head_general(array('구분','시간','메시지'));
+  print table_head_general(array('시간','구분','메시지'));
   print("<tbody>");
+
+function _alert_css($group) {
+       if ($group == '운행시작') $c = 'alert alert_start';
+  else if ($group == '운행종료') $c = 'alert alert_stop';
+  else if ($group == '긴급') $c = 'alert alert_emergency';
+  else $c = '';
+  return $c;
+}
 
   $cnt = 0;
   while ($row = db_fetch($ret)) {
@@ -106,11 +111,14 @@ EOS;
     //dd($row);
 
     $id = $row['id'];
+    $group = $row['group1'];
+    $cls = _alert_css($group);
+    $grp = "<span class='$cls'>$group</span>";
 
     print<<<EOS
 <tr>
-<td>{$row['group1']}</td>
 <td>{$row['idate']}</td>
+<td>{$grp}</td>
 <td>{$row['message']}</td>
 </tr>
 EOS;
@@ -124,12 +132,33 @@ EOS;
 <script>
 function _edit(id) { var url = "driver.php?mode=edit&id="+id; urlGo(url); }
 </script>
+EOS;
 
-// onload
+  // 알람 메시지를 얻어오기
+  $info = get_alert_messages($limit=3);
+  //dd($info);
+
+  $script = "";
+  $count = 0;
+  foreach ($info as $item) {
+    $count++;
+    $msg = $item['message'];
+    $idate = $item['idate'];
+    // notifyMe('알람 테스트','테스트입니다.','http://m.daum.net');
+    $script .=<<<EOS
+notifyMe('알람 테스트','[$idate] $msg','');
+EOS;
+  }
+  print("새로운 알람: $count 개 ");
+
+  print<<<EOS
+<script>
 $(function() {
-  setTimeout(function() { _map_range(); }, 1000)
+  $script
 });
 
+setTimeout("location.reload();",10000);
+</script>
 EOS;
 
   MainPageTail();

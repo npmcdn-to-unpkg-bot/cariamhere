@@ -1,6 +1,8 @@
 <?php
 
   include_once("$env[path_include]/class.carinfo.php");
+  include_once("$env[path_include]/class.person.php");
+  include_once("$env[path_include]/class.location.php");
 
 class driver {
   var $debug = false;
@@ -34,9 +36,9 @@ class driver {
 
   function _get_driver($sql_where) {
     $qry = "SELECT d.*"
-  .", p.person_name, p.person_group, p.id person_id"
+  .", p.person_name, p.person_group, p.per_no person_id"
   ." FROM driver d"
-  ." LEFT JOIN person p ON d.person_id=p.id"
+  ." LEFT JOIN person p ON d.person_id=p.per_no"
   .$sql_where;
     $row = db_fetchone($qry);
     return $row;
@@ -269,7 +271,15 @@ class driver {
      ." WHERE id='$driver_id'";
     $ret = db_query($qry);
 
-    alert_log("운행시작 운전자ID:$driver_id", '운행시작');
+    //alert_log("운행시작 운전자ID:$driver_id", '운행시작');
+    $name = $driver_row['driver_name'];
+    $team = $driver_row['driver_team'];
+
+    // 목적지명
+    $clslocation = new location();
+    $going = $clslocation->id2name($going_to);
+
+    alert_log("운전자($driver_id, $name, $team) 목적지:$going", '운행시작');
   }
 
 
@@ -339,6 +349,7 @@ class driver {
 
     $lat_e = $row_run['lat_e'];
     $lng_e = $row_run['lng_e'];
+    $going_to = $row_run['going_to'];
     if ($lat_e || $lng_e) { // 최종 좌표 입력됨
       return '운행이 이미 종료되었습니다.';
     }
@@ -362,7 +373,14 @@ class driver {
       ." WHERE id='$driver_id'";
     $ret = db_query($qry);
 
-    alert_log("운행종료 운전자ID:$driver_id", '운행종료');
+    $name = $row_driver['driver_name'];
+    $team = $row_driver['driver_team'];
+
+    // 목적지명
+    $clslocation = new location();
+    $going = $clslocation->id2name($going_to);
+
+    alert_log("운전자($driver_id, $name, $team) 목적지:$going", '운행종료');
   }
 
   // VIP 변경
@@ -376,6 +394,15 @@ class driver {
     $qry = "UPDATE driver SET person_id='$per_no' WHERE id='$driver_id'";
     $ret = db_query($qry);
   }
+
+
+  // 현재 지정된 VIP 정보
+  // API
+  function query_person($row_driver) {
+    $clsperson = new person();
+    $clsperson->person_information($per_no);
+  }
+
 
   // API
   // 비상상황

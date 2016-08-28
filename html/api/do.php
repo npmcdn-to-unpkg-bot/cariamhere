@@ -437,9 +437,12 @@ if ($action == 'finish_driving') {
   $error = $clsdriver->finish_driving($row_driver, $driver_id, $run_id, $elapsed);
   if ($error) error_response($error);
 
+  $url = $conf['map_view_url']."?id=$run_id";
+
   $resp = array(
     'run_id'=>$run_id,
     'elapsed'=>$elapsed,
+    'map_url'=>$url,
   );
   ok_response($resp);
   exit;
@@ -449,15 +452,18 @@ if ($action == 'finish_driving') {
 if ($action == 'query_person') {
   $appkey = _check_appkey();
   $row = _get_driver($appkey);
-  $driver_id = $data['id'];
+  $driver_id = $row['id'];
+
+  if ($row['person_id']) {
+    $per_no = $row['person_id'];
+    $info = $clsperson->person_information($per_no);
+  } else {
+    $info = null;
+  }
 
   $resp = array(
     'driver_id'=>$driver_id,
-    'person'=> array(
-      'person_id'=>$row['person_id'],
-      'name'=>$row['person_name'],
-      'group'=>$row['person_group'],
-     )
+    'person'=> $info,
   );
   ok_response($resp);
   exit;

@@ -369,7 +369,7 @@ EOS;
   $comment = " ";
   $html .= _panel($title, $content, $comment);
 
-  $title = "[인사] VIP조회(query_person) -------------- 사용??";
+  $title = "[인사] 현재지정된 인사 조회(query_person)";
   $action = 'query_person';
   $info = array( 'appkey'=>'',
   );

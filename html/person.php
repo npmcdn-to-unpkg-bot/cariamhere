@@ -48,6 +48,7 @@ function _sqlset(&$s) {
 
   $s[] = "person_fflag='{$form['person_fflag']}'";
   $s[] = "person_nation='{$form['person_nation']}'";
+  $s[] = "person_hotel='{$form['person_hotel']}'";
   $s[] = "memo='{$form['memo']}'";
 //dd($form); dd($s); exit;
 }
@@ -165,6 +166,9 @@ EOS;
   print _data_tr('국가', $html);
   print $script;
 
+  $html = textinput_general('person_hotel', $row['person_hotel'], '20', $onkeypress='', $click_select, $maxlength=0);
+  print _data_tr('호텔', $html);
+
   $html = textarea_general('memo', $row['memo'], 60, 5, true);
   print _data_tr('메모', $html);
 
@@ -226,7 +230,7 @@ if ($mode == 'searchq') {
   if ($s == '') exit;
 
   $k = trim($s);
-  $sql_where = " WHERE (person_name LIKE '%$k%') OR (person_cho LIKE '%$k%')";
+  $sql_where = " WHERE (person_name LIKE '%$k%') OR (person_cho LIKE '%$k%') OR (per_no='$k')";
 
   $qry = $sql_select.$sql_from.$sql_join.$sql_where;
   $ret = db_query($qry);
@@ -370,7 +374,7 @@ EOS;
   $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
   $btn[] = button_general('일괄입력', 0, "_add2()", $style='', $class='btn btn-info');
   $btn[] =<<<EOS
-검색(이름/초성):<input type='text' name='search' onkeyup="searchq();">
+검색(이름/초성/인사번호):<input type='text' name='search' onkeyup="searchq();">
 EOS;
 
   print<<<EOS
@@ -404,7 +408,7 @@ function searchq() {
 
     try {
 
-      //console.log(data);
+      console.log(data);
 
       var list = JSON.parse(data);
       //console.log(list);
@@ -426,7 +430,7 @@ function searchq() {
         var item = list[i];
         //console.log(item);
 
-        var id = item['id'];
+        var id = item['per_no'];
 
         var row = _data_row(i, id, item);
 
@@ -446,13 +450,15 @@ function _detail_view(id) {
 }
 
 function _data_row(i, id, item) {
+console.log(item);
   var name = item['person_name'];
   var row = "<tr>"
-    +"<td>"+i+"</td>"
+    +"<td>"+id+"</td>"
     +"<td><span class=link onclick=\"_edit('"+id+"')\">"+name+"</span></td>"
     +"<td>"+item['person_group']+"</td>"
+    +"<td>"+item['person_position']+"</td>"
     +"<td>"+item['nname']+"</td>"
-    +"<td>"+item['_fflag']+"</td>"
+    +"<td>"+item['person_hotel']+"</td>"
     +"</tr>";
   return row;
 }

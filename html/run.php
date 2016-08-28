@@ -145,6 +145,7 @@ $(function() {
 
 </script>
 EOS;
+  dd($points);
 
   MainPageTail();
   exit;

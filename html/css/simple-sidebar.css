@@ -274,4 +274,9 @@ span.ds_not_driving { background-color: green; color:white; }
 span.ds_driving     { background-color: orange; color:white; }
 span.ds_emergency   { background-color: red; color:white;  }
 
+span.alert { padding:5px 5px 5px 5px; margin:3px 3px 3px 3px; }
+span.alert_start   { background-color: green; color:white; }
+span.alert_stop    { background-color: orange; color:white; }
+span.alert_emergency   { background-color: red; color:white;  }
+
 

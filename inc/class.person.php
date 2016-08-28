@@ -117,7 +117,6 @@ function get_nation_code($nname) {
   $row = db_fetchone($qry);
   return $row['nnum'];
 /*
-
 MariaDB [carmaxscj]> select * from Nat;
 +-----------------------------------------------+------+--------+--------+-------+
 | nname                                         | nnum | ncode3 | ncode2 | inuse |
@@ -125,7 +124,6 @@ MariaDB [carmaxscj]> select * from Nat;
 | 해외                                          |    0 | 해외   | 해외   |     1 |
 | 아프가니스탄                                  |    4 | AFG    | AF     |     1 |
 | 알바니아                                      |    8 | ALB    | AL     |     1 |
-
 */
 }
 

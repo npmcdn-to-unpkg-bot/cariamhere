@@ -20,7 +20,7 @@ function driving_drivers(&$info) {
 
 ### }}}
 
-  alert_log("테스트입니다.", '테스트');
+  //alert_log("테스트입니다.", '테스트');
   
   driving_drivers($info);
   dd($info);
