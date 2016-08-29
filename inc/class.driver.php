@@ -282,11 +282,44 @@ class driver {
     alert_log("운전자($driver_id, $name, $team) 목적지:$going", '운행시작');
   }
 
+  // 경유지 리스트
+  function passby_list() {
+    $cls = new location();
+    $list = $cls->list_passby_locations();
+    return $list;
+  }
+
+  // 경유지 근처 지남 알람
+  function passby_alert($driver_id, $run_id, $loc_id, $distance) {
+    alert_log("$driver_id $run_id $loc_id {$distance}km", '경유지근처');
+  }
+
+  function passby_point_check($driver_id, $run_id, $lat, $lng) {
+    $plist = passby_list();
+
+    foreach ($plist as $pitem) {
+      //dd($pitem);
+      $loc_id = $pitem['location_id'];
+
+      $dist = distance($lat, $lng, $pitem['lat'], $pitem['lng'], 'K');
+
+      // 경유지 중 한곳이라도 걸리면 중단
+      $diff = 5; // 반경 km 이내
+      if ($dist < $diff) {
+        $this->passby_alert($driver_id, $run_id, $loc_id, $dist);
+        return true; // 경유지근처
+      }
+    }
+    return false; // 근처 아님
+  }
 
   // 운전자 위치 설정
   function at_location($row_driver, $driver_id, $run_id, $lat, $lng, &$elapsed) {
 
     if (!$run_id) return 'run_id is null';
+
+    // 경유지 체크
+    //$nflag = $this->passby_point_check($driver_id, $run_id, $lat, $lng);
 
     // run 정보 확인
     $qry = "SELECT r.*
@@ -331,6 +364,14 @@ class driver {
 
     // 로그 기록
     $this->run_log($driver_id, $run_id, $lat, $lng);
+  }
+
+  // 최종 위치
+  function get_last_position($run_id) {
+    $qry = "SELECT r.* FROM run r WHERE r.id='$run_id' ORDER BY idate DESC LIMIT 0,1";
+    $row = db_fetchone($qry);
+    //dd($row);
+    return array($row['lat'], $row['lng']);
   }
 
   // 운행 종료

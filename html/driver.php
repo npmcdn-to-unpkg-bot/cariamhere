@@ -437,7 +437,6 @@ function keypress_text() { if (event.keyCode != 13) return; sf_1(); }
 EOS;
 
   $page = $form['page'];
-
   $total = 100000;
   $ipp = 30;
   list($start, $last, $page) = calc_page($ipp, $total);

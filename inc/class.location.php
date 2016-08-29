@@ -8,7 +8,6 @@ class location {
   }
 
   function option_location_group($preset='') {
-
     $a = array('=선택=:null');
     $b = $this->location_groups();
     $list = array_merge($a, $b);
@@ -51,9 +50,11 @@ class location {
     return $row['loc_title'];
   }
 
+
   function list_location($group='', $treeflag=false) {
 
     $w = array('1');
+    $w[] = "loc_group!='경유지'";
     if ($group) $w[] = "loc_group='$group'";
     $sql_where = " WHERE ".join(" AND ", $w);
 
@@ -91,6 +92,27 @@ class location {
     }
     return $info;
   }
+
+  function list_passby_locations() {
+    $w = array('1');
+    $w[] = "loc_group='경유지'";
+    $sql_where = " WHERE ".join(" AND ", $w);
+
+    $qry = "SELECT * FROM location $sql_where";
+    $ret = db_query($qry);
+
+    $info = array();
+    while ($row = db_fetch($ret)) {
+      $info[] = array(
+        'location_id'=>$row['id'],
+        'title'=>$row['loc_title'],
+        'lat'=>$row['lat'],
+        'lng'=>$row['lng'],
+      );
+    }
+    return $info;
+  }
+
 
 
 };

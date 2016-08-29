@@ -11,7 +11,6 @@
 
 ### }}}
 
-### {{{
 
   MainPageHead($source_title);
   ParagraphTitle($source_title);
@@ -23,6 +22,11 @@
 $btn
 <input type='hidden' name='mode' value='$mode'>
 <input type='hidden' name='page' value='{$form['page']}'>
+EOS;
+
+  if ($form['dtno']) $chk = ' checked'; else $chk = '';
+  print<<<EOS
+<label><input type='checkbox' name='dtno'$chk>데스크톱 알람 끄기</label>
 EOS;
 
   print<<<EOS
@@ -100,6 +104,8 @@ function _alert_css($group) {
        if ($group == '운행시작') $c = 'alert alert_start';
   else if ($group == '운행종료') $c = 'alert alert_stop';
   else if ($group == '긴급') $c = 'alert alert_emergency';
+  else if ($group == '경유지근처') $c = 'alert alert_passby';
+  else if ($group == '등록실패') $c = 'alert alert_regfail';
   else $c = '';
   return $c;
 }
@@ -136,20 +142,25 @@ EOS;
 
   // 알람 메시지를 얻어오기
   $info = get_alert_messages($limit=3);
-  //dd($info);
+  dd($info);
 
   $script = "";
   $count = 0;
   foreach ($info as $item) {
     $count++;
     $msg = $item['message'];
+    $grp = $item['group1'];
     $idate = $item['idate'];
     // notifyMe('알람 테스트','테스트입니다.','http://m.daum.net');
     $script .=<<<EOS
-notifyMe('알람 테스트','[$idate] $msg','');
+notifyMe('$grp','[$idate] $msg','');
 EOS;
   }
   print("새로운 알람: $count 개 ");
+
+  print<<<EOS
+<p><a href='/background/do.php'>background</a>
+EOS;
 
   print<<<EOS
 <script>
@@ -162,10 +173,6 @@ setTimeout("location.reload();",10000);
 EOS;
 
   MainPageTail();
-  exit;
-
-### }}}
-
   exit;
 
 ?>

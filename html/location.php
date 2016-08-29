@@ -287,6 +287,51 @@ EOS;
   MainPageHead($source_title);
   ParagraphTitle($source_title);
 
+  ## {{
+  $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn');
+  print<<<EOS
+<form name='search_form' method='get'>
+$btn
+<input type='hidden' name='mode' value='$mode'>
+<input type='hidden' name='page' value='{$form['page']}'>
+EOS;
+
+/*
+  $v = $form['driver_name'];
+  $ti = textinput_general('driver_name', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
+  print("운전자이름:$ti");
+
+  $v = $form['person_name'];
+  $ti = textinput_general('person_name', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
+  print("VIP이름:$ti");
+*/
+
+  $v = $form['lg'];
+  $opt = $clslocation->option_location_group($v);
+  print("장소구분:<select name='lg'>$opt</select>");
+
+  print("</form>");
+
+  print<<<EOS
+<script>
+function sf_1() {
+  document.search_form.submit();
+}
+
+function _page(page) { document.search_form.page.value = page; sf_1(); }
+function keypress_text() { if (event.keyCode != 13) return; sf_1(); }
+</script>
+EOS;
+
+  $page = $form['page'];
+  $total = 100000;
+  $ipp = 30;
+  list($start, $last, $page) = calc_page($ipp, $total);
+
+  print pagination_bootstrap2($page, $total, $ipp, '_page');
+  ## }}
+
+
   $b1 = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
   $b2 = button_general('지도보기', 0, "_map()", $style='', $class='btn btn-warning');
   print<<<EOS
@@ -296,10 +341,18 @@ function _map() { var url = "$env[self]?mode=map"; urlGo(url); }
 </script>
 EOS;
 
+  $w = array('1');
+
+  $v = $form['lg'];
+  if ($v && $v != 'all') $w[] = "l.loc_group='$v'";
+
+  $sql_where = sql_where_join($w, $d=0, 'AND');
+
   $qry = "SELECT l.*"
    ." FROM location l"
+   .$sql_where
    ." ORDER BY l.loc_title"
-   ;
+   ." LIMIT $start,$ipp";
   $ret = db_query($qry);
 
   print<<<EOS
