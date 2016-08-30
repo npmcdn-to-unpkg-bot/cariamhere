@@ -202,6 +202,9 @@ EOS;
   $html = "<select name='driver_team'>$opt</select>";
   print _data_tr('소속팀', $html);
 
+  $html = $row['phone_os'];
+  print _data_tr('phone_os', $html);
+
   $html = $row['phone_hash'];
   print _data_tr('phone_hash', $html);
 
@@ -407,9 +410,9 @@ $btn
 <input type='hidden' name='page' value='{$form['page']}'>
 EOS;
 
-  $v = $form['driver_name'];
-  $ti = textinput_general('driver_name', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
-  print("운전자이름:$ti");
+  $v = $form['search'];
+  $ti = textinput_general('search', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
+  print("운전자이름/고유번호/전화번호:$ti");
 
   $v = $form['person_name'];
   $ti = textinput_general('person_name', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
@@ -423,7 +426,33 @@ EOS;
   $opt = $clsdriver->select_team_option($v);
   print("팀:<select name='team'>$opt</select>");
 
+  print("<input type='button' onclick='_vopt()' value='표시할 정보'>");
+
+  $fck = array(); // field check '' or ' checked'
+  fck_init($fck, $defaults='1,2,3,4,5');
+  print<<<EOS
+<div id="vopt" style='display:none;'>
+<label><input type='checkbox' name='fd02' $fck[2]>팀</label>
+<label><input type='checkbox' name='fd01' $fck[1]>차량</label>
+<label><input type='checkbox' name='fd03' $fck[3]>출발지</label>
+<label><input type='checkbox' name='fd04' $fck[4]>목적지</label>
+<label><input type='checkbox' name='fd05' $fck[5]>의전인사</label>
+<label><input type='checkbox' name='fd06' $fck[6]>출발,도착시간</label>
+<label><input type='checkbox' name='fd07' $fck[7]>단말OS</label>
+<label><input type='checkbox' name='fd08' $fck[8]>소속</label>
+</div>
+EOS;
+
   print("</form>");
+  //dd($form);
+
+  print<<<EOS
+<script>
+function _vopt() {
+  $('#vopt').toggle();
+}
+</script>
+EOS;
 
   print<<<EOS
 <script>
@@ -540,8 +569,8 @@ EOS;
 
   $w = array('1');
 
-  $v = $form['driver_name'];
-  if ($v) $w[] = "(d.driver_name LIKE '%$v%' OR d.driver_cho LIKE '%$v%')";
+  $v = $form['search'];
+  if ($v) $w[] = "(d.driver_name LIKE '%$v%' OR d.driver_cho LIKE '%$v%' OR d.driver_no LIKE '%$v%' OR d.driver_tel LIKE '%$v%')";
 
   $v = $form['person_name'];
   if ($v) $w[] = "(p.person_name LIKE '%$v%' OR p.person_cho LIKE '%$v%')";
@@ -554,7 +583,9 @@ EOS;
 
   $sql_where = sql_where_join($w, $d=0, 'AND');
 
-  $sql_select = $clsdriver->sql_select_run_1();
+  $sql_select = $clsdriver->sql_select_run_1()
+       .", d.phone_os, d.drv1, d.drv2";
+
   $sql_join   = $clsdriver->sql_join_4();
 
   $qry = $sql_select.$sql_from.$sql_join.$sql_where
@@ -574,15 +605,16 @@ EOS;
   $head = array();
   $head[] = '번호';
   $head[] = '이름';
-  $head[] = '팀';
+  if ($form['fd01']) $head[] = '팀';
   $head[] = '상태';
-  $head[] = '차량';
+  if ($form['fd02']) $head[] = '차량';
   $head[] = '운행기록';
-  $head[] = '출발시간';
-  $head[] = '도착시간';
-  $head[] = '출발지';
-  $head[] = '목적지';
-  $head[] = '의전인사';
+  if ($form['fd06']) { $head[] = '출발시간'; $head[] = '도착시간'; }
+  if ($form['fd03']) $head[] = '출발지';
+  if ($form['fd04']) $head[] = '목적지';
+  if ($form['fd05']) $head[] = '의전인사';
+  if ($form['fd07']) { $head[] = '단말OS'; }
+  if ($form['fd08']) { $head[] = '소속1'; $head[] = '소속2'; }
   print table_head_general($head);
   print("<tbody>");
 
@@ -603,21 +635,33 @@ EOS;
     else $ds = "<span class='drs ds_not_driving'>$ds</span>";
 
     $btn = "<input type='button' value='운행기록' onclick=\"_run('$driver_id')\" class='btn btn-primary'>";
-    print<<<EOS
-<tr>
-<td>{$driver_id}</td>
-<td>{$edit}</td>
-<td>{$row['driver_team']}</td>
-<td>{$ds}</td>
-<td>{$row['car_no']}</td>
-<td>{$btn}</td>
-<td>{$row['stime']}</td>
-<td>{$row['etime']}</td>
-<td>{$row['loc1']}</td>
-<td>{$row['loc2']}</td>
-<td>{$row['person_name']}</td>
-</tr>
+
+    $fields = array();
+    $fields[] = $driver_id;
+    $fields[] = $edit;
+    if ($form['fd01']) $fields[] = $row['driver_team'];
+    $fields[] = $ds;
+    if ($form['fd02']) $fields[] = $row['car_no'];
+    $fields[] = $btn;
+    if ($form['fd06']) { $fields[] = $row['stime']; $fields[] = $row['etime']; }
+    if ($form['fd03']) $fields[] = $row['loc1'];
+    if ($form['fd04']) $fields[] = $row['loc2'];
+
+    $per_id = $row['person_id'];
+    $edit =<<<EOS
+<a href="person.php?mode=edit&id=$per_id">{$row['person_name']}</a>
 EOS;
+    if ($form['fd05']) $fields[] = $edit;
+
+    if ($form['fd07']) $fields[] = $row['phone_os'];
+    if ($form['fd08']) { $fields[] = $row['drv1']; $fields[] = $row['drv2']; }
+
+    print("<tr>");
+    foreach ($fields as $f) {
+      print("<td>$f</td>");
+    }
+    print("</tr>");
+
   }
   print<<<EOS
 </tbody>

@@ -147,6 +147,11 @@ EOS;
 
   $click_select = true;
 
+  print _data_tr('ID', $row['id']);
+
+  $html = textinput_general('per_no', $row['per_no'], '20', $onkeypress='', $click_select, $maxlength=0);
+  print _data_tr('인사번호', $html);
+
   $preset = $row['person_group'];
   $opt = $clsperson->person_group_option($preset);
   $html = "<select name='person_group'>$opt</select>";
