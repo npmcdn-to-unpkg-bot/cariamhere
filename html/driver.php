@@ -71,15 +71,29 @@ function _summary() {
   global $clsdriver;
   $info = $clsdriver->driver_summary();
   //dd($info);
-  print('<script src="/utl/d3.v4/d3.js"></script>');
+  //print('<script src="/utl/d3.v4/d3.js"></script>');
 
-  $a = array();
+  print("<div class='btn-group' role='group' aria-label='...' style=''>");
   foreach ($info as $ds=>$count) {
-    $a[] = "$ds: {$count}명";
+         if ($ds == '운전중') $cls = "btn btn-success btn-lg";
+    else if ($ds == '대기중') $cls = "btn btn-info btn-lg";
+    else if ($ds == '비상상황') $cls = "btn btn-danger btn-lg";
+    else $cls = "btn btn-default btn-lg";
+    print("<button type='button' class='$cls' onclick=\"_summgo('$ds')\">$ds<span class='badge'>$count</span></button>");
   }
+  print("</div>");
   print<<<EOS
+<script>
+function _summgo(ds) {
+  var form = document.search_form;
+       if (ds == '운전중') form.ds.value = 'DS_DRIVE';
+  else if (ds == '대기중') form.ds.value = 'DS_STOP';
+  else if (ds == '비상상황') form.ds.value = 'DS_EMERGEN';
+  else form.ds.value = 'all';
+  form.submit();
+}
+</script>
 EOS;
-  print join(", ", $a);
 }
 
 ### }}}
@@ -159,11 +173,16 @@ if ($mode == 'add' || $mode == 'edit') {
 <form name='form'>
 EOS;
 
+  $btn = array();
+  $btn[] = "<input type='button' value='확인' onclick='sf_1()' class='btn btn-primary'>";
+  if ($mode == 'edit') {
+  $btn[] = "<input type='button' value='삭제' onclick='sf_del($id)' class='btn btn-danger'>";
+  }
+  $buttons = join(' ', $btn);
   print<<<EOS
 <tr>
 <td colspan='2' class='c'>
-<input type='button' value='확인' onclick='sf_1()' class='btn btn-primary'>
-<input type='button' value='삭제' onclick='sf_del($id)' class='btn btn-danger'>
+$buttons
 </td>
 </tr>
 EOS;
@@ -188,6 +207,8 @@ EOS;
   $opt = $clsdriver->driver_status_option($row['driver_stat']);
   $html = "<select name='driver_stat'>$opt</select>";
   print _data_tr('상태', $html);
+
+  print _data_tr('상태', $row['emergency']);
 
   $preset = $row['person_id'];
   $opt = $personObj->select_option_person($preset);
@@ -287,6 +308,7 @@ EOS;
 </tr>
 EOS;
 
+  if ($mode == 'edit') {
   print _data_tr('own1', $row['own1']);
   print _data_tr('own2', $row['own2']);
   print _data_tr('own3', $row['own3']);
@@ -304,6 +326,7 @@ EOS;
   print _data_tr('drv4', $row['drv4']);
   print _data_tr('drv5', $row['drv5']);
   print _data_tr('drv6', $row['drv6']);
+  }
 
   print<<<EOS
 <tr>
@@ -436,10 +459,11 @@ EOS;
 <option value='2'$sel[2]>이름</option>
 <option value='3'$sel[3]>소속</option>
 <option value='4'$sel[4]>단말OS</option>
+<option value='5'$sel[5]>상태</option>
 </select>
 EOS;
 
-  print("<input type='button' onclick='_vopt()' value='표시정보' class='btn'>");
+  print("<input type='button' onclick='_vopt()' onmouseover='_vopt()' value='표시정보' class='btn'>");
 
   $fck = array(); // field check '' or ' checked'
   fck_init($fck, $defaults='1,2,3,4,5,10');
@@ -456,6 +480,7 @@ EOS;
 <label><input type='checkbox' name='fd08' $fck[8]>소속</label>
 <label><input type='checkbox' name='fd09' $fck[8]>전화번호,고유번호</label>
 <label><input type='checkbox' name='fd11' $fck[11]>GPS좌표</label>
+<label><input type='checkbox' name='fd12' $fck[12]>최종업데이트</label>
 </div>
 EOS;
 
@@ -489,8 +514,8 @@ EOS;
   $total = 100000;
   $ipp = 30;
   list($start, $last, $page) = calc_page($ipp, $total);
-
   print pagination_bootstrap2($page, $total, $ipp, '_page');
+
   ## }}
 
   $btn = array();
@@ -498,6 +523,191 @@ EOS;
   $btn[] = button_general('운전자/차량 업로드', 0, "_add2()", $style='', $class='btn btn-info');
   $btn[] =<<<EOS
 검색(이름,초성):<input type='text' name='searchq' onkeyup="searchq();" onclick='this.select()' onclick='this.select()'>
+EOS;
+
+  $w = array('1');
+
+  $v = $form['search'];
+  if ($v) $w[] = "(d.driver_name LIKE '%$v%' OR d.driver_cho LIKE '%$v%' OR d.driver_tel LIKE '%$v%' OR d.driver_no LIKE '%$v%')";
+
+  $v = $form['dno'];
+  if ($v) $w[] = "(d.id='$v')";
+
+  $v = $form['person_name'];
+  if ($v) $w[] = "(p.person_name LIKE '%$v%' OR p.person_cho LIKE '%$v%')";
+
+  $v = $form['sosk'];
+  if ($v) $w[] = "(d.drv1 LIKE '%$v%' OR d.drv2 LIKE '%$v%')";
+
+  $v = $form['team'];
+  if ($v && $v != 'all') $w[] = "d.driver_team='$v'";
+
+  $ds = $form['ds'];
+  if ($ds != '' && $ds != 'all') $w[] = "d.driver_stat='$ds'";
+
+  $sql_where = sql_where_join($w, $d=0, 'AND');
+
+  $sql_select = $clsdriver->sql_select_run_1()
+       .", d.lat, d.lng"
+       .", d.car_id, d.emergency"
+       .", d.phone_os, d.drv1, d.drv2"
+       .", d.driver_tel, d.driver_no";
+
+  $sql_join   = $clsdriver->sql_join_4();
+
+  $sort = $form['sort']; if ($sort == '') $sort = '1';
+       if ($sort == '1') $o = "d.udate DESC";
+  else if ($sort == '2') $o = "d.driver_name";
+  else if ($sort == '3') $o = "d.drv1, d.drv2";
+  else if ($sort == '4') $o = "d.phone_os DESC";
+  else if ($sort == '5') $o = "d.driver_stat";
+  else                   $o = "d.udate DESC";
+  $sql_order = " ORDER BY $o";
+  //dd($sql_order);
+
+  $qry = $sql_select.$sql_from.$sql_join.$sql_where.$sql_order
+    ." LIMIT $start,$ipp";
+
+  $ret = db_query($qry);
+
+  $buttons = join(' ', $btn);
+
+  ## {{
+  print("<div class='panel panel-default'>");
+  print<<<EOS
+<div class="panel-heading">$buttons</div>
+EOS;
+
+  ## {{
+  print("<table class='table table-striped dataC' id='resultTable'>");
+
+  $head = array();
+  $head[] = '번호';
+  $head[] = '이름';
+  if ($form['fd01']) $head[] = '팀';
+  if ($form['fd10']) $head[] = '상태';
+  if ($form['fd02']) $head[] = '차량';
+  $head[] = '운행기록';
+  if ($form['fd06']) { $head[] = '출발시간'; $head[] = '도착시간'; }
+  if ($form['fd03']) $head[] = '출발지';
+  if ($form['fd04']) $head[] = '목적지';
+  if ($form['fd05']) $head[] = '의전인사';
+  if ($form['fd07']) { $head[] = '단말OS'; }
+  if ($form['fd08']) { $head[] = '소속1'; $head[] = '소속2'; }
+  if ($form['fd09']) { $head[] = '전화번호'; $head[] = '고유번호'; }
+  if ($form['fd11']) { $head[] = 'GPS좌표'; }
+  if ($form['fd12']) { $head[] = '최종업데이트'; }
+  print table_head_general($head);
+  print("<tbody>");
+
+  $cnt = 0;
+  $info = array();
+  while ($row = db_fetch($ret)) {
+    $cnt++;
+    //dd($row);
+
+    $driver_id = $row['driver_id'];
+
+    $edit = _edit_link($row['driver_name'], $driver_id);
+    $pos = sprintf("%s,%s", $row['lat'], $row['lng']);
+
+    $em = $row['emergency'];
+    $ds = $row['DsName'];
+    if ($clsdriver->is_driving_status($ds)) $ds = "<span class='drs ds_driving'>$ds</span>";
+    else if ($clsdriver->is_emergency_status($ds)) $ds = "<span class='drs ds_emergency'>$ds($em)</span>";
+    else $ds = "<span class='drs ds_not_driving'>$ds</span>";
+
+    $btn = "<input type='button' value='운행기록' onclick=\"_run('$driver_id')\" class='btn btn-primary'>";
+
+    $fields = array();
+    $fields[] = $driver_id;
+    $fields[] = $edit;
+    if ($form['fd01']) $fields[] = $row['driver_team'];
+    if ($form['fd10']) $fields[] = $ds;
+
+    $car_id = $row['car_id'];
+    $edit =<<<EOS
+<span class=link onclick="_edit_car($car_id)">{$row['car_no']}</span>
+EOS;
+    if ($form['fd02']) $fields[] = $edit;
+
+    $fields[] = $btn;
+    if ($form['fd06']) { $fields[] = $row['stime']; $fields[] = $row['etime']; }
+    if ($form['fd03']) $fields[] = $row['loc1'];
+    if ($form['fd04']) $fields[] = $row['loc2'];
+
+    $per_id = $row['person_id'];
+    $edit =<<<EOS
+<span class=link onclick="_edit_person($per_id)">{$row['person_name']}</span>
+EOS;
+    if ($form['fd05']) $fields[] = $edit;
+
+    if ($form['fd07']) $fields[] = $row['phone_os'];
+    if ($form['fd08']) { $fields[] = $row['drv1']; $fields[] = $row['drv2']; }
+    if ($form['fd09']) { $fields[] = $row['driver_tel']; $fields[] = $row['driver_no']; }
+    if ($form['fd11']) { $str = "({$row['lat']},{$row['lng']})"; $fields[] = $str; }
+    if ($form['fd12']) { $fields[] = $row['udate']; }
+
+    print("<tr>");
+    foreach ($fields as $f) {
+      print("<td>$f</td>");
+    }
+    print("</tr>");
+
+  }
+  print("</tbody>");
+  print("</table>");
+  ## }}
+  print("</div>");
+  ## }}
+
+  print("<div id='detailView'></div>");
+
+  $json = json_encode($info);
+  print<<<EOS
+<script>
+function _run(id) { var url = "run.php?driver_id="+id; urlGo(url); }
+function _edit(id) { var url = "$env[self]?mode=edit&id="+id; wopen(url, 600,600,1,1); }
+function _edit_person(id) { var url = "person.php?mode=edit&id="+id; wopen(url, 600,600,1,1); }
+function _edit_car(id) { var url = "car.php?mode=edit&id="+id; wopen(url, 600,600,1,1); }
+
+// 주소를 업데이트하기.. 이렇게 하면 API 요청 횟수가 너무 많아질듯.
+function _update_address_all() {
+
+  var info = $json;
+  console.log(info);
+
+  var geocoder = new daum.maps.services.Geocoder();
+
+  var callback = function(status, result) {
+    if (status === daum.maps.services.Status.OK) {
+      // 요청위치에 건물이 없는 경우 도로명 주소는 빈값입니다
+      //console.log('도로명 주소 : ' + result[0].roadAddress.name);
+      //console.log('지번 주소 : ' + result[0].jibunAddress.name);
+      console.log(result[0]);
+      var addr = result[0].jibunAddress.name; 
+      console.log(addr); // 지번주소
+      //$('#address').html(addr);
+    }   
+  };
+
+  for (var i = 0; i < info.length; i++) {
+    var item = info[i];
+    console.log(item);
+    var id = item[0];
+    var lat = item[1];
+    var lng = item[2];
+    var coord = new daum.maps.LatLng(lat, lng);
+    geocoder.coord2detailaddr({coord: coord, callback:callback, options:{index:i}});
+  }
+
+}
+
+// onload
+$(function() {
+  $("input[name='search']").focus();
+});
+</script>
 EOS;
 
   print<<<EOS
@@ -587,186 +797,6 @@ function _data_row(i, id, item) {
 </script>
 EOS;
 
-  $w = array('1');
-
-  $v = $form['search'];
-  if ($v) $w[] = "(d.driver_name LIKE '%$v%' OR d.driver_cho LIKE '%$v%' OR d.driver_tel LIKE '%$v%' OR d.driver_no LIKE '%$v%')";
-
-  $v = $form['dno'];
-  if ($v) $w[] = "(d.id='$v')";
-
-  $v = $form['person_name'];
-  if ($v) $w[] = "(p.person_name LIKE '%$v%' OR p.person_cho LIKE '%$v%')";
-
-  $v = $form['sosk'];
-  if ($v) $w[] = "(d.drv1 LIKE '%$v%' OR d.drv2 LIKE '%$v%')";
-
-  $v = $form['team'];
-  if ($v && $v != 'all') $w[] = "d.driver_team='$v'";
-
-  $ds = $form['ds'];
-  if ($ds != '' && $ds != 'all') $w[] = "d.driver_stat='$ds'";
-
-  $sql_where = sql_where_join($w, $d=0, 'AND');
-
-  $sql_select = $clsdriver->sql_select_run_1()
-       .", d.lat, d.lng"
-       .", d.car_id"
-       .", d.phone_os, d.drv1, d.drv2"
-       .", d.driver_tel, d.driver_no";
-
-  $sql_join   = $clsdriver->sql_join_4();
-
-  $sort = $form['sort']; if ($sort == '') $sort = '1';
-       if ($sort == '1') $o = "d.udate DESC";
-  else if ($sort == '2') $o = "d.driver_name";
-  else if ($sort == '3') $o = "d.drv1, d.drv2";
-  else if ($sort == '4') $o = "d.phone_os DESC";
-  else                   $o = "d.udate DESC";
-  $sql_order = " ORDER BY $o";
-  //dd($sql_order);
-
-  $qry = $sql_select.$sql_from.$sql_join.$sql_where.$sql_order
-    ." LIMIT $start,$ipp";
-
-  $ret = db_query($qry);
-
-  $buttons = join(' ', $btn);
-
-  ## {{
-  print("<div class='panel panel-default'>");
-  print<<<EOS
-<div class="panel-heading">$buttons</div>
-EOS;
-
-  ## {{
-  print("<table class='table table-striped dataC' id='resultTable'>");
-
-  $head = array();
-  $head[] = '번호';
-  $head[] = '이름';
-  if ($form['fd01']) $head[] = '팀';
-  if ($form['fd10']) $head[] = '상태';
-  if ($form['fd02']) $head[] = '차량';
-  $head[] = '운행기록';
-  if ($form['fd06']) { $head[] = '출발시간'; $head[] = '도착시간'; }
-  if ($form['fd03']) $head[] = '출발지';
-  if ($form['fd04']) $head[] = '목적지';
-  if ($form['fd05']) $head[] = '의전인사';
-  if ($form['fd07']) { $head[] = '단말OS'; }
-  if ($form['fd08']) { $head[] = '소속1'; $head[] = '소속2'; }
-  if ($form['fd09']) { $head[] = '전화번호'; $head[] = '고유번호'; }
-  if ($form['fd11']) { $head[] = 'GPS좌표'; }
-  print table_head_general($head);
-  print("<tbody>");
-
-  $cnt = 0;
-  $info = array();
-  while ($row = db_fetch($ret)) {
-    $cnt++;
-    //dd($row);
-
-    $driver_id = $row['driver_id'];
-
-    $edit = _edit_link($row['driver_name'], $driver_id);
-    $pos = sprintf("%s,%s", $row['lat'], $row['lng']);
-
-    $ds = $row['DsName'];
-    if ($clsdriver->is_driving_status($ds)) $ds = "<span class='drs ds_driving'>$ds</span>";
-    else if ($clsdriver->is_emergency_status($ds)) $ds = "<span class='drs ds_emergency'>$ds</span>";
-    else $ds = "<span class='drs ds_not_driving'>$ds</span>";
-
-    $btn = "<input type='button' value='운행기록' onclick=\"_run('$driver_id')\" class='btn btn-primary'>";
-
-    $fields = array();
-    $fields[] = $driver_id;
-    $fields[] = $edit;
-    if ($form['fd01']) $fields[] = $row['driver_team'];
-    if ($form['fd10']) $fields[] = $ds;
-
-    $car_id = $row['car_id'];
-    $edit =<<<EOS
-<span class=link onclick="_edit_car($car_id)">{$row['car_no']}</span>
-EOS;
-    if ($form['fd02']) $fields[] = $edit;
-
-    $fields[] = $btn;
-    if ($form['fd06']) { $fields[] = $row['stime']; $fields[] = $row['etime']; }
-    if ($form['fd03']) $fields[] = $row['loc1'];
-    if ($form['fd04']) $fields[] = $row['loc2'];
-
-    $per_id = $row['person_id'];
-    $edit =<<<EOS
-<span class=link onclick="_edit_person($per_id)">{$row['person_name']}</span>
-EOS;
-    if ($form['fd05']) $fields[] = $edit;
-
-    if ($form['fd07']) $fields[] = $row['phone_os'];
-    if ($form['fd08']) { $fields[] = $row['drv1']; $fields[] = $row['drv2']; }
-    if ($form['fd09']) { $fields[] = $row['driver_tel']; $fields[] = $row['driver_no']; }
-    if ($form['fd11']) { $str = "({$row['lat']},{$row['lng']})"; $fields[] = $str; }
-
-    print("<tr>");
-    foreach ($fields as $f) {
-      print("<td>$f</td>");
-    }
-    print("</tr>");
-
-  }
-  print("</tbody>");
-  print("</table>");
-  ## }}
-  print("</div>");
-  ## }}
-
-  print("<div id='detailView'></div>");
-
-  $json = json_encode($info);
-  print<<<EOS
-<script>
-function _run(id) { var url = "run.php?driver_id="+id; urlGo(url); }
-function _edit(id) { var url = "$env[self]?mode=edit&id="+id; wopen(url, 600,600,1,1); }
-function _edit_person(id) { var url = "person.php?mode=edit&id="+id; wopen(url, 600,600,1,1); }
-function _edit_car(id) { var url = "car.php?mode=edit&id="+id; wopen(url, 600,600,1,1); }
-
-// 주소를 업데이트하기.. 이렇게 하면 API 요청 횟수가 너무 많아질듯.
-function _update_address_all() {
-
-  var info = $json;
-  console.log(info);
-
-  var geocoder = new daum.maps.services.Geocoder();
-
-  var callback = function(status, result) {
-    if (status === daum.maps.services.Status.OK) {
-      // 요청위치에 건물이 없는 경우 도로명 주소는 빈값입니다
-      //console.log('도로명 주소 : ' + result[0].roadAddress.name);
-      //console.log('지번 주소 : ' + result[0].jibunAddress.name);
-      console.log(result[0]);
-      var addr = result[0].jibunAddress.name; 
-      console.log(addr); // 지번주소
-      //$('#address').html(addr);
-    }   
-  };
-
-  for (var i = 0; i < info.length; i++) {
-    var item = info[i];
-    console.log(item);
-    var id = item[0];
-    var lat = item[1];
-    var lng = item[2];
-    var coord = new daum.maps.LatLng(lat, lng);
-    geocoder.coord2detailaddr({coord: coord, callback:callback, options:{index:i}});
-  }
-
-}
-
-// onload
-$(function() {
-  $("input[name='search']").focus();
-});
-</script>
-EOS;
 
   script_daum_map();
   MainPageTail();

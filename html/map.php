@@ -206,10 +206,30 @@ function _make_a_infowindow(content) {
   return infowindow;
 }
 
-function _make_a_marker(pos, infowindow) {
+function _make_a_marker(pos, infowindow, driver_team) {
+
+  var src;
+       if (driver_team == '1팀') src = "/img/marker/1.jpg";
+  else if (driver_team == '2팀') src = "/img/marker/2.jpg";
+  else if (driver_team == '3팀') src = "/img/marker/3.jpg";
+  else if (driver_team == '4팀') src = "/img/marker/4.jpg";
+  else if (driver_team == '5팀') src = "/img/marker/5.jpg";
+  else if (driver_team == '6팀') src = "/img/marker/6.jpg";
+  else if (driver_team == '7팀') src = "/img/marker/7.jpg";
+  else                           src = "";
+
+  if (src) {
+    var size = new daum.maps.Size(30,30);
+    var option = { offset: new daum.maps.Point(5,5)};
+    var markerImage = new daum.maps.MarkerImage(src, size, option);
+  } else {
+    var markerImage = null;
+  }
 
   var marker = new daum.maps.Marker({
     position: pos,
+    title: "",
+    image: markerImage,
   });
   marker.setMap(map);
 
@@ -218,6 +238,7 @@ function _make_a_marker(pos, infowindow) {
 
   return marker;
 }
+
 // 인포윈도우를 표시하는 클로저를 만드는 함수입니다 
 function makeOverListener(map, marker, infowindow) {
   return function() {
@@ -250,17 +271,17 @@ function _make_markers() {
 
     for (var i = 0; i < info.length; i++) {
       var item = info[i];
- console.log(item);
-      console.log( item );
+      //console.log( item );
       _logd( JSON.stringify(item));
 
       var lat = item['lat'];
       var lng = item['lng'];
       var pos = new daum.maps.LatLng(lat, lng);
+      var driver_team = item['driver_team'];
 
       var content = _marker_info_content(item);
       var infowindow = _make_a_infowindow(content);
-      var marker = _make_a_marker(pos, infowindow);
+      var marker = _make_a_marker(pos, infowindow, driver_team);
       markers.push(marker);
       windows.push(infowindow);
 
@@ -282,12 +303,13 @@ function _update_markers() {
       var lat = item['lat'];
       var lng = item['lng'];
       var pos = new daum.maps.LatLng(lat, lng);
+      var driver_team = item['driver_team'];
 
       //markers[i].setPosition(pos);
 
       var content = _marker_info_content(item);
       var infowindow = _make_a_infowindow(content);
-      var marker = _make_a_marker(pos, infowindow);
+      var marker = _make_a_marker(pos, infowindow, driver_team);
       markers.push(marker);
       windows.push(infowindow);
     }

@@ -20,6 +20,34 @@ EOS;
   return $html;
 }
 
+function _summary() {
+  global $clsdriver;
+  $info = $clsdriver->driver_summary();
+
+  print("<div class='btn-group' role='group' aria-label='...' style=''>");
+  foreach ($info as $ds=>$count) {
+         if ($ds == '운전중') $cls = "btn btn-success btn-lg";
+    else if ($ds == '대기중') $cls = "btn btn-info btn-lg";
+    else if ($ds == '비상상황') $cls = "btn btn-danger btn-lg";
+    else $cls = "btn btn-default btn-lg";
+    print("<button type='button' class='$cls' onclick=\"_summgo('$ds')\">$ds<span class='badge'>$count</span></button>");
+  }
+  print("</div>");
+  print<<<EOS
+<script>
+function _summgo(ds) {
+  var form = document.search_form;
+       if (ds == '운전중') form.ds.value = 'DS_DRIVE';
+  else if (ds == '대기중') form.ds.value = 'DS_STOP';
+  else if (ds == '비상상황') form.ds.value = 'DS_EMERGEN';
+  else form.ds.value = 'all';
+  form.submit();
+}
+</script>
+EOS;
+}
+
+
 ### }}}
 
 ### {{{
@@ -155,10 +183,12 @@ EOS;
   MainPageHead($source_title);
   ParagraphTitle($source_title);
 
+  _summary();
+
   $driver_id = $form['driver_id']; //  driver_id
 
   ## {{
-  $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn');
+  $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn btn-primary');
   print<<<EOS
 <form name='search_form' method='get'>
 $btn
@@ -181,7 +211,13 @@ EOS;
   $list = array('=선택=:all','기록중:r','종료:d');
   $preset = $form['rs']; if (!$preset) $preset = 'all';
   $opt = option_general($list, $preset);
-  print("상태:<select name='rs'>$opt</select>");
+  print("기록상태:<select name='rs'>$opt</select>");
+
+  $ds = $form['ds'];
+  $opt = $clsdriver->driver_status_option($ds);
+  print("운전자상태:<select name='ds'>$opt</select>");
+
+  print("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 
   $d1 = $form['date1']; if (!$d1) $d1 = get_now();
   $d2 = $form['date2']; if (!$d2) $d2 = get_now();
@@ -239,6 +275,9 @@ EOS;
     else if ($v == 'd') $w[] = "(r.is_driving=0)";
   }
 
+  $ds = $form['ds'];
+  if ($ds != '' && $ds != 'all') $w[] = "d.driver_stat='$ds'";
+
   $d1 = $form['date1']; if ($d1) $w[] = "DATE(r.idate) >= '$d1'";
   $d2 = $form['date2']; if ($d2) $w[] = "DATE(r.idate) <= '$d2'";
 
@@ -257,13 +296,9 @@ EOS;
 
   $ret = db_query($qry);
 
-  print<<<EOS
-<div class="panel panel-default">
-<div class="panel-heading">
-운행기록
-</div>
-<table class='table table-striped'>
-EOS;
+  print("<div class='panel panel-default'>");
+  print("<table class='table table-striped'>");
+
   print table_head_general(array('ID','이름','상태','차량','운행기록' ,'출발시간','도착시간',
 '소요시간',
 '출발지','목적지','VIP'));
@@ -277,11 +312,13 @@ EOS;
 
     //dd($row);
 
-    $id = $row['run_id'];
+    $run_id = $row['run_id'];
 
     $driver_id = $row['driver_id'];
     $name = _edit_link($row['driver_name'], $driver_id);
-    $btn = button_general('지도', 0, "_map('$id')", $style='', $class='btn btn-primary');
+
+    $lcnt = $clsdriver->run_log_count($run_id);
+    $btn = button_general("($lcnt)건", 0, "_map('$run_id')", $style='', $class='btn btn-primary');
 
     $rdg = $row['run_driving'];
     $ft = $row['flagTerm'];
@@ -300,17 +337,17 @@ EOS;
 
     print<<<EOS
 <tr>
-<td>{$id}</td>
-<td>{$name}</td>
-<td>{$ds}</td>
-<td>{$row['car_no']}</td>
-<td>{$btn}</td>
-<td>{$row['stime']}</td>
-<td>{$row['etime']}</td>
-<td>{$elap}</td>
-<td>{$row['loc1']}</td>
-<td>{$row['loc2']}</td>
-<td>{$row['person_name']}</td>
+<td nowrap>{$run_id}</td>
+<td nowrap>{$name}</td>
+<td nowrap>{$ds}</td>
+<td nowrap>{$row['car_no']}</td>
+<td nowrap>{$btn}</td>
+<td nowrap>{$row['start_time']}</td>
+<td nowrap>{$row['end_time']}</td>
+<td nowrap>{$elap}</td>
+<td nowrap>{$row['loc1']}</td>
+<td nowrap>{$row['loc2']}</td>
+<td nowrap>{$row['person_name']}</td>
 </tr>
 EOS;
   }
@@ -319,23 +356,10 @@ EOS;
   print("</div>");
   //dd($a);
 
-/*
-  // 지도 표시를 위한 폼
-  $positions = urlencode(json_encode($a));
-  $idate = urlencode(json_encode($b));
-  print<<<EOS
-<form name='form' action='$env[self]' method='post'>
-<input type='hidden' name='pos' value="$positions">
-<input type='hidden' name='date' value="$idate">
-<input type='hidden' name='mode' value="map">
-</form>
-EOS;
-*/
-
   print<<<EOS
 <script>
 function _map(id) { var url = "$env[self]?mode=map&id="+id; urlGo(url); }
-function _edit(id) { var url = "driver.php?mode=edit&id="+id; urlGo(url); }
+function _edit(id) { var url = "driver.php?mode=edit&id="+id; wopen(url,600,600,1,1); }
 </script>
 EOS;
 

@@ -149,7 +149,7 @@ class driver {
   }
 
   function driver_all_teams() {
-    return array('A팀', 'B팀', 'C팀','테스트팀');
+    return array('1팀', '2팀', '3팀','4팀','5팀','6팀','7팀','테스트팀');
   }
   function select_team_option($preset='') {
     $opt = '';
@@ -187,6 +187,7 @@ class driver {
     if (!$match) {
       $opt .= "<option value='$preset' selected>$preset</option>";
     }
+    //$opt .= "<option value='none'>=없음=</option>";
     return $opt;
   }
 
@@ -545,6 +546,11 @@ class driver {
     return $list[$code];
   }
 
+  function run_log_count($run_id) {
+    $qry = "select count(*) count from run_log where run_id='$run_id'";
+    $row = db_fetchone($qry);
+    return $row['count'];
+  }
 
 }; // class
 

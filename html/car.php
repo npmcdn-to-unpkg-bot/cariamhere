@@ -223,7 +223,7 @@ EOS;
   ParagraphTitle($source_title);
 
   ## {{
-  $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn');
+  $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn btn-primary');
   print<<<EOS
 <form name='search_form' method='get'>
 $btn
@@ -239,6 +239,40 @@ EOS;
   $ti = textinput_general('clr', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
   print("차량색상:$ti");
 
+  $ipp = get_ipp(20,$min=10,$max=500);
+  $opts = option_ipp($ipp, array(10,20,50,200,500));
+  print("출력:<select name='ipp'>$opts</select>/페이지");
+
+  $sel = array(); $sort = $form['sort'];
+  if ($sort == '') $sel[1] = ' selected'; else $sel[$sort] = ' selected';
+  print<<<EOS
+&nbsp;&nbsp;정렬:<select name='sort'>
+<option value='1'$sel[1]>최근변경</option>
+<option value='2'$sel[2]>차량번호</option>
+<option value='3'$sel[3]>운전자</option>
+<option value='4'$sel[4]>소속</option>
+</select>
+EOS;
+
+  print("<input type='button' onclick='_vopt()' value='표시정보' class='btn'>");
+
+  $fck = array(); // field check '' or ' checked'
+  fck_init($fck, $defaults='1,2,3,4,5');
+  print<<<EOS
+<div id="vopt" style='display:none;'>
+<label><input type='checkbox' name='fd01' $fck[1]>번호</label>
+<label><input type='checkbox' name='fd02' $fck[2]>모델</label>
+<label><input type='checkbox' name='fd03' $fck[3]>색상</label>
+<label><input type='checkbox' name='fd04' $fck[4]>메모</label>
+<label><input type='checkbox' name='fd05' $fck[5]>운전자</label>
+<label><input type='checkbox' name='fd06' $fck[6]>GPS좌표</label>
+<label><input type='checkbox' name='fd07' $fck[7]>소유자소속</label>
+<label><input type='checkbox' name='fd08' $fck[8]>실소유자</label>
+<label><input type='checkbox' name='fd09' $fck[9]>차종,배기량,연식</label>
+</div>
+EOS;
+
+
   print("</form>");
   //dd($form);
 
@@ -252,25 +286,23 @@ EOS;
 
   print<<<EOS
 <script>
-function sf_1() {
-  document.search_form.submit();
-}
-
-function _page(page) { document.search_form.page.value = page; sf_1(); }
-function keypress_text() { if (event.keyCode != 13) return; sf_1(); }
+function sf_0() { document.search_form.submit(); }
+function sf_1() { document.search_form.page.value = '1'; sf_0(); }
+function _page(page) { document.search_form.page.value = page; sf_0(); }
+function keypress_text() { if (event.keyCode != 13) return; sf_0(); }
 </script>
 EOS;
 
   $page = $form['page'];
   $total = 100000;
-  $ipp = 30;
+  $ipp = get_ipp(20,$min=10,$max=500);
   list($start, $last, $page) = calc_page($ipp, $total);
 
   print pagination_bootstrap2($page, $total, $ipp, '_page');
   ## }}
 
   $btn = array();
-  $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
+  $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn');
   print<<<EOS
 <script>
 function _add() { var url = "$env[self]?mode=add"; wopen(url,600,600,1,1); }
@@ -287,10 +319,20 @@ EOS;
 
   $sql_where = sql_where_join($w, $d=0, 'AND');
 
+  $sort = $form['sort']; if ($sort == '') $sort = '1';
+       if ($sort == '1') $o = "c.udate DESC";
+  else if ($sort == '2') $o = "c.car_no";
+  else if ($sort == '3') $o = "d.driver_name";
+  else if ($sort == '4') $o = "c.own1, c.own2";
+  else                   $o = "c.udate DESC";
+  $sql_order = " ORDER BY $o";
+  //dd($sql_order);
+
   $qry = "SELECT c.*, d.driver_name"
     ." FROM carinfo c"
     ." LEFT JOIN driver d ON c.driver_id=d.id"
     .$sql_where
+    .$sql_order
     ." LIMIT $start,$ipp";
   $ret = db_query($qry);
 
@@ -304,7 +346,21 @@ EOS;
 
   ## {{
   print("<table class='table table-striped'>");
-  print table_head_general(array('ID','차량번호','모델','색상','메모','현위치','운전자'));
+
+  $head = array();
+  $head[] = 'ID';
+  if ($form['fd01']) $head[] = '차량번호';
+  if ($form['fd02']) $head[] = '모델';
+  if ($form['fd03']) $head[] = '색상';
+  if ($form['fd04']) $head[] = '메모';
+  if ($form['fd05']) $head[] = '운전자';
+  if ($form['fd06']) $head[] = '현위치';
+  if ($form['fd07']) { $head[] = '소속1'; $head[] = '소속2'; }
+  if ($form['fd08']) $head[] = '실소유자';
+  if ($form['fd09']) { $head[] = '차종'; $head[] = '배기량'; $head[] = '연식'; }
+
+  print table_head_general($head);
+  print("<tbody>");
 
   $cnt = 0;
   while ($row = db_fetch($ret)) {
@@ -313,19 +369,38 @@ EOS;
 
     $id = $row['id'];
 
-    $edit = _edit_link($row['car_no'], $id);
+    $fields = array();
+    $fields[] = $id;
 
-    print<<<EOS
-<tr>
-<td>{$row['id']}</td>
-<td>{$edit}</td>
-<td>{$row['car_model']}</td>
-<td>{$row['car_color']}</td>
-<td>{$row['car_memo']}</td>
-<td>({$row['lat']}, {$row['lng']})</td>
-<td>{$row['driver_name']}</td>
-</tr>
-EOS;
+    $edit = _edit_link($row['car_no'], $id);
+    if ($form['fd01']) $fields[] = $edit;
+
+    if ($form['fd02']) $fields[] = $row['car_model'];
+    if ($form['fd03']) $fields[] = $row['car_color'];
+    if ($form['fd04']) $fields[] = $row['car_memo'];
+    if ($form['fd05']) $fields[] = $row['driver_name'];
+
+    $pos = "({$row['lat']}, {$row['lng']})";
+    if ($form['fd06']) $fields[] = $pos;
+    if ($form['fd07']) {
+      $fields[] = $row['own1'];
+      $fields[] = $row['own2'];
+    }
+    if ($form['fd08']) {
+      $fields[] = $row['own3'];
+    }
+    if ($form['fd09']) {
+      $fields[] = $row['own7'];
+      $fields[] = $row['own9'];
+      $fields[] = $row['own10'];
+    }
+
+    print("<tr>");
+    foreach ($fields as $f) {
+      print("<td>$f</td>");
+    }
+    print("</tr>");
+
   }
   print("</table>");
   ## }}

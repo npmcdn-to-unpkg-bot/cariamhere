@@ -44,7 +44,7 @@ function list_car($sql_where='', $debug=false, $opt=null) {
   }
   $sql_where = " WHERE ".join(" AND ", $w);
 
-  $qry = "SELECT c.*, d.driver_name, d.driver_stat, Ds.DsName"
+  $qry = "SELECT c.*, d.driver_name, d.driver_stat, Ds.DsName, d.driver_team"
     ."  FROM carinfo c"
     ." LEFT JOIN driver d on c.driver_id=d.id"
     ." LEFT JOIN Ds on d.driver_stat=Ds.Ds"
@@ -66,6 +66,7 @@ function list_car($sql_where='', $debug=false, $opt=null) {
       'status_name'=>$row['DsName'],
       'des_name1'=>$row['des_name1'],
       'dep_name1'=>$row['dep_name1'],
+      'driver_team'=>$row['driver_team'],
     );
     if ($debug) $item['_debug_'] = $row;
     $info[] = $item;

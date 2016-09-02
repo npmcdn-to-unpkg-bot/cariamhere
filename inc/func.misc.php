@@ -862,7 +862,7 @@ EOS;
 function table_head_general($titles) {
   $html = "<thead><tr>";
   foreach ($titles as $t) {
-    $html .= "<th>$t</th>";
+    $html .= "<th nowrap>$t</th>";
   }
   $html .= "</tr></thead>";
   return $html;

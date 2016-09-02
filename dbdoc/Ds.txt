@@ -5,9 +5,21 @@ create table Ds (
   key(Ds)
 ) comment 'Driver Status';
 
-insert into Ds set Ds='DS_STOP',DsName='대기중';
-insert into Ds set Ds='DS_DRIVE',DsName='운전중';
+insert into Ds set Ds='DS_STOP',   DsName='대기중';
+insert into Ds set Ds='DS_DRIVE',  DsName='운전중';
 insert into Ds set Ds='DS_WAITING',DsName='배차대기중';
-insert into Ds set Ds='DS_EMERGENCY',DsName='비상상황';
+insert into Ds set Ds='DS_EMERGEN',DsName='비상상황';
+
+mysql> select * from Ds;
++------------+-----------------+
+| Ds         | DsName          |
++------------+-----------------+
+| DS_STOP    | 대기중          |
+| DS_DRIVE   | 운전중          |
+| DS_WAITING | 배차대기중      |
+| DS_EMERGEN | 비상상황        |
++------------+-----------------+
+4 rows in set (0.00 sec)
+
 
 
