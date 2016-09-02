@@ -1,2 +1,4 @@
 .*swp
 push
+backup.sh
+backup.*

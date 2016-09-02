@@ -18,30 +18,29 @@ function _split_cols(&$cols, &$line) {
   $cols = preg_split("/[,\t]/", $line);
 }
 
+function _dbq($qry) {
+  global $debug;
+  if ($debug) dd($qry);
+  $ret = db_query($qry);
+}
+
 ### }}}
 
 ### {{{
 // 저장하기
 if ($mode == 'add2do') {
 
-  // 업로드 직전 데이터는 삭제
-  $qry = "DELETE FROM driver";
-  if ($debug) dd($qry);
-  $ret = db_query($qry);
-
-# // 업로드 직전 데이터는 삭제 id 20 이전은 개발자용
-# $qry = "DELETE FROM driver where id > 20";
-# if ($debug) dd($qry);
-# $ret = db_query($qry);
-
-  // 차량정보 삭제
-  $qry = "DELETE FROM carinfo";
-  if ($debug) dd($qry);
-  $ret = db_query($qry);
+  if ($form['ovwr'] == '1') { // 덮어쓰기
+    $overwrite = true;
+  } else if ($form['ovwr'] == '2') { // 추가하기
+    $overwrite = false;
+  } else die('오류');
+//dd($form); exit;
 
   $content = $form['content'];
   _split_list($rows, $content);
 
+  $count = 0;
   foreach ($rows as $line) {
     $line = trim($line);
     if (!$line) continue;
@@ -49,57 +48,117 @@ if ($mode == 'add2do') {
 
     if ($debug) dd($cols);
 
+    $own1 = trim($cols[0]); // 지파명      0
+    $own2 = trim($cols[1]); // 교회명      1
+    $own3 = trim($cols[2]); // 실소유자    2
+    $own4 = trim($cols[3]); // 연락처      3
+    $own5 = trim($cols[4]); // 모델명      4
+    $own6 = trim($cols[5]); // 차량번호    5
+    $car_no = $own6;
+    $own7 = trim($cols[6]); // 차종        6
+    $own8 = trim($cols[7]); // 색상        7
+    $own9 = trim($cols[8]); // 배기량      8
+    $own10= trim($cols[9]); // 연식        9
+
+    $drv1 = trim($cols[10]); // 지파        10
+    $drv2 = trim($cols[11]); // 교회        11
+    $drv3 = trim($cols[12]); // 이름        12
+    $drv4 = trim($cols[13]); // 연령        13
+    $drv5 = trim($cols[14]); // 연락처      14
+    $drv6 = trim($cols[15]); // 고유번호    15
+    $driver_id = trim($cols[16]); // DB번호 16
+    $drv7 = trim($cols[17]); // 팀          17
+
     $s = array();
-    $s[] = "own1='{$cols[0]}'";
-    $s[] = "own2='{$cols[1]}'";
-    $s[] = "own3='{$cols[2]}'";
-    $s[] = "own4='{$cols[3]}'";
-    $s[] = "own5='{$cols[4]}'";
-    $s[] = "own6='{$cols[5]}'";
-    $s[] = "own7='{$cols[6]}'";
-    $s[] = "own8='{$cols[7]}'";
-    $s[] = "own9='{$cols[8]}'";
-    $s[] = "own10='{$cols[9]}'";
-    $sql_set = " SET ".join(",", $s);
-    $qry = "INSERT INTO carinfo $sql_set";
-    if ($debug) dd($qry);
-    $ret = db_query($qry);
+    $s[] = "own1='{$own1}'";
+    $s[] = "own2='{$own2}'";
+    $s[] = "own3='{$own3}'";
+    $s[] = "own4='{$own4}'";
+    $s[] = "own5='{$own5}'";
+    $s[] = "own6='{$own6}'";
+    $s[] = "own7='{$own7}'";
+    $s[] = "own8='{$own8}'";
+    $s[] = "own9='{$own9}'";
+    $s[] = "own10='{$own10}'";
 
-    $qry = "SELECT LAST_INSERT_ID() as id";
-    if ($debug) dd($qry);
-    $row = db_fetchone($qry);
-    $car_id = $row['id'];
+    $s1 = $s;
+    $s1[] = "car_no='{$own6}'"; // 차량번호
+    $s1[] = "car_model='{$own5}'"; // 모델명
+    $s1[] = "car_color='{$own8}'"; // 색상
+ 
+    if ($overwrite) {
+      $qry = "select * from carinfo where car_no='$car_no'";
+      $row = db_fetchone($qry);
+      if (!$row) die("차량 $car_no 가 등록되어 있지 않습니다.");
+      $car_id = $row['id'];
 
-    $s[] = "drv1='{$cols[10]}'";
-    $s[] = "drv2='{$cols[11]}'";
-    $s[] = "drv3='{$cols[12]}'";
-    $s[] = "drv4='{$cols[13]}'";
+      $s1[] = "driver_id ='{$driver_id}'";
+      $sql_set = " SET ".join(",", $s1);
+      $qry = "UPDATE carinfo"
+       .$sql_set
+       ." WHERE id='$car_id'";
+      $ret = _dbq($qry);
 
-    $tel = $cols[14];
+    } else {
+
+      $sql_set = " SET ".join(",", $s);
+      $qry = "INSERT INTO carinfo $sql_set";
+      $ret = _dbq($qry);
+
+      $qry = "SELECT LAST_INSERT_ID() as id";
+      if ($debug) dd($qry);
+      $row = db_fetchone($qry);
+      $car_id = $row['id'];
+    }
+
+    $s[] = "drv1='{$drv1}'";
+    $s[] = "drv2='{$drv2}'";
+    $driver_name = $drv3;
+    if ($driver_name == '') die('운전자 이름 미입력');
+    $s[] = "drv3='{$driver_name}'";
+    $driver_cho = cho_hangul($driver_name);
+    $s[] = "driver_cho='{$driver_cho}'"; // driver_cho
+    $s[] = "drv4='{$drv4}'";
+    $tel = $drv5;
     if (strlen($tel) == 9) $tel = "010-$tel";
-    $s[] = "drv5='{$tel}'";
+    $s[] = "drv5='{$tel}'"; // 전화번호
+    $s[] = "drv6='{$drv6}'"; // 고유번호
+    $s[] = "drv7='{$drv7}'"; // 팀
 
-    $s[] = "drv6='{$cols[15]}'";
-    $driver_id = $cols[16];
-    $s[] = "id='{$driver_id}'";
-    $sql_set = " SET ".join(",", $s);
-    $qry = "INSERT INTO driver $sql_set";
-    if ($debug) dd($qry);
-    $ret = db_query($qry);
+    if ($overwrite) {
 
-    $qry = "update driver set car_id='$car_id' where id='$driver_id'";
-    if ($debug) dd($qry);
-    $ret = db_query($qry);
+      $s[] = "car_id='{$car_id}'";
+      $s[] = "driver_name='$driver_name'";
+      $s[] = "driver_tel='$tel'";
+      $s[] = "driver_no='$drv6'";
+      //$s[] = "driver_stat='DS_STOP'";
+      $s[] = "driver_team='$drv7'";
+      $sql_set = " SET ".join(",", $s);
 
-    $qry = "update carinfo set driver_id='$driver_id' where id='$car_id'";
-    if ($debug) dd($qry);
-    $ret = db_query($qry);
+      $qry = "UPDATE driver"
+       .$sql_set
+      ." where id='$driver_id'";
+      if ($debug) dd($qry);
+      $ret = db_query($qry);
+
+      $qry = "UPDATE carinfo"
+       ." SET driver_id='$driver_id', car_no=own6, car_model=own5, car_color=own8"
+       ." WHERE id='$car_id'";
+      if ($debug) dd($qry);
+      $ret = db_query($qry);
+
+    } else {
+
+      $s[] = "id='{$driver_id}'";
+      $sql_set = " SET ".join(",", $s);
+      $qry = "INSERT INTO driver $sql_set";
+      if ($debug) dd($qry);
+      $ret = db_query($qry);
+
+    }
+
+    $count++;
   }
-
-  $qry = "UPDATE driver SET driver_name=drv3,driver_tel=drv5,driver_no=drv6,driver_stat='DS_STOP'"
-     ." WHERE driver_name=''";
-  if ($debug) dd($qry);
-  $ret = db_query($qry);
 
   // 전화번호에서 - 제거
   $qry = "update driver set driver_tel = concat( substring(driver_tel,1,3), substring(driver_tel,5,4), substring(driver_tel,10,4)) where length(driver_tel)=13;";
@@ -111,12 +170,9 @@ if ($mode == 'add2do') {
   if ($debug) dd($qry);
   $ret = db_query($qry);
 
-  $qry = "UPDATE carinfo SET car_no=own6, car_model=own5, car_color=own8 WHERE car_no=''";
-  if ($debug) dd($qry);
-  $ret = db_query($qry);
-
   print<<<EOS
-<a href='/home.php'>업로드 완료. 돌아가기</a>
+<p>$count 건 완료.
+<p><a href='/home.php'>업로드 완료. 돌아가기</a>
 EOS;
   exit;
 }
@@ -146,8 +202,10 @@ EOS;
 $content
 </textarea>
 
-<input type='button' value='미리보기' onclick='sf_1()'>
-<input type='button' value='저장하기' onclick='sf_2()'>
+<input type='button' value='미리보기' onclick='sf_1()' class='btn btn-primary'>
+<input type='button' value='저장하기' onclick='sf_2()' class='btn btn-primary'>
+<label><input type='radio' name='ovwr' value='1'>덮어쓰기</label>
+<label><input type='radio' name='ovwr' value='2' checked>추가하기</label>
 </form>
 
 <script>

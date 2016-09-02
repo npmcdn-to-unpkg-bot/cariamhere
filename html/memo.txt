@@ -9,8 +9,7 @@ drwxr-xr-x  2 carmax carmax  4096 Aug 29 14:46 css          스타일
 drwxrwxr-x  2 carmax carmax  4096 Aug 29 14:57 background   백그라운드 서비스
 
 drwxr-xr-x  2 carmax carmax  4096 Aug  8 18:58 apnstest
-drwxr-xr-x  2 carmax carmax  4096 Jul  6 10:06 iPhone
-drwxr-xr-x  2 carmax carmax  4096 Jul 15 14:30 messaging
+drwxr-xr-x  2 carmax carmax  4096 Jul 15 14:30 messaging    안드로이드 푸시
 
 drwxr-xr-x  2 carmax carmax  4096 Aug 30 11:32 autocomplete 연습용
 drwxr-xr-x  2 carmax carmax  4096 Jun 21 23:17 app          모바일 웹으로 테스트로 만든것

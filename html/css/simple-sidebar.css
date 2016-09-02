@@ -156,4 +156,7 @@ span.alert_emergency { background-color: red; color:white;  }
 span.alert_passby    { background-color: #F28CE3; color:#000; border:2px solid #7E0E6D;  }
 span.alert_regfail   { background-color: #fff; color:#f00; border:1px dashed #800;  }
 
+table td.nowrap {
+  min-width: 50px;
+}
 

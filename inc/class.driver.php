@@ -149,7 +149,7 @@ class driver {
   }
 
   function driver_all_teams() {
-    return array('A팀', 'B팀', 'C팀');
+    return array('A팀', 'B팀', 'C팀','테스트팀');
   }
   function select_team_option($preset='') {
     $opt = '';
@@ -267,7 +267,10 @@ class driver {
 
     // run 정보를 driver 에 반영
     $qry = "UPDATE driver"
-     ." SET run_id='$run_id', is_driving=1, driver_stat='DS_DRIVE'"
+     ." SET run_id='$run_id'"
+     .", is_driving=1"
+     .", driver_stat='DS_DRIVE'"
+     .", udate=now()"
      ." WHERE id='$driver_id'";
     $ret = db_query($qry);
 
@@ -411,6 +414,7 @@ class driver {
     $qry = "UPDATE driver"
       // run_id 는 지우지 않음 (최근 운행 기록을 조회하기 위해)
       ." SET is_driving=0, driver_stat='DS_STOP'"
+      .", udate=now()"
       ." WHERE id='$driver_id'";
     $ret = db_query($qry);
 

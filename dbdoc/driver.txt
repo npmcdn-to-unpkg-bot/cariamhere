@@ -35,6 +35,54 @@ create table  driver (
   idate datetime
 );
 
+mysql> desc driver;
++-------------+------------+------+-----+---------+----------------+
+| Field       | Type       | Null | Key | Default | Extra          |
++-------------+------------+------+-----+---------+----------------+
+| id          | int(11)    | NO   | PRI | NULL    | auto_increment |
+| driver_name | char(50)   | NO   |     |         |                |
+| driver_cho  | char(50)   | NO   |     |         |                |
+| driver_no   | char(20)   | NO   |     |         |                |
+| driver_stat | char(20)   | NO   |     |         |                |
+| driver_tel  | char(20)   | NO   |     |         |                |
+| did         | char(200)  | NO   |     |         |                |
+| phone_hash  | char(100)  | NO   |     |         |                |
+| phone_os    | char(10)   | NO   |     |         |                |
+| role        | char(10)   | NO   |     |         |                |
+| driver_team | char(10)   | NO   |     |         |                |
+| apikey      | char(50)   | YES  |     |         |                |
+| pushkey     | char(100)  | YES  |     |         |                |
+| rflag       | tinyint(4) | YES  |     | 0       |                |
+| run_id      | int(11)    | NO   |     | 0       |                |
+| car_id      | int(11)    | NO   |     | 0       |                |
+| person_id   | int(11)    | YES  |     | NULL    |                |
+| lat         | double     | YES  |     | NULL    |                |
+| lng         | double     | YES  |     | NULL    |                |
+| is_driving  | tinyint(4) | YES  |     | 0       |                |
+| udate       | datetime   | YES  |     | NULL    |                |
+| idate       | datetime   | YES  |     | NULL    |                |
+| own1        | char(10)   | YES  |     | NULL    |                |
+| own2        | char(20)   | YES  |     | NULL    |                |
+| own3        | char(20)   | YES  |     | NULL    |                |
+| own4        | char(20)   | YES  |     | NULL    |                |
+| own5        | char(20)   | YES  |     | NULL    |                |
+| own6        | char(20)   | YES  |     | NULL    |                |
+| own7        | char(20)   | YES  |     | NULL    |                |
+| own8        | char(20)   | YES  |     | NULL    |                |
+| own9        | char(20)   | YES  |     | NULL    |                |
+| own10       | char(20)   | YES  |     | NULL    |                |
+| drv1        | char(20)   | YES  |     | NULL    |                |
+| drv2        | char(20)   | YES  |     | NULL    |                |
+| drv3        | char(20)   | YES  |     | NULL    |                |
+| drv4        | char(20)   | YES  |     | NULL    |                |
+| drv5        | char(20)   | YES  |     | NULL    |                |
+| drv6        | char(20)   | YES  |     | NULL    |                |
+| flagTerm    | tinyint(4) | YES  |     | 0       |                |
+| emergency   | char(10)   | YES  |     |         |                |
+| drv7        | char(10)   | YES  |     | NULL    |                |
++-------------+------------+------+-----+---------+----------------+
+41 rows in set (0.00 sec)
+
 
   alter table driver add column
   emergency   char(10) default '' comment '비상상황' after flagTerm ;
@@ -76,7 +124,7 @@ alter table driver add column drv3 char(20) comment '이름';
 alter table driver add column drv4 char(20) comment '연령';
 alter table driver add column drv5 char(20) comment '연락처';
 alter table driver add column drv6 char(20) comment '고유번호';
-
+alter table driver add column drv7 char(10) comment '팀';
 
 
 

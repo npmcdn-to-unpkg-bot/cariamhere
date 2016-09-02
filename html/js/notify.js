@@ -32,6 +32,13 @@ function notifyMe(title, text, url) {
     alert('Desktop notifications not available in your browser. Try Chromium.'); return;
   }
 
+  var icon;
+       if (title == '운행시작') icon = "/img/noti_icon/start.png";
+  else if (title == '운행종료') icon = "/img/noti_icon/stop.png";
+  //else if (title == '긴급') icon = "/img/noti_icon/stop.png";
+  else if (title == '경유지근처') icon = "/img/noti_icon/pass.png";
+  else icon = "/img/noti_icon/car.png";
+
   if (Notification.permission !== "granted") {
     alert('permission error');
     Notification.requestPermission();
@@ -40,7 +47,7 @@ function notifyMe(title, text, url) {
       title: title,
       dir : 'ltr',
       body: text,
-      icon: '/img/noti_icon/car.png',
+      icon: icon,
     };
 
     var notification = new Notification(title, opt, function(id) {

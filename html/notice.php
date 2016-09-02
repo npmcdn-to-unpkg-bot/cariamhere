@@ -27,9 +27,13 @@ function _get($id) {
 
 function _sqlset(&$s) {
   global $form;
+
   $s[] = "title='{$form['title']}'";
-  $s[] = "content='{$form['content']}'";
-//dd($form); dd($s); exit;
+
+//dd($form);
+  $str = db_escape_string($form['content']);
+//dd($str);
+  $s[] = "content='$str'";
 }
 
 function _edit_link($title, $id) {
@@ -57,14 +61,17 @@ if ($mode == 'dodel') {
 
 if ($mode == 'doedit') {
   $id = $form['id'];
+//dd($form); exit;
 
   $s = array();
   _sqlset($s);
   $s[] = "udate=NOW()";
+//dd($s);
   $sql_set = " SET ".join(",", $s);
 
   $qry = "UPDATE notice $sql_set WHERE id='$id'";
-//dd($qry); exit;
+//dd($qry);
+//exit;
   $ret = db_query($qry);
 
   $url = $env['self'];
@@ -116,12 +123,8 @@ EOS;
   $html = textinput_general('title', $row['title'], '40', '', $click_select, 0);
   print _data_tr('제목', $html);
 
-  $html = textinput_general('content', $row['content'], '80', '', $click_select, 0);
+  $html = textarea_general('content', $row['content'], $cols='80', $rows='10', $click_select=true, '');
   print _data_tr('내용', $html);
-
-# $opt = $clsrole->select_option_role($row['role']);
-# $html = "<select name='role'>$opt</select>";
-# print _data_tr('공지대상', $html);
 
   $html = $row['idate'];
   print _data_tr('작성시간', $html);
@@ -185,7 +188,7 @@ EOS;
 <div class="panel-heading">$b1</div>
 <table class='table table-striped dataC'>
 EOS;
-  print table_head_general(array('번호','제목','내용','수정일시'));
+  print table_head_general(array('번호','제목/내용','수정일시'));
 
   $cnt = 0;
   while ($row = db_fetch($ret)) {
@@ -194,13 +197,18 @@ EOS;
 
     $id = $row['id'];
     $edit = _edit_link($row['title'], $id);
+  
+    $content = $row['content'];
+    $cont = cut_str($content,$len=100,$tail="...");
 
     print<<<EOS
 <tr>
-<td>{$cnt}</td>
+<td rowspan='2'>{$cnt}</td>
 <td>{$edit}</td>
-<td>{$row['content']}</td>
-<td>{$row['udate']}</td>
+<td rowspan='2'>{$row['udate']}</td>
+</tr>
+<tr>
+<td>{$cont}</td>
 </tr>
 EOS;
   }

@@ -503,14 +503,14 @@ EOS;
 }
 
 // $ti = textinput_general('name', $preset='', $size='10', $onkeypress='', $click_select=true, $maxlength=0, $id='');
-function textinput_general($fname, $preset='', $size='10', $onkeypress='', $click_select=true, $maxlength=0, $id='') {
+function textinput_general($fname, $preset='', $size='10', $onkeypress='', $click_select=true, $maxlength=0, $id='', $class='') {
 
   if ($click_select) { $onclick = "this.select()"; }
   if ($maxlength) $ml = " maxlength='$maxlength'";
 
   $html =<<<EOS
 <input type='text' name='$fname' size='$size' id='$id'
- value='$preset' style="IME-MODE:active;" onkeypress='$onkeypress' onclick='$onclick'$ml>
+ value='$preset' style="IME-MODE:active;" onkeypress='$onkeypress' onclick='$onclick'$ml class='$class'>
 EOS;
   return $html;
 }
@@ -978,7 +978,6 @@ function MainPageHead($title='', $path='') {
 parent.top.document.title = "홈 - $title";
 </script>
 EOS;
-
 }
 
 function MainPageTail($path='') {
@@ -1023,9 +1022,10 @@ EOS;
 }
 
 // script_daum_map();
-function script_daum_map() {
+function script_daum_map($k=1) {
   global $conf;
-  $key = $conf['daum_map_key'];
+       if ($k == 1) $key = $conf['daum_map_key'];
+  else if ($k == 2) $key = $conf['daum_map_key2'];
   print<<<EOS
 <script type="text/javascript" src="//apis.daum.net/maps/maps3.js?apikey=$key&libraries=services,clusterer"></script>
 EOS;
@@ -1413,6 +1413,53 @@ function alert_log($msg, $grp='') {
   $qry = "INSERT INTO alert".$sql_set;
   $ret = db_query($qry);
 }
+
+function record_head($title='', $path='') {
+  global $env, $conf;
+  $path = "./head.php";
+  include_once($path);
+  print<<<EOS
+<script>
+parent.top.document.title = "홈 - $title";
+</script>
+EOS;
+}
+
+function record_tail($path='') {
+  global $env, $conf;
+  $path = "./foot.php";
+  include_once($path);
+}
+
+
+# 한글 자르기
+function cut_str($str,$len,$tail="") {
+    $checkmb = true;
+
+    preg_match_all('/[\xE0-\xFF][\x80-\xFF]{2}|./', $str, $match);
+
+    $m    = $match[0];
+
+    $slen = strlen($str);  // length of source string
+    $tlen = strlen($tail); // length of tail string
+    $mlen = count($m); // length of matched characters
+
+    if ($slen <= $len) return $str;
+    if (!$checkmb && $mlen <= $len) return $str;
+
+    $ret   = array();
+    $count = 0;
+
+    for ($i=0; $i < $len; $i++) {
+        $count += ($checkmb && strlen($m[$i]) > 1)?2:1;
+
+        if ($count + $tlen > $len) break;
+        $ret[] = $m[$i];
+    }
+
+    return join('', $ret).$tail;
+}
+
 
 
 ?>

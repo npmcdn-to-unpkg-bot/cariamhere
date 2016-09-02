@@ -75,8 +75,7 @@ if ($mode == 'dodel') {
   $qry = "DELETE FROM person WHERE id='$id'";
   $ret = db_query($qry);
 
-  $url = $env['self'];
-  Redirect($url);
+  CloseAndReloadOpenerWindow();
   exit;
 }
 
@@ -91,8 +90,7 @@ if ($mode == 'doedit') {
   $qry = "UPDATE person $sql_set WHERE id='$id'";
   $ret = db_query($qry);
 
-  $url = $env['self'];
-  Redirect($url);
+  CloseAndReloadOpenerWindow();
   exit;
 }
 
@@ -108,8 +106,7 @@ if ($mode == 'doadd') {
   $qry = "INSERT INTO person $sql_set";
   $ret = db_query($qry);
 
-  $url = $env['self'];
-  Redirect($url);
+  CloseAndReloadOpenerWindow();
   exit;
 }
 
@@ -306,12 +303,12 @@ EOS;
 
     print<<<EOS
 <tr>
-<td>{$cols[0]}</td>
-<td>{$cols[1]}</td>
-<td>{$cols[2]}</td>
-<td>{$cols[3]}</td>
-<td>{$cols[4]}</td>
-<td>{$cols[5]}</td>
+<td nowrap class='nowrap'>{$cols[0]}</td>
+<td nowrap class='nowrap'>{$cols[1]}</td>
+<td nowrap class='nowrap'>{$cols[2]}</td>
+<td nowrap class='nowrap'>{$cols[3]}</td>
+<td nowrap class='nowrap'>{$cols[4]}</td>
+<td nowrap class='nowrap'>{$cols[5]}</td>
 </tr>
 EOS;
   }
@@ -375,16 +372,96 @@ EOS;
   MainPageHead($source_title);
   ParagraphTitle($source_title);
 
-  $btn = array();
-  $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
-  $btn[] = button_general('일괄입력', 0, "_add2()", $style='', $class='btn btn-info');
-  $btn[] =<<<EOS
-검색(이름/초성/인사번호):<input type='text' name='search' onkeyup="searchq();">
+  ## {{
+  $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn btn-primary');
+  print<<<EOS
+<form name='search_form' method='get'>
+$btn
+<input type='hidden' name='mode' value='$mode'>
+<input type='hidden' name='page' value='{$form['page']}'>
+EOS;
+
+  $v = $form['search'];
+  $ti = textinput_general('search', $v, $size='10', 'keypress_text()', true, 0, $id='', 'ui-corner-all');
+  print("인사이름/인사번호:$ti");
+
+  $v = $form['jik'];
+  $ti = textinput_general('jik', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='', 'ui-corner-all');
+  print("직책:$ti");
+
+  $sel = array(); $sort = $form['sort'];
+  if ($sort == '') $sel[1] = ' selected'; else $sel[$sort] = ' selected';
+  print<<<EOS
+정렬방법:<select name='sort'>
+<option value='1'$sel[1]>최근변경</option>
+<option value='2'$sel[2]>이름</option>
+<option value='3'$sel[3]>국가</option>
+</select>
+EOS;
+
+/*
+  print("<input type='button' onclick='_vopt()' value='표시정보' class='btn'>");
+
+  $fck = array(); // field check '' or ' checked'
+  fck_init($fck, $defaults='1,2,3,4,5,10');
+  print<<<EOS
+<div id="vopt" style='display:none;'>
+<label><input type='checkbox' name='fd02' $fck[2]>팀</label>
+<label><input type='checkbox' name='fd10' $fck[10]>상태</label>
+<label><input type='checkbox' name='fd01' $fck[1]>차량</label>
+<label><input type='checkbox' name='fd03' $fck[3]>출발지</label>
+<label><input type='checkbox' name='fd04' $fck[4]>목적지</label>
+<label><input type='checkbox' name='fd05' $fck[5]>의전인사</label>
+<label><input type='checkbox' name='fd06' $fck[6]>출발,도착시간</label>
+</div>
+EOS;
+*/
+
+  print("</form>");
+  //dd($form);
+
+  print<<<EOS
+<script>
+function _vopt() {
+  $('#vopt').toggle();
+}
+</script>
 EOS;
 
   print<<<EOS
 <script>
-function _add() { var url = "$env[self]?mode=add"; urlGo(url); }
+function sf_0() {
+  document.search_form.submit();
+}
+function sf_1() {
+  document.search_form.page.value = '1';
+  sf_0();
+}
+
+function _page(page) { document.search_form.page.value = page; sf_0(); }
+function keypress_text() { if (event.keyCode != 13) return; sf_0(); }
+</script>
+EOS;
+
+  $page = $form['page'];
+  $total = 100000;
+  $ipp = 30;
+  list($start, $last, $page) = calc_page($ipp, $total);
+
+  print pagination_bootstrap2($page, $total, $ipp, '_page');
+  ## }}
+
+
+  $btn = array();
+  $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
+  $btn[] = button_general('일괄입력', 0, "_add2()", $style='', $class='btn btn-info');
+  $btn[] =<<<EOS
+검색(이름/초성/인사번호):<input type='text' name='searchq' onkeyup="searchq();" onclick='this.select()'>
+EOS;
+
+  print<<<EOS
+<script>
+function _add() { var url = "$env[self]?mode=add"; wopen(url,600,600,1,1); }
 function _add2() { var url = "$env[self]?mode=add2"; urlGo(url); }
 
 
@@ -393,7 +470,7 @@ var tbody_origin = null;
 function searchq() {
   //console.log(qcall);
 
-  var searchTxt = $("input[name='search']").val();
+  var searchTxt = $("input[name='searchq']").val();
   var i = 0
   //console.log(searchTxt);
 
@@ -471,7 +548,19 @@ console.log(item);
 </script>
 EOS;
 
-  $qry = $sql_select.$sql_from.$sql_join;
+  $w = array('1');
+
+  $v = $form['search'];
+  if ($v) $w[] = "(p.person_name LIKE '%$v%' OR p.per_no='$v')";
+
+  $v = $form['jik'];
+  if ($v) $w[] = "(p.person_position LIKE '%$v%')";
+
+  $sql_where = sql_where_join($w, $d=0, 'AND');
+
+  $qry = $sql_select.$sql_from.$sql_join.$sql_where
+    ." LIMIT $start,$ipp";
+
   $ret = db_query($qry);
 
   $buttons = join('', $btn);
@@ -500,12 +589,12 @@ EOS;
 
     print<<<EOS
 <tr>
-<td>{$row['per_no']}</td>
-<td>{$edit}</td>
-<td>{$row['person_group']}</td>
-<td>{$row['person_position']}</td>
-<td>{$row['nname']}</td>
-<td>{$row['person_hotel']}</td>
+<td nowrap class='nowrap'>{$row['per_no']}</td>
+<td nowrap class='nowrap'>{$edit}</td>
+<td nowrap class='nowrap'>{$row['person_group']}</td>
+<td nowrap class='nowrap'>{$row['person_position']}</td>
+<td nowrap class='nowrap'>{$row['nname']}</td>
+<td nowrap class='nowrap'>{$row['person_hotel']}</td>
 </tr>
 EOS;
   }
@@ -517,7 +606,7 @@ EOS;
 <div id='detailView'> </div>
 
 <script>
-function _edit(id) { var url = "$env[self]?mode=edit&id="+id; urlGo(url); }
+function _edit(id) { var url = "$env[self]?mode=edit&id="+id; wopen(url,600,600,1,1); }
 
 $(function() {
   $("input[name='search']").focus();

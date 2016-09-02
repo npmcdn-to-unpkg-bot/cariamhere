@@ -33,3 +33,31 @@ alter table carinfo add column own10 char(20) comment '연식';
 
 car_no=own6, car_model=own5, car_color=own8
 
+mysql> desc carinfo;
++-----------+-----------+------+-----+---------+----------------+
+| Field     | Type      | Null | Key | Default | Extra          |
++-----------+-----------+------+-----+---------+----------------+
+| id        | int(11)   | NO   | PRI | NULL    | auto_increment |
+| car_no    | char(20)  | NO   |     |         |                |
+| car_model | char(30)  | NO   |     |         |                |
+| car_color | char(10)  | NO   |     |         |                |
+| car_memo  | char(255) | NO   |     |         |                |
+| driver_id | int(11)   | YES  |     | NULL    |                |
+| lat       | double    | YES  |     | NULL    |                |
+| lng       | double    | YES  |     | NULL    |                |
+| udate     | datetime  | YES  |     | NULL    |                |
+| idate     | datetime  | YES  |     | NULL    |                |
+| own1      | char(10)  | YES  |     | NULL    |                |
+| own2      | char(20)  | YES  |     | NULL    |                |
+| own3      | char(20)  | YES  |     | NULL    |                |
+| own4      | char(20)  | YES  |     | NULL    |                |
+| own5      | char(20)  | YES  |     | NULL    |                |
+| own6      | char(20)  | YES  |     | NULL    |                |
+| own7      | char(20)  | YES  |     | NULL    |                |
+| own8      | char(20)  | YES  |     | NULL    |                |
+| own9      | char(20)  | YES  |     | NULL    |                |
+| own10     | char(20)  | YES  |     | NULL    |                |
++-----------+-----------+------+-----+---------+----------------+
+20 rows in set (0.00 sec)
+
+

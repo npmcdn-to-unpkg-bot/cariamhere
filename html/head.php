@@ -19,7 +19,7 @@
 -->
     <script src="/js/jquery-1.9.1.min.js"></script>
 
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.css" rel="stylesheet">
     <link href="/css/bootstrap-theme.min.css" rel="stylesheet">
     <link href="/css/bootstrap-theme.min.css" rel="stylesheet">
     <script src="/js/bootstrap.min.js"></script>

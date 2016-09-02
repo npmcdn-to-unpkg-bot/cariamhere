@@ -91,7 +91,7 @@ function initMap() {
 
 
 function _push_position(marker) {
-  console.log(marker);
+  //console.log(marker);
   var driver_id = marker.driver_id;
   
   var p = marker.getPosition();
@@ -106,7 +106,7 @@ function _push_position(marker) {
     +"lng:"+lng+"<br>"
     +"driver_id:"+driver_id+"<br>"
     +"}<br>";
-  console.log(str);
+  //console.log(str);
   $('#log').html(str);
 
   $.ajax({
@@ -120,7 +120,7 @@ function _push_position(marker) {
     }
   })
   .done(function( msg ) {
-    console.log( "Data Saved: " + msg );
+    //console.log( "Data Saved: " + msg );
   });
 
 }
@@ -134,7 +134,7 @@ function _get_carinfo(callback) {
     }
   })
   .done(function( msg ) {
-    console.log( "data : " + msg );
+    //console.log( "data : " + msg );
     var car_info = $.parseJSON( msg );
     callback(car_info);
   });
@@ -161,13 +161,17 @@ function _make_markers() {
   _get_carinfo(function(info) {
 
     for (var i = 0; i < info.length; i++) {
-      console.log( info[i] );
+
       var item = info[i];
       var lat = item['lat'];
       var lng = item['lng'];
       var car_no = item['car_no'];
       var driver_name = item['driver_name'];
       var driver_id = item['id'];
+      if (!lat) continue;
+      if (!lng) continue;
+
+      //console.log( item );
 
       var title = driver_name;
       if (car_no) title += "/" + car_no;

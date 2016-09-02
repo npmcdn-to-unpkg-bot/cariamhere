@@ -65,8 +65,7 @@ if ($mode == 'dodel') {
   $qry = "DELETE FROM carinfo WHERE id='$id'";
   $ret = db_query($qry);
 
-  $url = $env['self'];
-  Redirect($url);
+  CloseAndReloadOpenerWindow();
   exit;
 }
 
@@ -81,8 +80,7 @@ if ($mode == 'doedit') {
   $qry = "UPDATE carinfo $sql_set WHERE id='$id'";
   $ret = db_query($qry);
 
-  $url = $env['self'];
-  Redirect($url);
+  CloseAndReloadOpenerWindow();
   exit;
 }
 
@@ -98,8 +96,7 @@ if ($mode == 'doadd') {
   $qry = "INSERT INTO carinfo $sql_set";
   $ret = db_query($qry);
 
-  $url = $env['self'];
-  Redirect($url);
+  CloseAndReloadOpenerWindow();
   exit;
 }
 
@@ -220,155 +217,93 @@ EOS;
   exit;
 }
 
-/*
-// 일괄입력
-if ($mode == 'add2') {
-  MainPageHead($source_title);
-  ParagraphTitle('차량 일괄입력');
-  print<<<EOS
-<form name='form' action='$env[self]' method='post'>
-
-<a href='car_form.xlsx'>양식엑셀파일 다운받기</a>
-
-<p> 아래 내용을 지우고 엑셀양식 파일의 내용을 복사해서 붙이세요.
-
-<input type='hidden' name='mode' value='add2b'>
-EOS;
-
-  $content = $form['content'];
-  if (!$content) $content =<<<EOS
-지파	교회	이름	전화번호	모델	차량번호	차종	색상	배기량	연식
-요한	과천	임세환	1234-1440	BMW330d	12서1234	SE	검정	3000	2010
-요한	과천	임세환	1234-1440	BMW330d	12서1234	SE	검정	3000	2016
-EOS;
-
-
- print<<<EOS
-<textarea rows='10' cols='80' name='content' style='width:100%' onclick='this.select()'>
-$content
-</textarea>
-
-<input type='button' value='미리보기' onclick='sf_1()'>
-<input type='button' value='저장하기' onclick='sf_2()'>
-</form>
-
-<script>
-function sf_1() { document.form.mode.value = 'add2'; document.form.submit(); }
-function sf_2() { document.form.mode.value = 'add2do'; document.form.submit(); }
-</script>
-EOS;
-
-  $content = $form['content'];
-  $rows = preg_split("/\n/", $content);
-
-  print<<<EOS
-<table class='table table-striped'>
-<tr>
-<th>지파명</th>
-<th>교회명</th>
-<th>실소유자</th>
-<th>연락처</th>
-<th>모델명</th>
-<th>차량번호</th>
-<th>차종</th>
-<th>색상</th>
-<th>배기량</th>
-<th>연식</th>
-</tr>
-EOS;
-
-  foreach ($rows as $line) {
-    $line = trim($line);
-    if (!$line) continue;
-    $cols = preg_split("/[ ,\t]/", $line);
-    print<<<EOS
-<tr>
-<td>{$cols[0]}</td>
-<td>{$cols[1]}</td>
-<td>{$cols[2]}</td>
-<td>{$cols[3]}</td>
-<td>{$cols[4]}</td>
-<td>{$cols[5]}</td>
-<td>{$cols[6]}</td>
-<td>{$cols[7]}</td>
-<td>{$cols[8]}</td>
-<td>{$cols[9]}</td>
-</tr>
-EOS;
-  }
-  print<<<EOS
-</table>
-EOS;
-
-
-  MainPageTail();
-  exit;
-}
-if ($mode == 'add2do') {
-
-  $content = $form['content'];
-  $rows = preg_split("/\n/", $content);
-
-  foreach ($rows as $line) {
-    $line = trim($line);
-    if (!$line) continue;
-    $cols = preg_split("/[ ,\t]/", $line);
-
-    $s = array();
-    $s[] = "own1='{$cols[0]}'";
-    $s[] = "own2='{$cols[1]}'";
-    $s[] = "own3='{$cols[2]}'";
-    $s[] = "own4='{$cols[3]}'";
-    $s[] = "own5='{$cols[4]}'";
-    $s[] = "own6='{$cols[5]}'";
-    $s[] = "own7='{$cols[6]}'";
-    $s[] = "own8='{$cols[7]}'";
-    $s[] = "own9='{$cols[8]}'";
-    $s[] = "own10='{$cols[9]}'";
-    $sql_set = " SET ".join(",", $s);
-    $qry = "insert into carinfo $sql_set";
-    $ret = db_query($qry);
-  }
-
-  $qry = "update carinfo set car_no=own6, car_model=own5, car_color=own8 where car_no=''";
-  $ret = db_query($qry);
-  print<<<EOS
-<a href='$env[self]'>업로드 완료. 돌아가기</a>
-EOS;
-  exit;
-}
-*/
-
 ### }}}
 
   MainPageHead($source_title);
   ParagraphTitle($source_title);
 
-  $btn = array();
-  $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
-  $btn[] = button_general('운전자/차량 업로드', 0, "_add2()", $style='', $class='btn btn-info');
+  ## {{
+  $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn');
+  print<<<EOS
+<form name='search_form' method='get'>
+$btn
+<input type='hidden' name='mode' value='$mode'>
+<input type='hidden' name='page' value='{$form['page']}'>
+EOS;
+
+  $v = $form['cno'];
+  $ti = textinput_general('cno', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
+  print("차량번호:$ti");
+
+  $v = $form['clr'];
+  $ti = textinput_general('clr', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
+  print("차량색상:$ti");
+
+  print("</form>");
+  //dd($form);
 
   print<<<EOS
 <script>
-function _add() { var url = "$env[self]?mode=add"; urlGo(url); }
-function _add2() { var url = "upload.php"; urlGo(url); }
+function _vopt() {
+  $('#vopt').toggle();
+}
 </script>
 EOS;
 
+  print<<<EOS
+<script>
+function sf_1() {
+  document.search_form.submit();
+}
+
+function _page(page) { document.search_form.page.value = page; sf_1(); }
+function keypress_text() { if (event.keyCode != 13) return; sf_1(); }
+</script>
+EOS;
+
+  $page = $form['page'];
+  $total = 100000;
+  $ipp = 30;
+  list($start, $last, $page) = calc_page($ipp, $total);
+
+  print pagination_bootstrap2($page, $total, $ipp, '_page');
+  ## }}
+
+  $btn = array();
+  $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
+  print<<<EOS
+<script>
+function _add() { var url = "$env[self]?mode=add"; wopen(url,600,600,1,1); }
+</script>
+EOS;
+
+  $w = array('1');
+
+  $v = $form['cno'];
+  if ($v) $w[] = "(c.car_no LIKE '%$v%')";
+
+  $v = $form['clr'];
+  if ($v) $w[] = "(c.car_color LIKE '%$v%')";
+
+  $sql_where = sql_where_join($w, $d=0, 'AND');
+
   $qry = "SELECT c.*, d.driver_name"
-." FROM carinfo c"
-." LEFT JOIN driver d ON c.driver_id=d.id"
-  ;
+    ." FROM carinfo c"
+    ." LEFT JOIN driver d ON c.driver_id=d.id"
+    .$sql_where
+    ." LIMIT $start,$ipp";
   $ret = db_query($qry);
 
   $buttons = join(' ', $btn);
   print<<<EOS
+<div class="panel panel-default">
 <div class="panel-heading">
 $buttons
 </div>
-
-<table class='table table-striped'>
 EOS;
+
+  ## {{
+  print("<table class='table table-striped'>");
   print table_head_general(array('ID','차량번호','모델','색상','메모','현위치','운전자'));
 
   $cnt = 0;
@@ -392,14 +327,12 @@ EOS;
 </tr>
 EOS;
   }
-  print<<<EOS
-</table>
+  print("</table>");
+  ## }}
 
+  print<<<EOS
 <script>
-function _edit(id) {
-  var url = "$env[self]?mode=edit&id="+id;
-  urlGo(url);
-}
+function _edit(id) { var url = "$env[self]?mode=edit&id="+id; wopen(url,600,600,1,1); }
 </script>
 EOS;
 

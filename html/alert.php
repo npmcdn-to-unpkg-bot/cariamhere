@@ -8,9 +8,24 @@
   $source_title = '알림 메시지';
 
 ### {{{
+function _alert_css($group) {
+       if ($group == '운행시작') $c = 'alert alert_start';
+  else if ($group == '운행종료') $c = 'alert alert_stop';
+  else if ($group == '긴급') $c = 'alert alert_emergency';
+  else if ($group == '경유지근처') $c = 'alert alert_passby';
+  else if ($group == '등록실패') $c = 'alert alert_regfail';
+  else $c = '';
+  return $c;
+}
+
+function option_alert_group($preset) {
+  $list = array('=선택=:all','운행시작','운행종료','긴급','경유지근처','등록실패');
+  if (!$preset) $preset = 'all';
+  $opt = option_general($list, $preset);
+  return $opt;
+}
 
 ### }}}
-
 
   MainPageHead($source_title);
   ParagraphTitle($source_title);
@@ -23,6 +38,10 @@ $btn
 <input type='hidden' name='mode' value='$mode'>
 <input type='hidden' name='page' value='{$form['page']}'>
 EOS;
+
+  $v = $form['group1'];
+  $opt = option_alert_group($v);
+  print("구분:<select name='group1'>$opt</select>");
 
   if ($form['dtno']) $chk = ' checked'; else $chk = '';
   print<<<EOS
@@ -57,26 +76,13 @@ EOS;
 
   $w = array('1');
 
-/*
-  $v = $form['driver_id'];
-  if ($v) $w[] = "r.driver_id='$v'";
-
-  $v = $form['driver_name'];
-  if ($v) $w[] = "(d.driver_name LIKE '%$v%' OR d.driver_cho LIKE '%$v%')";
-
-  $v = $form['person_name'];
-  if ($v) $w[] = "(p.person_name LIKE '%$v%' OR p.person_cho LIKE '%$v%')";
-
-  $d1 = $form['date1']; if ($d1) $w[] = "DATE(r.idate) >= '$d1'";
-  $d2 = $form['date2']; if ($d2) $w[] = "DATE(r.idate) <= '$d2'";
-*/
+  $v = $form['group1'];
+  if ($v && $v != 'all') $w[] = "a.group1='$v'";
 
   $sql_where = sql_where_join($w, $d=0, 'AND');
 
   $sql_from = " FROM alert a";
 
-  //$sql_join   = $clsdriver->sql_join_3();
-  //$sql_select = $clsdriver->sql_select_run_1();
   $sql_select = "SELECT *";
 
   $qry = $sql_select.$sql_from.$sql_join.$sql_where
@@ -99,16 +105,6 @@ EOS;
 EOS;
   print table_head_general(array('시간','구분','메시지'));
   print("<tbody>");
-
-function _alert_css($group) {
-       if ($group == '운행시작') $c = 'alert alert_start';
-  else if ($group == '운행종료') $c = 'alert alert_stop';
-  else if ($group == '긴급') $c = 'alert alert_emergency';
-  else if ($group == '경유지근처') $c = 'alert alert_passby';
-  else if ($group == '등록실패') $c = 'alert alert_regfail';
-  else $c = '';
-  return $c;
-}
 
   $cnt = 0;
   while ($row = db_fetch($ret)) {

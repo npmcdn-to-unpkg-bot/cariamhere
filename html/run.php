@@ -178,6 +178,11 @@ EOS;
   $ti = textinput_general('person_name', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
   print("VIP이름:$ti");
 
+  $list = array('=선택=:all','기록중:r','종료:d');
+  $preset = $form['rs']; if (!$preset) $preset = 'all';
+  $opt = option_general($list, $preset);
+  print("상태:<select name='rs'>$opt</select>");
+
   $d1 = $form['date1']; if (!$d1) $d1 = get_now();
   $d2 = $form['date2']; if (!$d2) $d2 = get_now();
   print<<<EOS
@@ -227,6 +232,12 @@ EOS;
 
   $v = $form['person_name'];
   if ($v) $w[] = "(p.person_name LIKE '%$v%' OR p.person_cho LIKE '%$v%')";
+
+  $v = $form['rs'];
+  if ($v && $v != 'all') {
+         if ($v == 'r') $w[] = "(r.is_driving=1)";
+    else if ($v == 'd') $w[] = "(r.is_driving=0)";
+  }
 
   $d1 = $form['date1']; if ($d1) $w[] = "DATE(r.idate) >= '$d1'";
   $d2 = $form['date2']; if ($d2) $w[] = "DATE(r.idate) <= '$d2'";
