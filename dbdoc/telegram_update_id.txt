@@ -1,0 +1,10 @@
+
+drop table  telegram_update_id;
+
+create table  telegram_update_id (
+  update_id    int;
+);
+
+insert into telegram_update_id set update_id = 0;
+
+

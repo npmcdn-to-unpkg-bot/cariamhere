@@ -123,7 +123,7 @@ if ($mode == 'add' || $mode == 'edit') {
     $title = "인사정보 입력";
   }
 
-  MainPageHead($source_title);
+  PopupPageHead($source_title);
   ParagraphTitle($source_title);
   ParagraphTitle($title, 1);
 
@@ -203,7 +203,7 @@ function sf_del() {
 </script>
 EOS;
 
-  MainPageTail();
+  PopupPageTail();
   exit;
 }
 if ($mode == 'detail') {
@@ -443,12 +443,6 @@ function keypress_text() { if (event.keyCode != 13) return; sf_0(); }
 </script>
 EOS;
 
-  $page = $form['page'];
-  $total = 100000;
-  $ipp = 30;
-  list($start, $last, $page) = calc_page($ipp, $total);
-
-  print pagination_bootstrap2($page, $total, $ipp, '_page');
   ## }}
 
 
@@ -557,6 +551,14 @@ EOS;
   if ($v) $w[] = "(p.person_position LIKE '%$v%')";
 
   $sql_where = sql_where_join($w, $d=0, 'AND');
+
+  $qry = "select count(*) count".$sql_from.$sql_join.$sql_where;
+  $row = db_fetchone($qry);
+  $total = $row['count'];
+  $page = $form['page'];
+  $ipp = 30;
+  list($start, $last, $page) = calc_page($ipp, $total);
+  print pagination_bootstrap2($page, $total, $ipp, '_page');
 
   $qry = $sql_select.$sql_from.$sql_join.$sql_where
     ." LIMIT $start,$ipp";

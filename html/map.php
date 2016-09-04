@@ -13,7 +13,10 @@
 
   MainPageHead($source_title);
 
+  $count = get_keycount(1);
+
   print<<<EOS
+map key usage $count / 500
 <form name='form'>
 
 <!-- 지도 영역 -->
@@ -50,8 +53,7 @@
 <div id='logMessage'>
 </div>
 EOS;
-
-  script_daum_map();
+  script_daum_map(1);
 
   print<<<EOS
 <script>
@@ -209,18 +211,18 @@ function _make_a_infowindow(content) {
 function _make_a_marker(pos, infowindow, driver_team) {
 
   var src;
-       if (driver_team == '1팀') src = "/img/marker/1.jpg";
-  else if (driver_team == '2팀') src = "/img/marker/2.jpg";
-  else if (driver_team == '3팀') src = "/img/marker/3.jpg";
-  else if (driver_team == '4팀') src = "/img/marker/4.jpg";
-  else if (driver_team == '5팀') src = "/img/marker/5.jpg";
-  else if (driver_team == '6팀') src = "/img/marker/6.jpg";
-  else if (driver_team == '7팀') src = "/img/marker/7.jpg";
+       if (driver_team == '1팀') src = "/img/marker/1.png";
+  else if (driver_team == '2팀') src = "/img/marker/2.png";
+  else if (driver_team == '3팀') src = "/img/marker/3.png";
+  else if (driver_team == '4팀') src = "/img/marker/4.png";
+  else if (driver_team == '5팀') src = "/img/marker/5.png";
+  else if (driver_team == '6팀') src = "/img/marker/6.png";
+  else if (driver_team == '7팀') src = "/img/marker/7.png";
   else                           src = "";
 
   if (src) {
-    var size = new daum.maps.Size(30,30);
-    var option = { offset: new daum.maps.Point(5,5)};
+    var size = new daum.maps.Size(20,30);
+    var option = { offset: new daum.maps.Point(10,30)};
     var markerImage = new daum.maps.MarkerImage(src, size, option);
   } else {
     var markerImage = null;

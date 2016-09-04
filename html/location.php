@@ -323,12 +323,6 @@ function keypress_text() { if (event.keyCode != 13) return; sf_1(); }
 </script>
 EOS;
 
-  $page = $form['page'];
-  $total = 100000;
-  $ipp = 30;
-  list($start, $last, $page) = calc_page($ipp, $total);
-
-  print pagination_bootstrap2($page, $total, $ipp, '_page');
   ## }}
 
 
@@ -348,9 +342,19 @@ EOS;
 
   $sql_where = sql_where_join($w, $d=0, 'AND');
 
+  $sql_from = " FROM location l";
+  $sql_join = "";
+
+  $qry = "select count(*) count".$sql_from.$sql_join.$sql_where;
+  $row = db_fetchone($qry);
+  $total = $row['count'];
+  $page = $form['page'];
+  $ipp = 30;
+  list($start, $last, $page) = calc_page($ipp, $total);
+  print pagination_bootstrap2($page, $total, $ipp, '_page');
+
   $qry = "SELECT l.*"
-   ." FROM location l"
-   .$sql_where
+   .$sql_from.$sql_where
    ." ORDER BY l.loc_title"
    ." LIMIT $start,$ipp";
   $ret = db_query($qry);

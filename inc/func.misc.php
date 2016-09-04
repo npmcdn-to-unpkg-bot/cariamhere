@@ -244,6 +244,13 @@ function GetTimeStamp($date) {
   return $t;
 }
 
+function human_time_before($date) {
+  if (!$date) return '';
+  $now = time();
+  $ts = GetTimeStamp($date);
+  $diff = $now - $ts;
+  return getHumanTime($diff);
+}
 
 // 가로 방향으로 버튼을 나열
 // usage button_box($btn1, $btn2, $btn3, ....)
@@ -503,14 +510,14 @@ EOS;
 }
 
 // $ti = textinput_general('name', $preset='', $size='10', $onkeypress='', $click_select=true, $maxlength=0, $id='');
-function textinput_general($fname, $preset='', $size='10', $onkeypress='', $click_select=true, $maxlength=0, $id='', $class='') {
+function textinput_general($fname, $preset='', $size='10', $onkeypress='', $click_select=true, $maxlength=0, $id='', $class='',$placeholder='') {
 
   if ($click_select) { $onclick = "this.select()"; }
   if ($maxlength) $ml = " maxlength='$maxlength'";
 
   $html =<<<EOS
 <input type='text' name='$fname' size='$size' id='$id'
- value='$preset' style="IME-MODE:active;" onkeypress='$onkeypress' onclick='$onclick'$ml class='$class'>
+ value='$preset' style="IME-MODE:active;" onkeypress='$onkeypress' onclick='$onclick'$ml class='$class' placeholder='$placeholder'>
 EOS;
   return $html;
 }
@@ -1020,10 +1027,31 @@ function script_google_map() {
 <script src="https://maps.googleapis.com/maps/api/js?key=$key&callback=initMap" defer></script>
 EOS;
 }
+function keycountup($k) {
+  $today = get_today();
+  if ($k == 1) $col = 'count1';
+  else if ($k == 2) $col = 'count2';
+  else return;
+  $qry = "update mapkeycount set $col=$col+1 where today='$today'";
+  db_query($qry);
+}
+
+function get_keycount($k) {
+  $today = get_today();
+  if ($k == 1) $col = 'count1';
+  else if ($k == 2) $col = 'count2';
+  else return;
+  $qry = "select $col c from mapkeycount where today='$today'";
+//dd($qry);
+  $row = db_fetchone($qry);
+//dd($row);
+  return $row['c'];
+}
 
 // script_daum_map();
 function script_daum_map($k=1) {
   global $conf;
+  keycountup($k);
        if ($k == 1) $key = $conf['daum_map_key'];
   else if ($k == 2) $key = $conf['daum_map_key2'];
   print<<<EOS
@@ -1185,13 +1213,14 @@ EOS;
         <span aria-hidden="true">&raquo;</span>
       </a>
     </li>
+    <li>
+      <span aria-hidden="true">Total $total</span>
+    </li>
   </ul>
 </nav>
 EOS;
   return $html;
 }
-
-
 
 
 // 'x' 또는 ESC 를 누르면 팝업창을 닫게 한다.

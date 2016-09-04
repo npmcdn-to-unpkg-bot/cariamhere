@@ -3,6 +3,7 @@
   include_once("$env[path_include]/class.carinfo.php");
   include_once("$env[path_include]/class.person.php");
   include_once("$env[path_include]/class.location.php");
+  include_once("$env[path_include]/class.telegram.php");
 
 class driver {
   var $debug = false;
@@ -130,10 +131,15 @@ class driver {
     return false;
   }
 
-  function driver_summary() {
+  function driver_summary($team='') {
+
+    $sql_where = " WHERE 1";
+    if ($team) $sql_where .= " AND d.driver_team='$team'";
+
     $qry = "SELECT COUNT(*) count, d.driver_stat, Ds.DsName"
  ." FROM driver d"
  ." LEFT JOIN Ds ON d.driver_stat=Ds.Ds"
+ .$sql_where
  ." GROUP BY d.driver_stat";
     $ret = db_query($qry);
 
@@ -141,12 +147,30 @@ class driver {
     while ($row = db_fetch($ret)) {
        $ds = $row['DsName'];
        if (!$ds) $ds = 'Unknown';
-
        $count = $row['count'];
        $info[$ds] = $count;
     }
     return $info;
   }
+
+  function driver_summary_team() {
+    $qry = "SELECT COUNT(*) count, d.driver_stat, Ds.DsName, d.driver_team"
+ ." FROM driver d"
+ ." LEFT JOIN Ds ON d.driver_stat=Ds.Ds"
+ ." GROUP BY d.driver_stat, d.driver_team";
+    $ret = db_query($qry);
+
+    $info = array();
+    while ($row = db_fetch($ret)) {
+       $ds = $row['DsName'];
+       if (!$ds) $ds = 'Unknown';
+       $team = $row['driver_team'];
+       $count = $row['count'];
+       $info[$team][$ds] = $count;
+    }
+    return $info;
+  }
+
 
   function driver_all_teams() {
     return array('1팀', '2팀', '3팀','4팀','5팀','6팀','7팀','테스트팀');
@@ -283,7 +307,11 @@ class driver {
     $clslocation = new location();
     $going = $clslocation->id2name($going_to);
 
-    alert_log("운전자($driver_id, $name, $team) 목적지:$going", '운행시작');
+    $msg = "[출발] 운전자($driver_id, $name, $team) 목적지:$going";
+    alert_log($msg, '운행시작');
+
+    $clstg = new telegram();
+    $clstg->send_all($msg);
   }
 
   // 경유지 리스트
@@ -362,6 +390,7 @@ class driver {
     $s = array();
     $s[] = "lat='$lat'";
     $s[] = "lng='$lng'";
+    $s[] = "udate=NOW()";
     $sql_set = " SET ".join(",", $s);
     $qry = "UPDATE driver $sql_set where id='$driver_id'";
     $ret = db_query($qry);
@@ -426,7 +455,11 @@ class driver {
     $clslocation = new location();
     $going = $clslocation->id2name($going_to);
 
-    alert_log("운전자($driver_id, $name, $team) 목적지:$going", '운행종료');
+    $msg = "[도착] 운전자($driver_id, $name, $team) 목적지:$going";
+    alert_log($msg, '운행종료');
+
+    $clstg = new telegram();
+    $clstg->send_all($msg);
   }
 
   // VIP 변경
@@ -535,9 +568,6 @@ class driver {
     $info = array();
     $info['EMER1'] = '차량고장';
     $info['EMER2'] = '접촉사고';
-    $info['EMER3'] = '긴급1';
-    $info['EMER4'] = '긴급2';
-    $info['EMER5'] = '긴급3';
     $info['EMER9'] = '기타사항';
     return $info;
   }
@@ -546,8 +576,22 @@ class driver {
     return $list[$code];
   }
 
+  function driver_status_html(&$row) {
+    $em = $row['emergency'];
+    $ds = $row['DsName'];
+    if ($this->is_driving_status($ds)) $ds = "<span class='drs ds_driving'>$ds</span>";
+    else if ($this->is_emergency_status($ds)) $ds = "<span class='drs ds_emergency'>$ds($em)</span>";
+    else $ds = "<span class='drs ds_not_driving'>$ds</span>";
+    return $ds;
+  }
+
   function run_log_count($run_id) {
     $qry = "select count(*) count from run_log where run_id='$run_id'";
+    $row = db_fetchone($qry);
+    return $row['count'];
+  }
+  function run_count($driver_id) {
+    $qry = "select count(*) count from run where driver_id='$driver_id'";
     $row = db_fetchone($qry);
     return $row['count'];
   }

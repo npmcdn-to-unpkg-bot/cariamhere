@@ -35,7 +35,7 @@ function _sqlset(&$s) {
 function _edit_link($title, $id) {
   if (!$title) $title = '--';
   $html = <<<EOS
-<span class=link onclick="_edit('$id')">{$title}</span>
+<span class=link onclick="_edit('$id',this)">{$title}</span>
 EOS;
   return $html;
 }
@@ -113,7 +113,7 @@ if ($mode == 'add' || $mode == 'edit') {
     $title = "차량입력";
   }
 
-  MainPageHead($source_title);
+  PopupPageHead($source_title);
   ParagraphTitle($source_title);
   ParagraphTitle($title, 1);
 
@@ -213,7 +213,7 @@ function sf_del() {
 </script>
 EOS;
 
-  MainPageTail();
+  PopupPageTail();
   exit;
 }
 
@@ -254,10 +254,10 @@ EOS;
 </select>
 EOS;
 
-  print("<input type='button' onclick='_vopt()' value='표시정보' class='btn'>");
+  print("<input type='button' onclick='_vopt()' onmouseover='_vopt()' value='표시정보' class='btn'>");
 
   $fck = array(); // field check '' or ' checked'
-  fck_init($fck, $defaults='1,2,3,4,5');
+  fck_init($fck, $defaults='1,2,3,4,5,7,8');
   print<<<EOS
 <div id="vopt" style='display:none;'>
 <label><input type='checkbox' name='fd01' $fck[1]>번호</label>
@@ -293,12 +293,6 @@ function keypress_text() { if (event.keyCode != 13) return; sf_0(); }
 </script>
 EOS;
 
-  $page = $form['page'];
-  $total = 100000;
-  $ipp = get_ipp(20,$min=10,$max=500);
-  list($start, $last, $page) = calc_page($ipp, $total);
-
-  print pagination_bootstrap2($page, $total, $ipp, '_page');
   ## }}
 
   $btn = array();
@@ -328,11 +322,19 @@ EOS;
   $sql_order = " ORDER BY $o";
   //dd($sql_order);
 
+  $sql_from = " FROM carinfo c";
+  $sql_join = " LEFT JOIN driver d ON c.driver_id=d.id";
+
+  $qry = "select count(*) count".$sql_from.$sql_join.$sql_where;
+  $row = db_fetchone($qry);
+  $total = $row['count'];
+  $page = $form['page'];
+  $ipp = 30;
+  list($start, $last, $page) = calc_page($ipp, $total);
+  print pagination_bootstrap2($page, $total, $ipp, '_page');
+
   $qry = "SELECT c.*, d.driver_name"
-    ." FROM carinfo c"
-    ." LEFT JOIN driver d ON c.driver_id=d.id"
-    .$sql_where
-    .$sql_order
+    .$sql_from.$sql_join.$sql_where.$sql_order
     ." LIMIT $start,$ipp";
   $ret = db_query($qry);
 
@@ -350,13 +352,13 @@ EOS;
   $head = array();
   $head[] = 'ID';
   if ($form['fd01']) $head[] = '차량번호';
-  if ($form['fd02']) $head[] = '모델';
-  if ($form['fd03']) $head[] = '색상';
   if ($form['fd04']) $head[] = '메모';
   if ($form['fd05']) $head[] = '운전자';
   if ($form['fd06']) $head[] = '현위치';
   if ($form['fd07']) { $head[] = '소속1'; $head[] = '소속2'; }
   if ($form['fd08']) $head[] = '실소유자';
+  if ($form['fd02']) $head[] = '모델';
+  if ($form['fd03']) $head[] = '색상';
   if ($form['fd09']) { $head[] = '차종'; $head[] = '배기량'; $head[] = '연식'; }
 
   print table_head_general($head);
@@ -368,6 +370,7 @@ EOS;
     //dd($row);
 
     $id = $row['id'];
+    $driver_id = $row['driver_id'];
 
     $fields = array();
     $fields[] = $id;
@@ -375,10 +378,12 @@ EOS;
     $edit = _edit_link($row['car_no'], $id);
     if ($form['fd01']) $fields[] = $edit;
 
-    if ($form['fd02']) $fields[] = $row['car_model'];
-    if ($form['fd03']) $fields[] = $row['car_color'];
     if ($form['fd04']) $fields[] = $row['car_memo'];
-    if ($form['fd05']) $fields[] = $row['driver_name'];
+    if ($form['fd05']) {
+      $dname = $row['driver_name'];
+      $str = "<span class=link onclick=\"_edit_driver('$driver_id',this)\">$dname</span>";
+      $fields[] = $str;
+    }
 
     $pos = "({$row['lat']}, {$row['lng']})";
     if ($form['fd06']) $fields[] = $pos;
@@ -389,6 +394,8 @@ EOS;
     if ($form['fd08']) {
       $fields[] = $row['own3'];
     }
+    if ($form['fd02']) $fields[] = $row['car_model'];
+    if ($form['fd03']) $fields[] = $row['car_color'];
     if ($form['fd09']) {
       $fields[] = $row['own7'];
       $fields[] = $row['own9'];
@@ -407,7 +414,8 @@ EOS;
 
   print<<<EOS
 <script>
-function _edit(id) { var url = "$env[self]?mode=edit&id="+id; wopen(url,600,600,1,1); }
+function _edit(id,span) { lcolor(span); var url = "$env[self]?mode=edit&id="+id; wopen(url,600,600,1,1); }
+function _edit_driver(id,span) { lcolor(span); var url = "driver.php?mode=edit&id="+id; wopen(url,600,600,1,1); }
 </script>
 EOS;
 

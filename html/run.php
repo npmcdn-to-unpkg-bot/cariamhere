@@ -15,7 +15,7 @@
 function _edit_link($title, $id) {
   if (!$title) $title = '--';
   $html = <<<EOS
-<span class=link onclick="_edit('$id')">{$title}</span>
+<span class=link onclick="_edit('$id',this)">{$title}</span>
 EOS;
   return $html;
 }
@@ -79,7 +79,7 @@ if ($mode == 'map') {
   $dates = json_encode($dts);
   $num_points = $cnt;
 
-  MainPageHead($source_title);
+  PopupPageHead($source_title);
   ParagraphTitle($source_title);
 
   //dd($info);
@@ -173,9 +173,9 @@ $(function() {
 
 </script>
 EOS;
-  dd($points);
+  //dd($points);
 
-  MainPageTail();
+  PopupPageTail();
   exit;
 }
 
@@ -185,7 +185,6 @@ EOS;
 
   _summary();
 
-  $driver_id = $form['driver_id']; //  driver_id
 
   ## {{
   $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn btn-primary');
@@ -196,17 +195,17 @@ $btn
 <input type='hidden' name='page' value='{$form['page']}'>
 EOS;
 
-  print<<<EOS
-운전자ID:<input type='text' name='driver_id' value='$driver_id' size='2'>
-EOS;
+  $driver_id = $form['driver_id']; //  driver_id
+  $ti = textinput_general('driver_id', $driver_id, 6, 'keypress_text()', true, 0, '','ui-corner-all','운전자번호');
+  print $ti;
 
   $v = $form['driver_name'];
-  $ti = textinput_general('driver_name', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
-  print("운전자이름:$ti");
+  $ti = textinput_general('driver_name', $v, 10, 'keypress_text()', true, 0, '','ui-corner-all','운전자이름');
+  print $ti;
 
   $v = $form['person_name'];
-  $ti = textinput_general('person_name', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='');
-  print("VIP이름:$ti");
+  $ti = textinput_general('person_name', $v, 10, 'keypress_text()', true, 0, '','ui-corner-all','VIP인사');
+  print $ti;
 
   $list = array('=선택=:all','기록중:r','종료:d');
   $preset = $form['rs']; if (!$preset) $preset = 'all';
@@ -226,19 +225,48 @@ EOS;
 <input type="text" name='date1' class="form-control datetimepicker" style='width:120px; display:inline' value='$d1'>
 ~
 <input type="text" name='date2' class="form-control datetimepicker" style='width:120px; display:inline' value='$d2'>
-
 <script>
 $('input.datetimepicker').datetimepicker({
   format: "YYYY-MM-DD"
 });
+</script>
+EOS;
 
+  $sel = array(); $sort = $form['sort'];
+  if ($sort == '') $sel[1] = ' selected'; else $sel[$sort] = ' selected';
+  print<<<EOS
+정렬:<select name='sort'>
+<option value='1'$sel[1]>최근변경</option>
+<option value='2'$sel[2]>이름</option>
+</select>
+EOS;
+
+  print("<input type='button' onclick='_vopt()' onmouseover='_vopt()' value='표시정보' class='btn'>");
+
+  $fck = array(); // field check '' or ' checked'
+  fck_init($fck, $defaults='1,2,3,5');
+  print<<<EOS
+<div id="vopt" style='display:none;'>
+<label><input type='checkbox' name='fd01' $fck[1]>차량</label>
+<label><input type='checkbox' name='fd02' $fck[2]>출발지</label>
+<label><input type='checkbox' name='fd03' $fck[3]>목적지</label>
+<label><input type='checkbox' name='fd04' $fck[4]>출발,도착시간</label>
+<label><input type='checkbox' name='fd05' $fck[5]>최종업데이트</label>
+<label><input type='checkbox' name='fd06' $fck[6]>운전자상태</label>
+</div>
+<script>
+function _vopt() { $('#vopt').toggle(); }
+</script>
+EOS;
+
+  print<<<EOS
+<script>
 function sf_1() {
   document.search_form.submit();
 }
 
 function _page(page) { document.search_form.page.value = page; sf_1(); }
 function keypress_text() { if (event.keyCode != 13) return; sf_1(); }
-
 </script>
 EOS;
 
@@ -246,14 +274,6 @@ EOS;
 </form>
 EOS;
 
-  $page = $form['page'];
-
-  $total = 100000;
-  $ipp = 30;
-  //$last = $total / $ipp;
-  list($start, $last, $page) = calc_page($ipp, $total);
-
-  print pagination_bootstrap2($page, $total, $ipp, '_page');
   ## }}
 
   //dd($form);
@@ -286,10 +306,26 @@ EOS;
   $sql_from = " FROM run r";
 
   $sql_join   = $clsdriver->sql_join_3();
-  $sql_select = $clsdriver->sql_select_run_1();
+  $sql_select = $clsdriver->sql_select_run_1()
+     .", d.emergency"
+     .", r.udate run_udate";
 
-  $qry = $sql_select.$sql_from.$sql_join.$sql_where
-    ." ORDER BY r.idate DESC"
+  $sort = $form['sort']; if ($sort == '') $sort = '1';
+       if ($sort == '1') $o = "r.udate DESC";
+  else if ($sort == '2') $o = "d.driver_name";
+  else                   $o = "r.udate DESC";
+  $sql_order = " ORDER BY $o";
+  //dd($sql_order);
+
+  $qry = "select count(*) count".$sql_from.$sql_join.$sql_where;
+  $row = db_fetchone($qry);
+  $total = $row['count'];
+  $page = $form['page'];
+  $ipp = 30;
+  list($start, $last, $page) = calc_page($ipp, $total);
+  print pagination_bootstrap2($page, $total, $ipp, '_page');
+
+  $qry = $sql_select.$sql_from.$sql_join.$sql_where.$sql_order
     ." LIMIT $start,$ipp";
 
   //dd($qry);
@@ -299,26 +335,36 @@ EOS;
   print("<div class='panel panel-default'>");
   print("<table class='table table-striped'>");
 
-  print table_head_general(array('ID','이름','상태','차량','운행기록' ,'출발시간','도착시간',
-'소요시간',
-'출발지','목적지','VIP'));
+  $head = array();
+  $head[] = 'ID';
+  $head[] = '이름';
+  $head[] = '상태'; if ($form['fd01'])
+  $head[] = '차량';
+  $head[] = '운행기록';
+  if ($form['fd04']) { $head[] = '출발시간'; $head[] = '도착시간'; }
+  $head[] = '소요시간';
+  if ($form['fd02']) $head[] = '출발지';
+  if ($form['fd03']) $head[] = '목적지';
+  $head[] = 'VIP인사';
+  if ($form['fd05']) $head[] = '최종업데이트';
+  if ($form['fd06']) $head[] = '운전자상태';
+  print table_head_general($head);
   print("<tbody>");
 
-  //$a = array();
-  //$b = array();
   $cnt = 0;
   while ($row = db_fetch($ret)) {
     $cnt++;
 
     //dd($row);
 
+    $fields = array();
+
     $run_id = $row['run_id'];
+    $fields[] = $run_id;
 
     $driver_id = $row['driver_id'];
     $name = _edit_link($row['driver_name'], $driver_id);
-
-    $lcnt = $clsdriver->run_log_count($run_id);
-    $btn = button_general("($lcnt)건", 0, "_map('$run_id')", $style='', $class='btn btn-primary');
+    $fields[] = $name;
 
     $rdg = $row['run_driving'];
     $ft = $row['flagTerm'];
@@ -328,28 +374,47 @@ EOS;
       if ($ft) $str = '강제종료'; else $str = '종료';
       $ds = "<span class='drs ds_not_driving'>$str</span>";
     }
+    $fields[] = $ds;
+
+    if ($form['fd01']) $fields[] = $row['car_no'];
+
+    $lcnt = $clsdriver->run_log_count($run_id);
+    $btn = button_general("($lcnt)건", 0, "_map('$run_id')", $style='', $class='btn btn-primary');
+    $fields[] = $btn;
+
+    if ($form['fd04']) {
+      $fields[] = $row['start_time'];
+      $fields[] = $row['end_time'];
+    }
 
     if ($row['start_time'] && $row['end_time']) {
       $et = mktime_date_string($row['end_time']);
       $st = mktime_date_string($row['start_time']);
       $elap = getHumanTime($et-$st);
     } else $elap = '';
+    $fields[] = $elap;
 
-    print<<<EOS
-<tr>
-<td nowrap>{$run_id}</td>
-<td nowrap>{$name}</td>
-<td nowrap>{$ds}</td>
-<td nowrap>{$row['car_no']}</td>
-<td nowrap>{$btn}</td>
-<td nowrap>{$row['start_time']}</td>
-<td nowrap>{$row['end_time']}</td>
-<td nowrap>{$elap}</td>
-<td nowrap>{$row['loc1']}</td>
-<td nowrap>{$row['loc2']}</td>
-<td nowrap>{$row['person_name']}</td>
-</tr>
-EOS;
+    if ($form['fd02']) $fields[] = $row['loc1'];
+    if ($form['fd03']) $fields[] = $row['loc2'];
+    $fields[] = $row['person_name'];
+
+    if ($form['fd05']) {
+      $htb = human_time_before($row['run_udate']);
+      if ($htb) $str = "{$htb}전"; else $str = '';
+      $fields[] = $str;
+    }
+
+    if ($form['fd06']) {
+      $ds = $clsdriver->driver_status_html($row); // 운전자상태
+      $fields[] = $ds;
+    }
+
+    print("<tr>");
+    foreach ($fields as $f) {
+      print("<td nowrap>$f</td>");
+    }
+    print("</tr>");
+
   }
   print("</tbody>");
   print("</table>");
@@ -358,8 +423,8 @@ EOS;
 
   print<<<EOS
 <script>
-function _map(id) { var url = "$env[self]?mode=map&id="+id; urlGo(url); }
-function _edit(id) { var url = "driver.php?mode=edit&id="+id; wopen(url,600,600,1,1); }
+function _map(id) { var url = "$env[self]?mode=map&id="+id; wopen(url,630,730,1,1); }
+function _edit(id,span) { lcolor(span); var url = "driver.php?mode=edit&id="+id; wopen(url,600,600,1,1); }
 </script>
 EOS;
 

@@ -32,8 +32,12 @@ create table  driver (
   emergency   char(10) default '' comment '비상상황',
 
   udate  datetime,
-  idate datetime
+  idate datetime,
+  chat_id   int not null default 0 comment 'telegram chat_id'
 );
+
+ alter table driver add column
+  chat_id   int not null default 0 comment 'telegram chat_id';
 
 mysql> desc driver;
 +-------------+------------+------+-----+---------+----------------+

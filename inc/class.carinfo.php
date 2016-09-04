@@ -15,7 +15,9 @@ function car_select_option($preset='') {
   foreach ($list as $item) {
     //dd($item);
     $v = $item['car_id'];
-    $t = sprintf("%s/%s/%s",$item['car_no'], $item['car_model'], $item['driver_name']);
+    $dv = $item['driver_name'];
+    if (!$dv) $dv = "**운전자없음**";
+    $t = sprintf("[$v] %s (%s) @%s", $item['car_no'], $item['car_model'], $dv);
 
     if ($preset == $v) {
       $sel = ' selected';

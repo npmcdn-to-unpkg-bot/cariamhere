@@ -64,7 +64,7 @@ EOS;
 
   $page = $form['page'];
 
-  $total = 100000;
+  $total = 99999;
   $ipp = 30;
   //$last = $total / $ipp;
   list($start, $last, $page) = calc_page($ipp, $total);

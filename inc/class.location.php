@@ -16,8 +16,13 @@ class location {
     return $opt;
   }
 
-  function location_groups() {
+  // APIs
+  // pflag = true 경유지 포함
+  function location_groups($pflag=true) {
+    if ($pflag)
     return array('공항','숙소','행사장','기타','경유지');
+    else
+    return array('공항','숙소','행사장','기타');
   }
 
   function select_option_location($preset='') {
@@ -51,6 +56,7 @@ class location {
   }
 
 
+  // APIs
   function list_location($group='', $treeflag=false) {
 
     $w = array('1');
@@ -74,7 +80,7 @@ class location {
           'lng'=>$row['lng'],
         );
       }
-      $groups = $this->location_groups();
+      $groups = $this->location_groups(false);
       $info['groups'] = $groups;
 
     } else {

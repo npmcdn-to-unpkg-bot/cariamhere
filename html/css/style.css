@@ -1,0 +1,25 @@
+
+span.link { cursor:pointer; font-weight:bold; color:#800000; }
+
+label.radiolist { cursor:pointer; margin:1px 1px 1px 1px; padding:1px 1px 1px 1px; border:0px solid red; }
+
+div#logMessage {
+  font-family: "留묒� 怨좊뵓"; font-size:9pt;
+}
+
+span.drs { padding:5px 5px 5px 5px; margin:3px 3px 3px 3px; }
+span.ds_not_driving { background-color: green; color:white; }
+span.ds_driving     { background-color: orange; color:white; }
+span.ds_emergency   { background-color: red; color:white;  }
+
+span.alert { padding:5px 5px 5px 5px; margin:3px 3px 3px 3px; }
+span.alert_start   { background-color: green; color:white; }
+span.alert_stop    { background-color: orange; color:white; }
+span.alert_emergency { background-color: red; color:white;  }
+span.alert_passby    { background-color: #F28CE3; color:#000; border:2px solid #7E0E6D;  }
+span.alert_regfail   { background-color: #fff; color:#f00; border:1px dashed #800;  }
+
+table td.nowrap {
+  min-width: 50px;
+}
+

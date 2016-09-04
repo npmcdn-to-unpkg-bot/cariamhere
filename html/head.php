@@ -43,6 +43,7 @@
     <script src="/js/notify.js"></script>
 
     <link href="/css/simple-sidebar.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
 
     <script src="/js/script.js"></script>
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->

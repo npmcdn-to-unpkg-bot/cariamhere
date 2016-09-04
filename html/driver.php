@@ -62,16 +62,29 @@ function _sqlset(&$s) {
 function _edit_link($title, $id) {
   if (!$title) $title = '--';
   $html = <<<EOS
-<span class=link onclick="_edit('$id')">{$title}</span>
+<span class=link onclick="_edit('$id',this)">{$title}</span>
 EOS;
   return $html;
 }
 
 function _summary() {
+  global $form;
   global $clsdriver;
-  $info = $clsdriver->driver_summary();
-  //dd($info);
-  //print('<script src="/utl/d3.v4/d3.js"></script>');
+
+  if ($form['smtm']) {
+    $f_team = $form['team'];
+  } else $f_team = '';
+  $info = $clsdriver->driver_summary($f_team);
+
+  $teams = $clsdriver->driver_all_teams();
+  $teams[] = '전체';
+  print("<div class='btn-group' role='group' aria-label='...' style=''>");
+  foreach ($teams as $team) {
+    if ($team == $f_team) $cls = "btn btn-warning btn-lg";
+    else $cls = "btn btn-default btn-lg";
+    print("<button type='button' class='$cls' onclick=\"_summgo2('$team')\">$team</button>");
+  }
+  print("</div>");
 
   print("<div class='btn-group' role='group' aria-label='...' style=''>");
   foreach ($info as $ds=>$count) {
@@ -82,6 +95,8 @@ function _summary() {
     print("<button type='button' class='$cls' onclick=\"_summgo('$ds')\">$ds<span class='badge'>$count</span></button>");
   }
   print("</div>");
+
+
   print<<<EOS
 <script>
 function _summgo(ds) {
@@ -90,6 +105,18 @@ function _summgo(ds) {
   else if (ds == '대기중') form.ds.value = 'DS_STOP';
   else if (ds == '비상상황') form.ds.value = 'DS_EMERGEN';
   else form.ds.value = 'all';
+  form.smtm.value = '';
+  form.submit();
+}
+function _summgo2(team) {
+  var form = document.search_form;
+  if (team == '전체') {
+    team = 'all';
+    form.smtm.value = '';
+  } else {
+    form.smtm.value = '1';
+  }
+  form.team.value=team;
   form.submit();
 }
 </script>
@@ -115,7 +142,7 @@ if ($mode == 'doedit') {
 
   $s = array();
   _sqlset($s);
-  $s[] = "udate=NOW()";
+  //$s[] = "udate=NOW()";
   $sql_set = " SET ".join(",", $s);
 
   $qry = "UPDATE driver $sql_set WHERE id='$id'";
@@ -141,7 +168,7 @@ if ($mode == 'doadd') {
   $s = array();
   _sqlset($s);
   $s[] = "idate=NOW()";
-  $s[] = "udate=NOW()";
+  //$s[] = "udate=NOW()";
   $sql_set = " SET ".join(",", $s);
 
   $qry = "INSERT INTO driver $sql_set";
@@ -164,7 +191,7 @@ if ($mode == 'add' || $mode == 'edit') {
     $title = "입력";
   }
 
-  MainPageHead($source_title);
+  PopupPageHead($source_title);
   ParagraphTitle($source_title);
   ParagraphTitle($title, 1);
 
@@ -218,7 +245,9 @@ EOS;
   print _data_tr('의전인사', $html);
 
   $opt = $clscar->car_select_option($row['car_id']);
-  $html = "<select name='car_id'>$opt</select>";
+  $car_id = $row['car_id'];
+  $html = "<select name='car_id'>$opt</select>"
+    ."<p><span class='link' onclick=\"_car()\">차량정보</span>";
   print _data_tr('차량', $html);
 
   $opt = $clsdriver->select_team_option($row['driver_team']);
@@ -243,6 +272,10 @@ EOS;
 
   print _data_tr('is_driving', $row['is_driving']);
 
+  print _data_tr('idate', $row['idate']);
+  print _data_tr('udate', $row['udate']);
+  print _data_tr('chat_id', $row['chat_id']);
+
   $lat = textinput_general('lat', $row['lat'], '15', '', $click_select, $maxlength=0);
   $lng = textinput_general('lng', $row['lng'], '15', '', $click_select, $maxlength=0);
   $html =<<<EOS
@@ -253,6 +286,10 @@ EOS;
 
   print<<<EOS
 <script>
+function _car() {
+  var id = document.form.car_id.value;
+  var url = "car.php?mode=edit&id="+id; wopen(url,600,600,1,1);
+}
 function get_position() {
   var lat = document.form.lat.value;
   var lng = document.form.lng.value;
@@ -358,7 +395,7 @@ $(function() {
 EOS;
 
   script_daum_map();
-  MainPageTail();
+  PopupPageTail();
   exit;
 }
 
@@ -412,34 +449,38 @@ EOS;
 ### }}}
 
   MainPageHead($source_title);
-  ParagraphTitle($source_title);
+  //ParagraphTitle($source_title);
 
   _summary();
 
   ## {{
-  $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn btn-primary');
+  $btn = button_general('조회', 0, "sf_1()", $style='width:50px;height:50px;', $class='btn btn-primary');
   print<<<EOS
+<table border='0' style='margin-top:10px;'>
 <form name='search_form' method='get'>
-$btn
+<tr>
+<td>$btn</td>
+<td align='left'>
 <input type='hidden' name='mode' value='$mode'>
 <input type='hidden' name='page' value='{$form['page']}'>
+<input type='hidden' name='smtm' value='0'>
 EOS;
 
   $v = $form['search'];
-  $ti = textinput_general('search', $v, $size='10', 'keypress_text()', true, 0, $id='', 'ui-corner-all');
-  print("운전자이름/고유번호/전화번호:$ti");
+  $ti = textinput_general('search', $v, 20, 'keypress_text()', true, 0, '', 'ui-corner-all','이름/고유번호/전화번호');
+  print("$ti");
 
   $v = $form['dno'];
-  $ti = textinput_general('dno', $v, $size='6', 'keypress_text()', true, 0, $id='', 'ui-corner-all');
-  print("운전자번호:$ti");
+  $ti = textinput_general('dno', $v, $size='8', 'keypress_text()', true, 0, '', 'ui-corner-all','운전자번호');
+  print("$ti");
 
   $v = $form['sosk'];
-  $ti = textinput_general('sosk', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='', 'ui-corner-all');
-  print("소속:$ti");
+  $ti = textinput_general('sosk', $v, $size='8', 'keypress_text()', true, 0, '', 'ui-corner-all','소속');
+  print("$ti");
 
   $v = $form['person_name'];
-  $ti = textinput_general('person_name', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='', 'ui-corner-all');
-  print("VIP이름:$ti");
+  $ti = textinput_general('person_name', $v, 10, 'keypress_text()', true, 0, '', 'ui-corner-all','의전이름');
+  print("$ti");
 
   print("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 
@@ -460,18 +501,19 @@ EOS;
 <option value='3'$sel[3]>소속</option>
 <option value='4'$sel[4]>단말OS</option>
 <option value='5'$sel[5]>상태</option>
+<option value='6'$sel[6]>차량번호</option>
 </select>
 EOS;
 
   print("<input type='button' onclick='_vopt()' onmouseover='_vopt()' value='표시정보' class='btn'>");
 
   $fck = array(); // field check '' or ' checked'
-  fck_init($fck, $defaults='1,2,3,4,5,10');
+  fck_init($fck, $defaults='2,3,4,5,10,12');
   print<<<EOS
 <div id="vopt" style='display:none;'>
-<label><input type='checkbox' name='fd02' $fck[2]>팀</label>
+<label><input type='checkbox' name='fd01' $fck[1]>팀</label>
 <label><input type='checkbox' name='fd10' $fck[10]>상태</label>
-<label><input type='checkbox' name='fd01' $fck[1]>차량</label>
+<label><input type='checkbox' name='fd02' $fck[2]>차량</label>
 <label><input type='checkbox' name='fd03' $fck[3]>출발지</label>
 <label><input type='checkbox' name='fd04' $fck[4]>목적지</label>
 <label><input type='checkbox' name='fd05' $fck[5]>의전인사</label>
@@ -484,7 +526,10 @@ EOS;
 </div>
 EOS;
 
+  print("</td>");
+  print("</tr>");
   print("</form>");
+  print("</table>");
   //dd($form);
 
   print<<<EOS
@@ -502,6 +547,7 @@ function sf_0() {
 }
 function sf_1() {
   document.search_form.page.value = '1';
+  document.search_form.smtm.value = '';
   sf_0();
 }
 
@@ -510,20 +556,7 @@ function keypress_text() { if (event.keyCode != 13) return; sf_0(); }
 </script>
 EOS;
 
-  $page = $form['page'];
-  $total = 100000;
-  $ipp = 30;
-  list($start, $last, $page) = calc_page($ipp, $total);
-  print pagination_bootstrap2($page, $total, $ipp, '_page');
-
   ## }}
-
-  $btn = array();
-  $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
-  $btn[] = button_general('운전자/차량 업로드', 0, "_add2()", $style='', $class='btn btn-info');
-  $btn[] =<<<EOS
-검색(이름,초성):<input type='text' name='searchq' onkeyup="searchq();" onclick='this.select()' onclick='this.select()'>
-EOS;
 
   $w = array('1');
 
@@ -549,7 +582,7 @@ EOS;
 
   $sql_select = $clsdriver->sql_select_run_1()
        .", d.lat, d.lng"
-       .", d.car_id, d.emergency"
+       .", d.car_id, d.emergency, d.udate driver_udate"
        .", d.phone_os, d.drv1, d.drv2"
        .", d.driver_tel, d.driver_no";
 
@@ -561,15 +594,29 @@ EOS;
   else if ($sort == '3') $o = "d.drv1, d.drv2";
   else if ($sort == '4') $o = "d.phone_os DESC";
   else if ($sort == '5') $o = "d.driver_stat";
+  else if ($sort == '6') $o = "c.car_no";
   else                   $o = "d.udate DESC";
   $sql_order = " ORDER BY $o";
   //dd($sql_order);
 
+  $qry = "select count(*) count".$sql_from.$sql_join.$sql_where;
+  $row = db_fetchone($qry);
+  $total = $row['count'];
+  $page = $form['page'];
+  $ipp = 30;
+  list($start, $last, $page) = calc_page($ipp, $total);
+  print pagination_bootstrap2($page, $total, $ipp, '_page');
+
   $qry = $sql_select.$sql_from.$sql_join.$sql_where.$sql_order
     ." LIMIT $start,$ipp";
-
   $ret = db_query($qry);
 
+  $btn = array();
+  $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
+  $btn[] = button_general('운전자/차량 업로드', 0, "_add2()", $style='', $class='btn btn-info');
+  $btn[] =<<<EOS
+검색(이름,초성):<input type='text' name='searchq' onkeyup="searchq();" onclick='this.select()' onclick='this.select()'>
+EOS;
   $buttons = join(' ', $btn);
 
   ## {{
@@ -611,13 +658,10 @@ EOS;
     $edit = _edit_link($row['driver_name'], $driver_id);
     $pos = sprintf("%s,%s", $row['lat'], $row['lng']);
 
-    $em = $row['emergency'];
-    $ds = $row['DsName'];
-    if ($clsdriver->is_driving_status($ds)) $ds = "<span class='drs ds_driving'>$ds</span>";
-    else if ($clsdriver->is_emergency_status($ds)) $ds = "<span class='drs ds_emergency'>$ds($em)</span>";
-    else $ds = "<span class='drs ds_not_driving'>$ds</span>";
+    $ds = $clsdriver->driver_status_html($row); // 운전자상태
 
-    $btn = "<input type='button' value='운행기록' onclick=\"_run('$driver_id')\" class='btn btn-primary'>";
+    $rcnt = $clsdriver->run_count($driver_id);
+    $btn = "<input type='button' value='($rcnt)건' onclick=\"_run('$driver_id')\" class='btn btn-primary'>";
 
     $fields = array();
     $fields[] = $driver_id;
@@ -627,7 +671,7 @@ EOS;
 
     $car_id = $row['car_id'];
     $edit =<<<EOS
-<span class=link onclick="_edit_car($car_id)">{$row['car_no']}</span>
+<span class=link onclick="_edit_car($car_id,this)">{$row['car_no']}</span>
 EOS;
     if ($form['fd02']) $fields[] = $edit;
 
@@ -638,7 +682,7 @@ EOS;
 
     $per_id = $row['person_id'];
     $edit =<<<EOS
-<span class=link onclick="_edit_person($per_id)">{$row['person_name']}</span>
+<span class=link onclick="_edit_person($per_id,this)">{$row['person_name']}</span>
 EOS;
     if ($form['fd05']) $fields[] = $edit;
 
@@ -646,11 +690,16 @@ EOS;
     if ($form['fd08']) { $fields[] = $row['drv1']; $fields[] = $row['drv2']; }
     if ($form['fd09']) { $fields[] = $row['driver_tel']; $fields[] = $row['driver_no']; }
     if ($form['fd11']) { $str = "({$row['lat']},{$row['lng']})"; $fields[] = $str; }
-    if ($form['fd12']) { $fields[] = $row['udate']; }
+
+    if ($form['fd12']) {
+      $htb = human_time_before($row['driver_udate']);
+      if ($htb) $str = "{$htb}전"; else $str = '';
+      $fields[] = $str;
+    }
 
     print("<tr>");
     foreach ($fields as $f) {
-      print("<td>$f</td>");
+      print("<td nowrap>$f</td>");
     }
     print("</tr>");
 
@@ -667,9 +716,9 @@ EOS;
   print<<<EOS
 <script>
 function _run(id) { var url = "run.php?driver_id="+id; urlGo(url); }
-function _edit(id) { var url = "$env[self]?mode=edit&id="+id; wopen(url, 600,600,1,1); }
-function _edit_person(id) { var url = "person.php?mode=edit&id="+id; wopen(url, 600,600,1,1); }
-function _edit_car(id) { var url = "car.php?mode=edit&id="+id; wopen(url, 600,600,1,1); }
+function _edit(id,span) { lcolor(span); var url = "$env[self]?mode=edit&id="+id; wopen(url, 600,600,1,1); }
+function _edit_person(id,span) { lcolor(span); var url = "person.php?mode=edit&id="+id; wopen(url, 600,600,1,1); }
+function _edit_car(id,span) { lcolor(span); var url = "car.php?mode=edit&id="+id; wopen(url, 600,600,1,1); }
 
 // 주소를 업데이트하기.. 이렇게 하면 API 요청 횟수가 너무 많아질듯.
 function _update_address_all() {
@@ -782,7 +831,7 @@ function _data_row(i, id, item) {
   var driver_id= item['driver_id'];
   var row = "<tr>"
    +"<td>"+driver_id+"</td>"
-   +"<td><span class=link onclick=\"_edit('"+driver_id+"')\">"+item['driver_name']+"</span></td>"
+   +"<td><span class=link onclick=\"_edit('"+driver_id+"',this)\">"+item['driver_name']+"</span></td>"
    +"<td>"+item['DsName']+"</td>"
    +"<td>"+item['car_no']+"</td>"
    +"<td><input type='button' value='운행기록' onclick=\"_run("+id+")\" class='btn btn-primary'></td>"

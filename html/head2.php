@@ -27,8 +27,8 @@
     <link href="/css/bootstrap-select.min.css" rel="stylesheet">
     <script src="/js/bootstrap-select.js"></script>
 
-
     <script src="/js/script.js"></script>
+    <link href="/css/style.css" rel="stylesheet">
 
 </head>
 

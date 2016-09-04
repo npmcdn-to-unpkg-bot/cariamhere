@@ -6,6 +6,9 @@
   include_once("$env[prefix]/inc/common.background.php");
   include_once("$env[prefix]/inc/class.driver.php");
   include_once("$env[prefix]/inc/class.location.php");
+  include_once("$env[prefix]/inc/class.telegram.php");
+
+  $clstg = new telegram();
 
 ### {{{
 // 운전중인 운전자
