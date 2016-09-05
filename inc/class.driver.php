@@ -171,9 +171,20 @@ class driver {
     return $info;
   }
 
+  // 운전자가 현재 운행중일때, 운행기록의 인사정보를 바꾼다.
+  function set_run_person($driver_id, $person_id) {
+    $row = $this->get_driver_by_id($driver_id);
+    if ($row['is_driving']) {
+      //dd($row);
+      $run_id = $row['run_id'];
+      $qry = "update run set person_id='$person_id' where id='$run_id'";
+      db_query($qry);
+    }
+  }
+
 
   function driver_all_teams() {
-    return array('1팀', '2팀', '3팀','4팀','5팀','6팀','7팀','테스트팀');
+    return array('1팀', '2팀', '3팀','4팀','5팀','6팀','7팀','운영팀');
   }
   function select_team_option($preset='') {
     $opt = '';
@@ -287,8 +298,9 @@ class driver {
     $qry = "UPDATE run SET is_driving=0 WHERE driver_id='$driver_id' AND id != '$run_id'";
     $ret = db_query($qry);
 
-    global $conf;
-    $interval = $conf['interval_driving'];
+    //global $conf;
+    //$interval = $conf['interval_driving'];
+    $interval = $driver_row['gperiod'];
 
     // run 정보를 driver 에 반영
     $qry = "UPDATE driver"
@@ -302,12 +314,21 @@ class driver {
     //alert_log("운행시작 운전자ID:$driver_id", '운행시작');
     $name = $driver_row['driver_name'];
     $team = $driver_row['driver_team'];
+    $tel = $driver_row['driver_tel'];
+
+    $person_id = $driver_row['person_id'];
 
     // 목적지명
     $clslocation = new location();
     $going = $clslocation->id2name($going_to);
+    $depart = $clslocation->id2name($depart_from);
 
-    $msg = "[출발] 운전자($driver_id, $name, $team) 목적지:$going";
+    $now = get_now();
+
+    $msg = "[출발] $name($team) \n"
+     ."$depart --->$going\n"
+     ."출발시간: $now\n"
+     ."인사ID:$person_id";
     alert_log($msg, '운행시작');
 
     $clstg = new telegram();
@@ -455,7 +476,11 @@ class driver {
     $clslocation = new location();
     $going = $clslocation->id2name($going_to);
 
-    $msg = "[도착] 운전자($driver_id, $name, $team) 목적지:$going";
+    $now = get_now();
+
+    $msg = "[도착] $name($team)\n"
+      ."도착시간: $now\n"
+      ."목적지: $going\n";
     alert_log($msg, '운행종료');
 
     $clstg = new telegram();

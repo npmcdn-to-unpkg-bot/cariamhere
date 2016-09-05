@@ -11,7 +11,10 @@ if ($mode == 'register') {
   $messages = $clstg->getUpdate();
   //dd($messages);
 
+  $cnt = 0;
   foreach ($messages as $msg) {
+    $cnt++;
+
     $from_id = $msg['message']['from']['id'];
     $text = $msg['message']['text'];
     print("$from_id $text <br>");
@@ -27,7 +30,7 @@ if ($mode == 'register') {
       $qry = "update driver set chat_id='$from_id' where id='$driver_id'";
       //db_query($qry);
 
-      $text = "$driver_name 님 등록 되었습니다.";
+      $text = "**$tel** **$driver_name** 님 등록 되었습니다.";
       $clstg->sendMessage($from_id, $text);
       dd($text);
 
@@ -37,6 +40,7 @@ if ($mode == 'register') {
     }
 
   }
+  print("$cnt messages done<br>");
   exit;
 }
 if ($mode == 'dosend') {

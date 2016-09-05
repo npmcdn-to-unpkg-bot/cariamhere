@@ -241,7 +241,7 @@ EOS;
 
   $ipp = get_ipp(20,$min=10,$max=500);
   $opts = option_ipp($ipp, array(10,20,50,200,500));
-  print("출력:<select name='ipp'>$opts</select>/페이지");
+  print("출력:<select name='ipp'>$opts</select>");
 
   $sel = array(); $sort = $form['sort'];
   if ($sort == '') $sel[1] = ' selected'; else $sel[$sort] = ' selected';
@@ -329,7 +329,7 @@ EOS;
   $row = db_fetchone($qry);
   $total = $row['count'];
   $page = $form['page'];
-  $ipp = 30;
+  $ipp = get_ipp(20,$min=10,$max=500);
   list($start, $last, $page) = calc_page($ipp, $total);
   print pagination_bootstrap2($page, $total, $ipp, '_page');
 

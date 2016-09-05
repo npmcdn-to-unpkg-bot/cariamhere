@@ -33,8 +33,12 @@ create table  driver (
 
   udate  datetime,
   idate datetime,
-  chat_id   int not null default 0 comment 'telegram chat_id'
+  chat_id   int not null default 0 comment 'telegram chat_id',
+  gperiod tinyint default 30 comment 'GPS보고주기'
 );
+
+ alter table driver add column
+  gperiod tinyint default 30 comment 'GPS보고주기';
 
  alter table driver add column
   chat_id   int not null default 0 comment 'telegram chat_id';

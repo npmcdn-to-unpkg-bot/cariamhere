@@ -16,7 +16,10 @@
   $count = get_keycount(1);
 
   print<<<EOS
-map key usage $count / 500
+<h3>
+MAP KEY USAGE $count / 500
+</h3>
+
 <form name='form'>
 
 <!-- 지도 영역 -->
@@ -152,7 +155,7 @@ function _show_car_information(info) {
     if (item['des_name1']) msg += "-->{"+item['des_name1']+"}";
     _log(msg);
   }
-  _log("-----차량정보------");
+  _log("-----차량정보 "+info.length+"대------");
 }
 
 // 버튼을 누를때

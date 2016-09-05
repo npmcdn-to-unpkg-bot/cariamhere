@@ -119,9 +119,9 @@ EOS;
 
     print<<<EOS
 <tr>
-<td>{$row['idate']}</td>
-<td>{$grp}</td>
-<td>{$row['message']}</td>
+<td nowrap>{$row['idate']}</td>
+<td nowrap>{$grp}</td>
+<td nowrap>{$row['message']}</td>
 </tr>
 EOS;
   }

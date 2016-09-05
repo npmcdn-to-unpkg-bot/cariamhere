@@ -51,6 +51,9 @@ function _sqlset(&$s) {
 
   $s[] = "person_id='{$form['person_id']}'";
 
+  $v = $form['gperiod']; if ($v < 5) $v = 5;
+  $s[] = "gperiod='{$v}'";
+
   $s[] = "lat='{$form['lat']}'";
   $s[] = "lng='{$form['lng']}'";
 
@@ -158,6 +161,9 @@ if ($mode == 'doedit') {
   $lng = $form['lng'];
   $clscar->set_position($car_id, $lat, $lng);
 
+  $person_id = $form['person_id'];
+  $clsdriver->set_run_person($driver_id, $person_id);
+
   CloseAndReloadOpenerWindow();
   exit;
 }
@@ -253,6 +259,14 @@ EOS;
   $opt = $clsdriver->select_team_option($row['driver_team']);
   $html = "<select name='driver_team'>$opt</select>";
   print _data_tr('소속팀', $html);
+
+  $opt = $clsdriver->select_team_option($row['driver_team']);
+
+  $list = array('5초:5초','10초:10','20초:20','30초:30','60초:60');
+  $preset = $row['gperiod']; if (!$preset) $preset = '30';
+  $opt = option_general($list, $preset);
+  $html = "<select name='gperiod'>$opt</select>";
+  print _data_tr('GPS주기', $html);
 
   $html = $row['phone_os'];
   print _data_tr('phone_os', $html);
@@ -505,6 +519,10 @@ EOS;
 </select>
 EOS;
 
+  $ipp = get_ipp(20,$min=10,$max=500);
+  $opts = option_ipp($ipp, array(10,20,50,200,500));
+  print("출력:<select name='ipp'>$opts</select>");
+
   print("<input type='button' onclick='_vopt()' onmouseover='_vopt()' value='표시정보' class='btn'>");
 
   $fck = array(); // field check '' or ' checked'
@@ -603,7 +621,7 @@ EOS;
   $row = db_fetchone($qry);
   $total = $row['count'];
   $page = $form['page'];
-  $ipp = 30;
+  $ipp = get_ipp(20,$min=10,$max=500);
   list($start, $last, $page) = calc_page($ipp, $total);
   print pagination_bootstrap2($page, $total, $ipp, '_page');
 

@@ -1139,6 +1139,7 @@ function app_version() {
 // $formdata = array('mode'=>'log', 'id'=>$id);
 //  print _pagination_bootstrap($formdata, $page, $total, $ipp);
 function pagination_bootstrap($formdata, $page, $total, $ipp) {
+print("deprecated ------------ pagination_bootstrap");
 
   $html=<<<EOS
 <nav>
@@ -1184,12 +1185,7 @@ function pagination_bootstrap2($page, $total, $ipp, $callback) {
 
   $html=<<<EOS
 <nav>
-  <ul class="pagination">
-    <li>
-      <a href="#" aria-label="Previous">
-        <span aria-hidden="true">&laquo;</span>
-      </a>
-    </li>
+<ul class="pagination">
 EOS;
 
   $last = ceil($total/$ipp);
@@ -1197,6 +1193,11 @@ EOS;
 
   $start = floor(($page - 1) / 10) * 10 + 1;
   $end = $start + 9;
+
+  if ($start > 1) {
+    $i = $start - 1;
+    $html .= "<li><a href=\"javascript:$callback('$i')\" aria-label='Previous'>&laquo;</a></li>";
+  }
 
   if ($end > $last) $end = $last;
   for ($i = $start; $i <= $end; $i++) {
@@ -1207,16 +1208,14 @@ EOS;
       $html .= "<li><a href=\"javascript:$callback('$i')\">$i</a></li>";
   }
 
+  if ($i <= $last) {
+    $html .= "<li><a href=\"javascript:$callback('$i')\" aria-label='Next'>&raquo;</a></li>";
+  }
   $html.=<<<EOS
-    <li>
-      <a href="#" aria-label="Next">
-        <span aria-hidden="true">&raquo;</span>
-      </a>
-    </li>
-    <li>
-      <span aria-hidden="true">Total $total</span>
-    </li>
-  </ul>
+<li>
+<span aria-hidden="true">Total $total</span>
+</li>
+</ul>
 </nav>
 EOS;
   return $html;
