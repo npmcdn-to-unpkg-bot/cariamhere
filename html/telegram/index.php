@@ -77,7 +77,8 @@ EOS;
 
   print<<<EOS
 <p><a href='$env[self]?mode=register'>사용자 등록</a>
-<p><a href='$env[self]?mode=send'>메시지 전송</a>
+<p><a href='$env[self]?mode=send'>메시지 전송(전체)</a>
+<p><a href='send.php'>메시지 전송 (개인)</a>
 EOS;
 
   MainPageTail();

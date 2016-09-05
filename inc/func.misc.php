@@ -525,9 +525,7 @@ EOS;
 function textarea_general($fname, $content='', $cols='40', $rows='5', $click_select=true, $id='') {
 
   $html =<<<EOS
-<textarea name='$fname' cols='$cols' rows=$rows'' id='$id' onclick='$onclick'>
-$content
-</textarea>
+<textarea name='$fname' cols='$cols' rows=$rows'' id='$id' onclick='$onclick'>$content</textarea>
 EOS;
   return $html;
 }

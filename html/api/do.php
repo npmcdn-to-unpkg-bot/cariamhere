@@ -437,12 +437,12 @@ if ($action == 'finish_driving') {
   $error = $clsdriver->finish_driving($row_driver, $driver_id, $run_id, $elapsed);
   if ($error) error_response($error);
 
-  $url = $conf['map_view_url']."?id=$run_id";
+  //$url = $conf['map_view_url']."?id=$run_id";
 
   $resp = array(
     'run_id'=>$run_id,
     'elapsed'=>$elapsed,
-    'map_url'=>$url,
+    //'map_url'=>$url,
   );
   ok_response($resp);
   exit;

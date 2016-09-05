@@ -189,6 +189,7 @@ if ($mode == 'add' || $mode == 'edit') {
   if ($mode == 'edit') {
     $id = $form['id'];
     $row = _get($id);
+    if (!$row) iError('에러');
     $nextmode = 'doedit';
     $title = "수정";
   } else {
@@ -465,6 +466,27 @@ EOS;
   MainPageHead($source_title);
   //ParagraphTitle($source_title);
 
+/*
+  print<<<EOS
+<div id='topmenu' style='margin-bottom:10px;'>
+<input type='button' value='메뉴' class='btn' value='메뉴' style="width:100%;" onclick="showmenu()">
+</div>
+<script>
+function showmenu() {
+  var str = ""
+    +"<a href='driver.php'>운전자</a>" + " :: "
+    +"<a href='person.php'>의전인사</a>" + " :: "
+    +"<a href='car.php'>차량</a>" + " :: "
+    +"<a href='location.php'>장소</a>" + " :: "
+    +"<a href='notice.php'>공지</a>" + " :: "
+    +"<a href='run.php'>운행기록</a>"
+    ;
+  $("#topmenu").html(str);
+}
+</script>
+EOS;
+*/
+
   _summary();
 
   ## {{
@@ -510,12 +532,13 @@ EOS;
   if ($sort == '') $sel[1] = ' selected'; else $sel[$sort] = ' selected';
   print<<<EOS
 정렬방법:<select name='sort'>
-<option value='1'$sel[1]>최근변경</option>
-<option value='2'$sel[2]>이름</option>
-<option value='3'$sel[3]>소속</option>
-<option value='4'$sel[4]>단말OS</option>
-<option value='5'$sel[5]>상태</option>
-<option value='6'$sel[6]>차량번호</option>
+<option value='1'$sel[1]>번호</option>
+<option value='2'$sel[2]>최근변경</option>
+<option value='3'$sel[3]>이름</option>
+<option value='4'$sel[4]>소속</option>
+<option value='5'$sel[5]>단말OS</option>
+<option value='6'$sel[6]>상태</option>
+<option value='7'$sel[7]>차량번호</option>
 </select>
 EOS;
 
@@ -526,7 +549,7 @@ EOS;
   print("<input type='button' onclick='_vopt()' onmouseover='_vopt()' value='표시정보' class='btn'>");
 
   $fck = array(); // field check '' or ' checked'
-  fck_init($fck, $defaults='2,3,4,5,10,12');
+  fck_init($fck, $defaults='1,2,5,10');
   print<<<EOS
 <div id="vopt" style='display:none;'>
 <label><input type='checkbox' name='fd01' $fck[1]>팀</label>
@@ -607,13 +630,14 @@ EOS;
   $sql_join   = $clsdriver->sql_join_4();
 
   $sort = $form['sort']; if ($sort == '') $sort = '1';
-       if ($sort == '1') $o = "d.udate DESC";
-  else if ($sort == '2') $o = "d.driver_name";
-  else if ($sort == '3') $o = "d.drv1, d.drv2";
-  else if ($sort == '4') $o = "d.phone_os DESC";
-  else if ($sort == '5') $o = "d.driver_stat";
-  else if ($sort == '6') $o = "c.car_no";
-  else                   $o = "d.udate DESC";
+       if ($sort == '1') $o = "d.id";
+  else if ($sort == '2') $o = "d.udate DESC";
+  else if ($sort == '3') $o = "d.driver_name";
+  else if ($sort == '4') $o = "d.drv1, d.drv2";
+  else if ($sort == '5') $o = "d.phone_os DESC";
+  else if ($sort == '6') $o = "d.driver_stat";
+  else if ($sort == '7') $o = "c.car_no";
+  else                   $o = "d.id";
   $sql_order = " ORDER BY $o";
   //dd($sql_order);
 
@@ -700,7 +724,7 @@ EOS;
 
     $per_id = $row['person_id'];
     $edit =<<<EOS
-<span class=link onclick="_edit_person($per_id,this)">{$row['person_name']}</span>
+<span class=link onclick="_edit_person('$per_id',this)">{$row['person_name']}</span>
 EOS;
     if ($form['fd05']) $fields[] = $edit;
 

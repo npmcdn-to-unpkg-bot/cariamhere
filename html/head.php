@@ -91,5 +91,37 @@ EOS;
 <div id="page-content-wrapper">
 EOS;
 
+  print<<<EOS
+<div>
+<a href='driver.php'>운전자</a> ::
+<a href='person.php'>의전인사</a> ::
+<a href='car.php'>차량</a> ::
+<a href='location.php'>장소</a> ::
+<a href='notice.php'>공지</a> ::
+<a href='run.php'>운행기록</a> ::
+<a href='alert.php'>알람</a> ::
+<a href='map.php'>실시간위치</a>
+</div>
+EOS;
+/*
+  print<<<EOS
+<div id='topmenu' style='margin-bottom:10px;'><input type='button' value='메뉴' class='btn' value='메뉴' style="width:100%;" onclick="showmenu()">
+</div>
+<script>
+function showmenu() {
+  var str = ""
+    +"<a href='driver.php'>운전자</a>" + " :: "
+    +"<a href='person.php'>의전인사</a>" + " :: "
+    +"<a href='car.php'>차량</a>" + " :: "
+    +"<a href='location.php'>장소</a>" + " :: "
+    +"<a href='notice.php'>공지</a>" + " :: "
+    +"<a href='run.php'>운행기록</a>" 
+    ;
+  $("#topmenu").html(str);
+}
+</script>
+EOS;
+*/
+
 ?>
 

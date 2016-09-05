@@ -298,6 +298,7 @@ class driver {
     $qry = "UPDATE run SET is_driving=0 WHERE driver_id='$driver_id' AND id != '$run_id'";
     $ret = db_query($qry);
 
+    // 전송주기는 개인별로 다름
     //global $conf;
     //$interval = $conf['interval_driving'];
     $interval = $driver_row['gperiod'];
@@ -311,10 +312,11 @@ class driver {
      ." WHERE id='$driver_id'";
     $ret = db_query($qry);
 
-    //alert_log("운행시작 운전자ID:$driver_id", '운행시작');
     $name = $driver_row['driver_name'];
     $team = $driver_row['driver_team'];
     $tel = $driver_row['driver_tel'];
+    $person_id = $driver_row['person_id'];
+    $person_name = $driver_row['person_name'];
 
     $person_id = $driver_row['person_id'];
 
@@ -326,9 +328,11 @@ class driver {
     $now = get_now();
 
     $msg = "[출발] $name($team) \n"
-     ."$depart --->$going\n"
+     ."$depart ---> $going\n"
      ."출발시간: $now\n"
-     ."인사ID:$person_id";
+     ."인사: $person_name($person_id)\n"
+     ;
+
     alert_log($msg, '운행시작');
 
     $clstg = new telegram();
@@ -439,15 +443,37 @@ class driver {
  FROM run r 
  WHERE r.driver_id='$driver_id' and r.id='$run_id'";
     $row_run = db_fetchone($qry);
-    if (!$row_run) return 'run is is invalid';
+    if (!$row_run) return 'run_id is invalid';
     $elapsed = $row_run['e'];
+    $elapsed = sprintf("%d", $elapsed/60);
 
-    $lat_e = $row_run['lat_e'];
+    $lat_e = $row_run['lat_e']; // 최종 좌표
     $lng_e = $row_run['lng_e'];
+
+    #if ($lat_e || $lng_e) { // 최종 좌표 입력됨
+    #  return '운행이 이미 종료되었습니다.';
+    #}
+
+
     $going_to = $row_run['going_to'];
-    if ($lat_e || $lng_e) { // 최종 좌표 입력됨
-      return '운행이 이미 종료되었습니다.';
-    }
+    $depart_from = $row_run['depart_from'];
+
+    $clsloc = new location();
+    $row_location = $clsloc->get_location($going_to);
+    // 목적지명
+    $going_to_title = $row_location['loc_title'];
+
+    // 출발지명
+    $depart_location = $clsloc->get_location($depart_from);
+    $depart_from_title = $depart_location['loc_title'];
+
+    $dlat = $row_driver['lat'];
+    $dlng = $row_driver['lng'];
+    if ($dlat && $dlng) {
+      // 최종 좌표와 목적지까지 거리
+      $dist1 = distance($row_location['lat'], $row_location['lng'], $dlat, $dlng, "K");
+      $dist1 = sprintf("%3.1f", $dist1);
+    } else $dist1 = '';
 
     // run 정보 갱신
     $s = array();
@@ -471,16 +497,24 @@ class driver {
 
     $name = $row_driver['driver_name'];
     $team = $row_driver['driver_team'];
-
-    // 목적지명
-    $clslocation = new location();
-    $going = $clslocation->id2name($going_to);
+    $person_id = $row_driver['person_id'];
+    $person_name = $row_driver['person_name'];
 
     $now = get_now();
 
-    $msg = "[도착] $name($team)\n"
+    global $conf;
+    $url = $conf['iamhere_record_url'];
+
+    $msg = "---------도착>> $name($team)\n"
       ."도착시간: $now\n"
-      ."목적지: $going\n";
+      ."출발지: $depart_from_title\n"
+      ."목적지: $going_to_title\n"
+      ."인사: $person_name($person_id)\n"
+      ."목적지와 거리: {$dist1}km\n"
+      ."운행기록: $url/home.php?mode=map&id=$run_id\n"
+      ."소요시간: {$elapsed}분\n"
+      ;
+
     alert_log($msg, '운행종료');
 
     $clstg = new telegram();

@@ -55,6 +55,11 @@ class location {
     return $row['loc_title'];
   }
 
+  function get_location($id) {
+    $qry = "SELECT * FROM location WHERE id='$id'";
+    $row = db_fetchone($qry);
+    return $row;
+  }
 
   // APIs
   function list_location($group='', $treeflag=false) {

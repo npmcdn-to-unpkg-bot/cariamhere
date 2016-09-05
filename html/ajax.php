@@ -42,7 +42,7 @@ if ($mode == 'car_status') {
     $k = 'lng';    $item[$k] = $row[$k];
     $k = 'driver_id'; $item[$k] = $row[$k];
     $k = 'car_model'; $item[$k] = $row[$k];
-    $k = 'user_name'; $item[$k] = $row[$k];
+    $k = 'driver_name'; $item[$k] = $row[$k];
     $k = 'status_code'; $item[$k] = $row[$k];
     $k = 'status_name'; $item[$k] = $row[$k];
     $k = 'des_name1'; $item[$k] = $row[$k];

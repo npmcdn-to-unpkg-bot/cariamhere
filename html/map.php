@@ -17,7 +17,7 @@
 
   print<<<EOS
 <h3>
-MAP KEY USAGE $count / 500
+MAP KEY USAGE $count / 500 (500이 되면 지도가 표시되지 않습니다. 화면 새로 고침(F5) 금지.)
 </h3>
 
 <form name='form'>
@@ -149,7 +149,7 @@ function _show_car_information(info) {
     var item = info[i];
     var msg = ""+item['car_no']+'/'+item['car_model'];
 
-    if (item['user_name']) msg += "("+item['user_name']+")";
+    if (item['driver_name']) msg += "("+item['driver_name']+")";
     if (item['status_name']) msg += "["+item['status_name']+"]";
     if (item['dep_name1']) msg += "{"+item['dep_name1']+"}";
     if (item['des_name1']) msg += "-->{"+item['des_name1']+"}";
@@ -261,7 +261,7 @@ function makeOutListener(infowindow) {
 function _marker_info_content(item) {
   var iwContent = '<div style="padding:0px;">'
     +"차량:"+item['car_no']+"<br>"
-    +"운전자:"+item['user_name']+"<br>"
+    +"운전자:"+item['driver_name']+"("+item['driver_team']+")<br>"
     +"모델:"+item['car_model']+"<br>"
     +"상태:"+item['status_name']+"<br>";
     +'</div>';
