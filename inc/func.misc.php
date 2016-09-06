@@ -746,6 +746,9 @@ EOS;
 function get_now() {
   return date('Y-m-d H:i:s');
 }
+function get_time() {
+  return date('H:i:s');
+}
 
 function get_today() {
   return date('Y-m-d');

@@ -254,7 +254,7 @@ EOS;
 </select>
 EOS;
 
-  print("<input type='button' onclick='_vopt()' onmouseover='_vopt()' value='표시정보' class='btn'>");
+  print("<input type='button' onclick='_vopt()' value='표시정보' class='btn'>");
 
   $fck = array(); // field check '' or ' checked'
   fck_init($fck, $defaults='1,2,3,4,5,7,8');

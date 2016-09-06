@@ -336,7 +336,7 @@ class driver {
     alert_log($msg, '운행시작');
 
     $clstg = new telegram();
-    $clstg->send_all($msg);
+    $clstg->enqueue_all($msg, 0);
   }
 
   // 경유지 리스트
@@ -518,7 +518,7 @@ class driver {
     alert_log($msg, '운행종료');
 
     $clstg = new telegram();
-    $clstg->send_all($msg);
+    $clstg->enqueue_all($msg, 0);
   }
 
   // VIP 변경
@@ -548,11 +548,15 @@ class driver {
     $driver_id = $driver_row['id'];
     $name = $driver_row['driver_name'];
     $team = $driver_row['driver_team'];
+    $tel = $driver_row['driver_tel'];
 
     $e_name = $this->emergency_code2name($code);
 
-    $msg = "비상상황 [$code/$e_name] ($driver_id, $name, $team)";
+    $msg = "비상상황 [$code/$e_name] $name($team)[ Tel: $tel ]";
     alert_log($msg, '긴급');
+
+    $clstg = new telegram();
+    $clstg->enqueue_all($msg, 0);
 
     $qry = "UPDATE driver SET driver_stat='DS_EMERGEN', emergency='$code' WHERE id='$driver_id'";
     $ret = db_query($qry);
@@ -567,6 +571,9 @@ class driver {
 
     $msg = "비상상황해제 ($driver_id, $name, $team)";
     alert_log($msg, '긴급');
+
+    $clstg = new telegram();
+    $clstg->enqueue_all($msg, 0);
 
     $qry = "UPDATE driver SET driver_stat='DS_STOP', emergency='' WHERE id='$driver_id'";
     $ret = db_query($qry);

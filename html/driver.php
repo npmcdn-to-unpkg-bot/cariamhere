@@ -238,11 +238,12 @@ EOS;
   $html = textinput_general('driver_tel', $row['driver_tel'], '20', '', $click_select, 0, '', 'ui-input');
   print _data_tr('전화번호', $html);
 
-  $opt = $clsdriver->driver_status_option($row['driver_stat']);
+  $v = $row['driver_stat'];
+  $opt = $clsdriver->driver_status_option($v);
   $html = "<select name='driver_stat'>$opt</select>";
-  print _data_tr('상태', $html);
+  print _data_tr('운전자상태', $html);
 
-  print _data_tr('상태', $row['emergency']);
+  print _data_tr('비상상황구분', $row['emergency']);
 
   $preset = $row['person_id'];
   $opt = $personObj->select_option_person($preset);
@@ -360,24 +361,26 @@ EOS;
 </tr>
 EOS;
 
-  if ($mode == 'edit') {
-  print _data_tr('own1', $row['own1']);
-  print _data_tr('own2', $row['own2']);
-  print _data_tr('own3', $row['own3']);
-  print _data_tr('own4', $row['own4']);
-  print _data_tr('own5', $row['own5']);
-  print _data_tr('own6', $row['own6']);
-  print _data_tr('own7', $row['own7']);
-  print _data_tr('own8', $row['own8']);
-  print _data_tr('own9', $row['own9']);
-  print _data_tr('own10', $row['own10']);
 
-  print _data_tr('drv1', $row['drv1']);
-  print _data_tr('drv2', $row['drv2']);
-  print _data_tr('drv3', $row['drv3']);
-  print _data_tr('drv4', $row['drv4']);
-  print _data_tr('drv5', $row['drv5']);
-  print _data_tr('drv6', $row['drv6']);
+  if ($mode == 'edit') {
+  print _data_tr('소속1', $row['own1']);
+  print _data_tr('소속2', $row['own2']);
+  print _data_tr('실소유자', $row['own3']);
+  print _data_tr('연락처', $row['own4']);
+  print _data_tr('모델명', $row['own5']);
+  print _data_tr('차량번호', $row['own6']);
+  print _data_tr('차종', $row['own7']);
+  print _data_tr('색상', $row['own8']);
+  print _data_tr('배기량', $row['own9']);
+  print _data_tr('연식', $row['own10']);
+
+  print _data_tr('소속1', $row['drv1']);
+  print _data_tr('소속2', $row['drv2']);
+  print _data_tr('이름', $row['drv3']);
+  print _data_tr('연령', $row['drv4']);
+  print _data_tr('연락처', $row['drv5']);
+  print _data_tr('고유번호', $row['drv6']);
+  print _data_tr('팀', $row['drv7']);
   }
 
   print<<<EOS
@@ -546,7 +549,7 @@ EOS;
   $opts = option_ipp($ipp, array(10,20,50,200,500));
   print("출력:<select name='ipp'>$opts</select>");
 
-  print("<input type='button' onclick='_vopt()' onmouseover='_vopt()' value='표시정보' class='btn'>");
+  print("<input type='button' onclick='_vopt()' value='표시정보' class='btn'>");
 
   $fck = array(); // field check '' or ' checked'
   fck_init($fck, $defaults='1,2,5,10');

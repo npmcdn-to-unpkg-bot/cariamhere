@@ -51,8 +51,19 @@ EOS;
 ### }}}
 
 ### {{{
-if ($mode == 'map') {
+if ($mode == 'delete') {
+  $run_id = $form['id'];
+  $qry = "delete FROM run_log where run_id='$run_id'";
+  $ret = db_query($qry);
 
+  $qry = "delete FROM run where id='$run_id'";
+  $ret = db_query($qry);
+
+  CloseAndReloadOpenerWindow();
+  exit;
+}
+
+if ($mode == 'map') {
   $run_id = $form['id'];
 
   $sql_from = " FROM run r";
@@ -125,10 +136,17 @@ function _map_range() {
 
 function addMarker(position, date) {
 
+  var src = "/img/marker/dot1.png";
+  var size = new daum.maps.Size(10,10);
+  var option = { offset: new daum.maps.Point(5,5)};
+  var markerImage = new daum.maps.MarkerImage(src, size, option);
+
   var marker = new daum.maps.Marker({
-      position: position,
-      title: date,
+    position: position,
+    title: date,
+    image: markerImage,
   });
+
   marker.setMap(map);
 
   markers.push(marker);
@@ -241,7 +259,7 @@ EOS;
 </select>
 EOS;
 
-  print("<input type='button' onclick='_vopt()' onmouseover='_vopt()' value='표시정보' class='btn'>");
+  print("<input type='button' onclick='_vopt()' value='표시정보' class='btn'>");
 
   $fck = array(); // field check '' or ' checked'
   fck_init($fck, $defaults='1,2,3,5');
@@ -253,6 +271,7 @@ EOS;
 <label><input type='checkbox' name='fd04' $fck[4]>출발,도착시간</label>
 <label><input type='checkbox' name='fd05' $fck[5]>최종업데이트</label>
 <label><input type='checkbox' name='fd06' $fck[6]>운전자상태</label>
+<label><input type='checkbox' name='fd07' $fck[7]>삭제</label>
 </div>
 <script>
 function _vopt() { $('#vopt').toggle(); }
@@ -348,6 +367,7 @@ EOS;
   $head[] = 'VIP인사';
   if ($form['fd05']) $head[] = '최종업데이트';
   if ($form['fd06']) $head[] = '운전자상태';
+  if ($form['fd07']) $head[] = '기록삭제';
   print table_head_general($head);
   print("<tbody>");
 
@@ -408,6 +428,10 @@ EOS;
       $ds = $clsdriver->driver_status_html($row); // 운전자상태
       $fields[] = $ds;
     }
+    if ($form['fd07']) {
+      $btn = button_general("삭제", 0, "_delete('$run_id')", $style='', $class='btn btn-danger');
+      $fields[] = $btn;
+    }
 
     print("<tr>");
     foreach ($fields as $f) {
@@ -425,6 +449,10 @@ EOS;
 <script>
 function _map(id) { var url = "$env[self]?mode=map&id="+id; wopen(url,630,730,1,1); }
 function _edit(id,span) { lcolor(span); var url = "driver.php?mode=edit&id="+id; wopen(url,600,600,1,1); }
+function _delete(id) { 
+  var msg = "삭제할까요?"; if (!confirm(msg)) return;
+  var url = "$env[self]?mode=delete&id="+id; wopen(url,630,730,1,1);
+}
 </script>
 EOS;
 
