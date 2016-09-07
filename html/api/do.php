@@ -381,6 +381,12 @@ if ($action == 'start_driving') {
   $depart_from = $data['depart_from'];
   $going_to    = $data['going_to'];
 
+  $depart_from_etc = $data['depart_from_etc'];
+  $going_to_etc    = $data['going_to_etc'];
+
+  $depart_from = $clslocation->location_add($depart_from, $depart_from_etc);
+  $going_to = $clslocation->location_add($going_to, $going_to_etc);
+
   // $depart_from : 출발지 ID
   // $going_to : 목적지 ID
   // $interval : 위치 전송 주기 (output)
@@ -545,14 +551,15 @@ if ($action == 'exit_emergency') {
 }
 
 
-
-// 4자리 숫자 인사 번호로 정보를 조회
+// 인사 정보 검색
 if ($action == 'person_information') {
   $appkey = _check_appkey();
   $driver_row = _get_driver($appkey);
+
   $per_no = $data['per_no'];
 
-  $info = $clsperson->person_information($per_no);
+  // 번호 또는 초성 또는 이름
+  $info = $clsperson->person_information_v2($per_no);
   if (!$info) error_response('person not found');
 
   $resp = array(

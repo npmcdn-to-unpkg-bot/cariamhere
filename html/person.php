@@ -42,6 +42,7 @@ function _sqlset(&$s) {
 
   $person_cho = cho_hangul($form['person_name']);
 
+  $s[] = "per_no='{$form['per_no']}'";
   $s[] = "person_group='{$form['person_group']}'";
   $s[] = "person_name='{$form['person_name']}'";
   $s[] = "person_cho='{$person_cho}'";
@@ -154,7 +155,7 @@ EOS;
   $html = "<select name='person_group'>$opt</select>";
   print _data_tr('분류', $html);
 
-  $html = textinput_general('person_name', $row['person_name'], '20', $onkeypress='', $click_select, $maxlength=0);
+  $html = textinput_general('person_name', $row['person_name'], '40', $onkeypress='', $click_select, $maxlength=0);
   print _data_tr('이름', $html);
 
   print _data_tr('이름초성', $row['person_cho']);
@@ -560,7 +561,15 @@ EOS;
   list($start, $last, $page) = calc_page($ipp, $total);
   print pagination_bootstrap2($page, $total, $ipp, '_page');
 
-  $qry = $sql_select.$sql_from.$sql_join.$sql_where
+  $sort = $form['sort']; if ($sort == '') $sort = '1';
+       if ($sort == '1') $o = "p.udate";
+  else if ($sort == '2') $o = "p.person_name";
+  else if ($sort == '3') $o = "Nat.nname";
+  else                   $o = "p.udate";
+  $sql_order = " ORDER BY $o";
+  //dd($sql_order);
+
+  $qry = $sql_select.$sql_from.$sql_join.$sql_where.$sql_order
     ." LIMIT $start,$ipp";
 
   $ret = db_query($qry);

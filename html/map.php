@@ -344,18 +344,21 @@ function _toggle_info_window() {
   _info_window(show_window);
 }
 
+// 지도 범위 재설정
 function _map_range() {
   var points = [];
   for (var i = 0; i < markers.length; i++) {
     var p = markers[i].getPosition();
-    //console.log(p);
     points.push(p);
   }
 
   // 지도를 재설정할 범위정보를 가지고 있을 LatLngBounds 객체를 생성합니다
   var bounds = new daum.maps.LatLngBounds();    
-
+  var maxLng = 129.5899200439453; // 포항 동쪽
   for (var i = 0; i < points.length; i++) {
+    var lat = points[i].getLat();
+    var lng = points[i].getLng();
+    if (lng > maxLng) continue; // 우리나라 범위를 벗어나면 스킵
     bounds.extend(points[i]);
   }
   map.setBounds(bounds);
@@ -368,7 +371,6 @@ $(function() {
 });
 </script>
 EOS;
-
 
   MainPageTail();
   exit;

@@ -117,7 +117,7 @@ EOS;
 
   $click_select = true;
 
-  $opt = $clslocation->option_location_group($row['loc_gropu']);
+  $opt = $clslocation->option_location_group($row['loc_group']);
   $html = "<select name='loc_group'>$opt</select>";
   print _data_tr('장소구분', $html);
 

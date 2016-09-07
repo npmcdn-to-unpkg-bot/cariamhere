@@ -1490,5 +1490,39 @@ function cut_str($str,$len,$tail="") {
 }
 
 
+function download_head($file_prefix, $debug=0) {
+
+  if (!$debug) {
+  $filename = $file_prefix.'-'.date('YmdHis').'.xls';
+  header("Content-disposition: attachment; filename=\"$filename\"");
+  header("Content-type: application/octetstream");
+  header("Content-Transfer-Encoding: binary");
+  header("Pragma: no-cache");
+  header("Expires: 0");
+  }
+
+  print<<<EOS
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+<style> .td { color:#000000; font-size:9pt; font-family:굴림체; } </style>
+
+<table width='' border='1' cellspacing='1' cellpadding='4'>
+EOS;
+}
+function download_tail() {
+  print<<<EOS
+</table>
+EOS;
+}
+function download_th($str) {
+  print<<<EOS
+<td class='td' align='center' bgcolor='#C8DFF9'>$str</td>
+EOS;
+}
+
+function download_td($str) {
+  print<<<EOS
+<td class='td' align='center'>$str</td>
+EOS;
+}
 
 ?>

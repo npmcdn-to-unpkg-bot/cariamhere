@@ -567,6 +567,7 @@ EOS;
 <label><input type='checkbox' name='fd09' $fck[8]>전화번호,고유번호</label>
 <label><input type='checkbox' name='fd11' $fck[11]>GPS좌표</label>
 <label><input type='checkbox' name='fd12' $fck[12]>최종업데이트</label>
+<label><input type='checkbox' name='fd13' $fck[13]>메시지전송</label>
 </div>
 EOS;
 
@@ -626,6 +627,7 @@ EOS;
 
   $sql_select = $clsdriver->sql_select_run_1()
        .", d.lat, d.lng"
+       .", d.chat_id, d.bot1con, d.bot2con"
        .", d.car_id, d.emergency, d.udate driver_udate"
        .", d.phone_os, d.drv1, d.drv2"
        .", d.driver_tel, d.driver_no";
@@ -689,6 +691,7 @@ EOS;
   if ($form['fd09']) { $head[] = '전화번호'; $head[] = '고유번호'; }
   if ($form['fd11']) { $head[] = 'GPS좌표'; }
   if ($form['fd12']) { $head[] = '최종업데이트'; }
+  if ($form['fd13']) { $head[] = '메시지'; }
   print table_head_general($head);
   print("<tbody>");
 
@@ -742,6 +745,16 @@ EOS;
       $fields[] = $str;
     }
 
+    if ($form['fd13']) {
+      $cid = $row['chat_id'];
+      if ($cid && $row['bot2con']) {
+        $btn = "<input type='button' value='메시지' onclick=\"_send('$cid')\" class='btn btn-warning'>";
+      } else {
+        $btn = '';
+      }
+      $fields[] = $btn;
+    }
+
     print("<tr>");
     foreach ($fields as $f) {
       print("<td nowrap>$f</td>");
@@ -764,6 +777,7 @@ function _run(id) { var url = "run.php?driver_id="+id; urlGo(url); }
 function _edit(id,span) { lcolor(span); var url = "$env[self]?mode=edit&id="+id; wopen(url, 600,600,1,1); }
 function _edit_person(id,span) { lcolor(span); var url = "person.php?mode=edit&id="+id; wopen(url, 600,600,1,1); }
 function _edit_car(id,span) { lcolor(span); var url = "car.php?mode=edit&id="+id; wopen(url, 600,600,1,1); }
+function _send(cid) { var url = "telegram.php?mode=send&cid="+cid; wopen(url, 600,600,1,1); }
 
 // 주소를 업데이트하기.. 이렇게 하면 API 요청 횟수가 너무 많아질듯.
 function _update_address_all() {

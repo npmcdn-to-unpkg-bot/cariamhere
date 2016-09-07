@@ -1,0 +1,22 @@
+
+IamHere_notice_330918_bot
+241697609:AAFPrkQNRsQKO4NxThCc4DmmEK5fX_wm-B8
+
+IamHere
+http://telegram.me/IamHere_330918_bot
+
+참고
+https://core.telegram.org/bots/api 
+
+https://api.telegram.org/bot225356888:AAHyD9jR6w505Tp5pUUtxpyd5kOJQkaoFos/sendMessage?chat_id=56807421&text=hello
+https://api.telegram.org/bot225356888:AAHyD9jR6w505Tp5pUUtxpyd5kOJQkaoFos/sendMessage?chat_id=66960984&text=Yes
+https://api.telegram.org/bot225356888:AAHyD9jR6w505Tp5pUUtxpyd5kOJQkaoFos/getUpdates
+
+https://api.telegram.org/bot225356888:AAHyD9jR6w505Tp5pUUtxpyd5kOJQkaoFos/setWebhook
+{"ok":true,"result":true,"description":"Webhook was deleted"}
+
+https://api.telegram.org/bot225356888:AAHyD9jR6w505Tp5pUUtxpyd5kOJQkaoFos/setWebhook?url=https://sweb.scjmatthias.net/hook.php
+{"ok":true,"result":true,"description":"Webhook was set"}
+
+https://api.telegram.org/bot241697609:AAFPrkQNRsQKO4NxThCc4DmmEK5fX_wm-B8/setWebhook?url=https://sweb.scjmatthias.net/hook2.php
+

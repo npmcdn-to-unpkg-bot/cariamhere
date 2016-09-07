@@ -146,6 +146,44 @@ function person_information($per_no) {
   return $info;
 }
 
+// API
+// 번호,초성,이름 검색
+function person_information_v2($search) {
+  $v = $search;
+
+  // 검색결과가 없을 경우 리턴값
+  $info = array(
+    'person_id'=>null,
+    'per_no'=>null,
+    'name'=>null,
+  );
+
+  $sql_from = " FROM person p";
+  $sql_join = " LEFT JOIN Nat n ON p.person_nation=n.nnum";
+  $sql_where = " WHERE p.per_no='$v' OR p.person_name LIKE '%$v%' OR p.person_cho LIKE '%$v%'";
+
+  // 검색결과가 없거나 1개 이상인경우
+  $qry = "SELECT count(*) count".$sql_from.$sql_join.$sql_where;
+  $row = db_fetchone($qry);
+  if ($row['count'] != 1) return $info;
+
+  $qry = "SELECT p.*, n.nname".$sql_from.$sql_join.$sql_where;
+  $row = db_fetchone($qry);
+
+  $info = array(
+    'person_id'=>$row['per_no'],
+    'per_no'=>$row['per_no'],
+    'name'=>$row['person_name'],
+    'group'=>$row['person_group'],
+    'position'=>$row['person_position'],
+    'nation'=>$row['nname'],
+    'hotel'=>$row['person_hotel'],
+  );
+
+  return $info;
+}
+
+
 
 };
 

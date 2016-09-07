@@ -124,6 +124,24 @@ class location {
     return $info;
   }
 
+  // 장소선택에서 기타장소입력시, db에등록한후 ID리턴
+  function location_add($loc_id, $title_etc) {
+    if ($loc_id > 0) return $loc_id;
+
+    $title = trim($title_etc);
+
+    $qry = "SELECT max(id) max from location";
+    $row = db_fetchone($qry);
+    $id = $row['max']+1;
+
+    $lat = 37.56647878771299; $lng = 126.97829604148865; // 서울시청
+    $qry = "insert into location "
+     ." set id='$id', loc_title='$title', loc_group='기타', lat='$lat', lng='$lng', udate=now(), idate=now()"; 
+    db_query($qry);
+
+    return $id;
+  }
+
 
 
 };

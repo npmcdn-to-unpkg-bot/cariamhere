@@ -7,16 +7,15 @@ create table  person (
   per_no        int      comment '인사 번호',
   person_name   char(50) not null default '' comment '인사 이름',
   person_cho    char(50) not null default '' comment '인사 이름 초성분리',
-
   person_group   char(10) not null default '' comment '인사 그룹',
-
   person_position   char(20) not null default '' comment '대표직책(한글)',
   person_hotel      char(10) not null default '' comment '호텔',
-
   person_fflag   tinyint default 0 comment '깃발부착대상자여부',
-
   person_nation  int     default 0 comment '국가',
   memo    text  comment '메모',
+
+  driver_id   int  default 0 comment '최종 수행기사',
+
   udate  datetime,
   idate datetime,
   per1   char(10) comment '인사번호',
@@ -27,12 +26,8 @@ create table  person (
   per6   char(10) comment '국적',
 );
 
-
-person_no=per1
-person_name=per2
-person_group=per3
-person_position=per4
-person_hotel=per5
+alter table person add column
+  driver_id   int  default 0 comment '최종 수행기사' after memo;
 
 alter table person add column per1   char(10) comment '인사번호';
 alter table person add column per2   char(30) comment '공식한글이름';

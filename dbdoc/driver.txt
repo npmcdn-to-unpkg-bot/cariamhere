@@ -34,8 +34,17 @@ create table  driver (
   udate  datetime,
   idate datetime,
   chat_id   int not null default 0 comment 'telegram chat_id',
+
+  bot1con   tinyint default 0 comment '모니터링봇 연결여부',
+  bot2con   tinyint default 1 comment '공지봇 연결여부',
+
   gperiod tinyint default 30 comment 'GPS보고주기'
 );
+
+  alter table driver add column
+  bot1con   tinyint default 0 comment '모니터링봇 연결여부' after chat_id;
+  alter table driver add column
+  bot2con   tinyint default 1 comment '공지봇 연결여부' after bot1con;
 
  alter table driver add column
   gperiod tinyint default 30 comment 'GPS보고주기';

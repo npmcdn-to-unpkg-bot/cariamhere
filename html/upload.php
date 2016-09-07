@@ -177,6 +177,64 @@ EOS;
   exit;
 }
 
+if ($mode == 'down') {
+
+  download_head('carmax', $debug=0);
+
+  $qry = "select d.*,c.*
+ ,d.id driver_id
+ from driver d
+ left join carinfo c on d.car_id=c.id";
+
+  print("<tr>");
+  download_th('지파');
+  download_th('교회');
+  download_th('차량소유자');
+  download_th('연락처');
+  download_th('차종');
+  download_th('차량번호');
+  download_th('모델');
+  download_th('색상');
+  download_th('배기량');
+  download_th('연식');
+  download_th('지파');
+  download_th('교회');
+  download_th('운전자');
+  download_th('나이');
+  download_th('전화번호');
+  download_th('고유번호');
+  download_th('팀');
+  download_th('운전자번호');
+  print("</tr>");
+
+  $ret = db_query($qry);
+  while ($row = db_fetch($ret)) {
+  print("<tr>");
+  download_td($row['own1']);
+  download_td($row['own2']);
+  download_td($row['own3']);
+  download_td($row['own4']);
+  download_td($row['own5']);
+  download_td($row['car_no']);
+  download_td($row['own7']);
+  download_td($row['own8']);
+  download_td($row['own9']);
+  download_td($row['own10']);
+  download_td($row['drv1']);
+  download_td($row['drv2']);
+  download_td($row['driver_name']);
+  download_td($row['drv4']);
+  download_td($row['driver_tel']);
+  download_td($row['driver_no']);
+  download_td($row['driver_team']);
+  download_td($row['driver_id']);
+  print("</tr>");
+  }
+
+  download_tail();
+  exit;
+}
+
 ### }}}
 
   MainPageHead($source_title);
@@ -202,6 +260,7 @@ EOS;
 $content
 </textarea>
 
+<input type='button' value='다운로드' onclick='sf_down()' class='btn btn-warning'>
 <input type='button' value='미리보기' onclick='sf_1()' class='btn btn-primary'>
 <input type='button' value='저장하기' onclick='sf_2()' class='btn btn-primary'>
 <label><input type='radio' name='ovwr' value='1'>덮어쓰기</label>
@@ -211,6 +270,7 @@ $content
 <script>
 function sf_1() { document.form.mode.value = ''; document.form.submit(); }
 function sf_2() { document.form.mode.value = 'add2do'; document.form.submit(); }
+function sf_down() { document.form.mode.value = 'down'; document.form.submit(); }
 </script>
 EOS;
 

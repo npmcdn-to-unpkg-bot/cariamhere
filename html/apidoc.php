@@ -332,6 +332,8 @@ EOS;
   $info = array( 'appkey'=>'',
     'depart_from'=>'출발지장소ID',
     'going_to'=>'도착지장소ID',
+    'depart_from_etc'=>'출발지장소명 기타',
+    'going_to_etc'=>'도착지장소명 기타',
   );
   $rinfo = array('result'=>'성공여부',
     'gps_interval'=>'위치전송주기',
@@ -394,7 +396,7 @@ EOS;
   $title = "[인사] 의전인사 정보조회(person_information)";
   $action = 'person_information';
   $info = array( 'appkey'=>'',
-     'per_no'=>'인사 번호(4자리숫자)',
+     'per_no'=>'인사 번호 또는 초성 또는 이름',
   );
   $rinfo = array('result'=>'성공여부',
      'info'=>'인사정보',

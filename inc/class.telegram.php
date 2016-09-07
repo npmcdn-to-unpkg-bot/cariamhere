@@ -13,6 +13,11 @@ class telegram {
      $this->url = "https://api.telegram.org/bot$token";
   }
 
+  function dd($obj) {
+    $str = var_export($obj, true);
+    file_put_contents("/tmp/log.txt", $str, FILE_APPEND);
+  }
+
   function enqueue($chat_id, $text, $mtype=0) {
     $t = db_escape_string($text);
     $qry = "INSERT INTO telegram_send_queue set chat_id='$chat_id', msg='$t', mtype='$mtype', idate=NOW()";
@@ -40,22 +45,50 @@ class telegram {
     }
   }
 
-  // 메시지 전송
-  function send_msg($chat_id, $text, $mtype) {
+  function url($mtype) {
     global $conf;
          if ($mtype == 0) $token = $conf['telegram_token'];
     else if ($mtype == 1) $token = $conf['telegram_token_notice'];
     $url = "https://api.telegram.org/bot$token";
+    return $url;
+  }
+
+  // 메시지 전송
+  function send_msg($chat_id, $text, $mtype) {
+    $url = $this->url($mtype);
 
     $t = urlencode($text);
     $url .= "/sendMessage?chat_id=$chat_id&text=$t";
 
+    $this->dd($url);
     $r = file_get_contents($url);
     $info = json_decode($r, true);
     //dd($info);
     if ($info['ok']) return true; // success
     return false; // fail
   }
+
+  // 메시지 전송
+  function send_msg_post($chat_id, $text, $mtype) {
+    $url = $this->url($mtype)."/sendMessage";
+
+    $postfields = array('chat_id'=>$chat_id, 'text'=>$text);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // On dev server only!
+    $result = curl_exec($ch);
+    //$this->dd($result);
+
+    $info = json_decode($result, true);
+    $this->dd($info);
+    if ($info['ok']) return true; // success
+    return false; // fail
+  }
+
 
 
   // 메시지 전송
