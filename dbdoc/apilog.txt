@@ -1,0 +1,9 @@
+
+drop table  apilog ;
+create table  apilog (
+  id int auto_increment primary key,
+  log           text comment '메시지',
+  idate         datetime comment '입력시간'
+);
+
+

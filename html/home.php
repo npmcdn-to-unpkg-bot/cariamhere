@@ -11,6 +11,7 @@
  print("<li><a href='/apidoc.php'>API 설명서</a></li>");
  print("<li><a href='/samples/'>참고(samples)</a></li>");
  print("<li><a href='/telegram/'>텔레그램</a></li>");
+ print("<li><a href='/apilog.php'>apilog</a></li>");
 
  print("<li><a href='http://apis.map.daum.net/web/' target='_blank'>Daum Map API</a></li>");
  print("<li><a href='http://developers.google.com/maps/documentation/javascript/examples/?hl=ko' target='_blank'>Google Map API</a></li>");

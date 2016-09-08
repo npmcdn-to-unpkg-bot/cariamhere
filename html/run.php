@@ -205,7 +205,7 @@ EOS;
 
 
   ## {{
-  $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn btn-primary');
+  $btn = button_general('조회', 0, "sf_1()", $style='width:70px; height:50px;', $class='btn btn-primary');
   print<<<EOS
 <form name='search_form' method='get'>
 $btn
@@ -271,6 +271,7 @@ EOS;
 <label><input type='checkbox' name='fd04' $fck[4]>출발,도착시간</label>
 <label><input type='checkbox' name='fd05' $fck[5]>최종업데이트</label>
 <label><input type='checkbox' name='fd06' $fck[6]>운전자상태</label>
+<label><input type='checkbox' name='fd08' $fck[8]>5분간주행거리</label>
 <label><input type='checkbox' name='fd07' $fck[7]>삭제</label>
 </div>
 <script>
@@ -327,7 +328,7 @@ EOS;
   $sql_join   = $clsdriver->sql_join_3();
   $sql_select = $clsdriver->sql_select_run_1()
      .", d.emergency"
-     .", r.udate run_udate";
+     .", r.udate run_udate, r.dist5";
 
   $sort = $form['sort']; if ($sort == '') $sort = '1';
        if ($sort == '1') $o = "r.udate DESC";
@@ -367,6 +368,7 @@ EOS;
   $head[] = 'VIP인사';
   if ($form['fd05']) $head[] = '최종업데이트';
   if ($form['fd06']) $head[] = '운전자상태';
+  if ($form['fd08']) $head[] = '5분간주행거리';
   if ($form['fd07']) $head[] = '기록삭제';
   print table_head_general($head);
   print("<tbody>");
@@ -427,6 +429,9 @@ EOS;
     if ($form['fd06']) {
       $ds = $clsdriver->driver_status_html($row); // 운전자상태
       $fields[] = $ds;
+    }
+    if ($form['fd08']) {
+      $fields[] = $row['dist5'].'m';
     }
     if ($form['fd07']) {
       $btn = button_general("삭제", 0, "_delete('$run_id')", $style='', $class='btn btn-danger');

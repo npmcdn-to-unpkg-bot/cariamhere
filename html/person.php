@@ -385,6 +385,12 @@ EOS;
   $ti = textinput_general('jik', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='', 'ui-corner-all');
   print("직책:$ti");
 
+  $v = $form['pg'];
+  $opt = $clsperson->person_group_option($v);
+  print<<<EOS
+그룹:<select name='pg'>$opt</select>
+EOS;
+
   $sel = array(); $sort = $form['sort'];
   if ($sort == '') $sel[1] = ' selected'; else $sel[$sort] = ' selected';
   print<<<EOS
@@ -545,6 +551,9 @@ EOS;
 
   $v = $form['jik'];
   if ($v) $w[] = "(p.person_position LIKE '%$v%')";
+
+  $v = $form['pg'];
+  if ($v) $w[] = "(p.person_group='$v')";
 
   $sql_where = sql_where_join($w, $d=0, 'AND');
 

@@ -21,6 +21,7 @@ create table  run (
   lat_e  double   comment '도착 위치',
   lng_e  double   comment '도착 위치',
 
+  dist5  int comment '5분간 주행거리(미터)',
   udate  datetime,
   idate datetime,
 
@@ -28,6 +29,9 @@ create table  run (
   is_driving   tinyint default 0 comment '운행중인지 여부',
 
 );
+
+  alter table run add column
+  dist5  int comment '5분간 주행거리(미터)' after lng_e;
 
  desc run ;
 
