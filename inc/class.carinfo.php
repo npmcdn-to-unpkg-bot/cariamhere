@@ -44,6 +44,10 @@ function list_car($sql_where='', $debug=false, $opt=null) {
   if ($opt['운행중인차량']) {
     $w[] = "d.is_driving='1'";
   }
+  if ($opt['팀']) {
+    $v = $opt['팀'];
+    if ($v != 'all') $w[] = "d.driver_team='$v'";
+  }
   $sql_where = " WHERE ".join(" AND ", $w);
 
   $qry = "SELECT c.*, d.driver_name, d.driver_stat, Ds.DsName, d.driver_team"

@@ -4,7 +4,6 @@
   include_once("$env[prefix]/inc/common.sweb.php");
   include_once("$env[prefix]/inc/class.telegram.php");
 
-  $clstg = new telegram();
 
 ### {{{
 function _register($appkey, $from_chat_id) {
@@ -43,6 +42,9 @@ function _register($appkey, $from_chat_id) {
   $from = $message['from'];
   $from_chat_id = $from['id'];
   $text = $message['text'];
+
+  $clstg = new telegram();
+  $clstg->hook_log($from_chat_id, $data, $mtype=0);
 
   // 사용자 등록
   if (preg_match("/\/start /", $text)) {

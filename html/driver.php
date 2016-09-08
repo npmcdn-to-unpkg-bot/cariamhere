@@ -660,7 +660,8 @@ EOS;
 
   $btn = array();
   $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
-  $btn[] = button_general('운전자/차량 업로드', 0, "_add2()", $style='', $class='btn btn-info');
+  $btn[] = button_general('엑셀업로드', 0, "_add2()", $style='', $class='btn btn-info');
+  $btn[] = button_general('다운로드', 0, "_down()", $style='', $class='btn btn-info');
   $btn[] =<<<EOS
 검색(이름,초성):<input type='text' name='searchq' onkeyup="searchq();" onclick='this.select()' onclick='this.select()'>
 EOS;
@@ -822,6 +823,7 @@ EOS;
 <script>
 function _add() { var url = "$env[self]?mode=add"; wopen(url,600,600,1,1); }
 function _add2() { var url = "upload.php"; urlGo(url); }
+function _down() { var url = "download.php"; urlGo(url); }
 
 var qcall = 0;
 var tbody_origin = null;

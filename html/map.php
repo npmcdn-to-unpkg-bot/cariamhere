@@ -2,6 +2,7 @@
 
   include_once("./path.php");
   include_once("$env[prefix]/inc/common.php");
+  include_once("$env[prefix]/inc/class.driver.php");
 
   $source_title = '실시간 차량위치';
 
@@ -14,13 +15,10 @@
   MainPageHead($source_title);
 
   $count = get_keycount(1);
-
   print<<<EOS
-<h3>
+<h5>
 MAP KEY USAGE $count / 500 (500이 되면 지도가 표시되지 않습니다. 화면 새로 고침(F5) 금지.)
-</h3>
-
-<form name='form'>
+</h5>
 
 <!-- 지도 영역 -->
 <div style='width:100%; height:500px;'>
@@ -28,14 +26,12 @@ MAP KEY USAGE $count / 500 (500이 되면 지도가 표시되지 않습니다. �
 </div>
 
 <div>
-<label><input type='checkbox' name='drvc' onclick='_clk_drvc()'>운행중인차량만</label>
-</div>
+<form name='form'>
 
+<input type='button' value='교통정보On/Off' onclick='_traffic()' class='btn btn-primary'>
+<input type='button' value='팝업On/Off' onclick='_toggle_info_window()' class='btn btn-primary'>
 
-<input type='button' value='교통정보On/Off' onclick='_traffic()' class=''>
-<input type='button' value='팝업On/Off' onclick='_toggle_info_window()' class=''>
-
-<input type='button' value='자동맞춤' onclick='_map_range()' class=''>
+<input type='button' value='전체표시' onclick='_map_range()' class='btn btn-primary'>
 
 <select id='time' name='time' class="" data-style="btn-primary" onchange="_change_time()">
 <option value='0'>수동</option>
@@ -48,10 +44,29 @@ MAP KEY USAGE $count / 500 (500이 되면 지도가 표시되지 않습니다. �
 <option value='60'>자동 60초</option>
 </select>
 
-<input type='button' value='수동업데이트' onclick='_update_markers()' class=''>
+<input type='button' value='수동업데이트' onclick='_update_markers()' class='btn btn-primary'>
+<!--
 <input type='button' value='정보조회' onclick='_btn_car_stat()' class=''>
-</form>
+-->
 
+<label><input type='checkbox' name='drvc' onclick='_clk_drvc()'>운행중</label>
+
+</form>
+</div>
+EOS;
+
+  $clsdriver = new driver();
+  $teams = $clsdriver->driver_all_teams();
+  $teams[] = '전체';
+  print("<div class='btn-group' role='group' aria-label='...' style=''>");
+  foreach ($teams as $team) {
+    if ($team == $f_team) $cls = "btn btn-warning btn-sm";
+    else $cls = "btn btn-default btn-sm";
+    print("<button type='button' class='$cls' onclick=\"_selteam('$team',$(this))\">$team</button>");
+  }
+  print("</div>");
+
+  print<<<EOS
 <!-- 로그 출력 -->
 <div id='logMessage'>
 </div>
@@ -61,8 +76,7 @@ EOS;
   print<<<EOS
 <script>
 
-// 전역변수
-
+  // 전역변수
   var mapContainer = document.getElementById('map');
   mapOption = { 
     center: new daum.maps.LatLng(37.566826, 126.9786567),
@@ -81,7 +95,8 @@ EOS;
   var markers = [];
   var windows = [];
 
-  var opt_only_driving = 0;
+  var opt_only_driving = 0; // 운행중인 차량만 표시여부
+  var opt_team = 'all'; // 조회할 팀
 
 function _get_now() {
   var dt = new Date();
@@ -100,20 +115,24 @@ function _log(msg) {
   $('#logMessage').prepend(now+' '+msg+"<br>");
 }
 
-
 function _clk_drvc() {
   if (document.form.drvc.checked) {
     opt_only_driving = 1;
   } else {
     opt_only_driving = 0;
   }
-
   _update_markers();
+}
 
+function _selteam(team,button) {
+  opt_team = team;
+  $('div.btn-group button').removeClass('btn-primary');
+  button.addClass('btn-primary');
+  if (team == '전체') opt_team = 'all';
+  _update_markers();
 }
 
 var _int = null;
-
 function _change_time() {
   var time = $('#time option:selected').val();
 
@@ -125,9 +144,7 @@ function _change_time() {
   else if (time == 60) ms = 60000;
   else ms = 0;
 
-
   if (_int) clearInterval(_int);
-
   if (ms > 0) _int = setInterval(function() { _update_markers(); }, ms);
 }
 
@@ -143,6 +160,7 @@ function _traffic() {
   }
 }
 
+/*
 // 차량 정보를 로그에 표시
 function _show_car_information(info) {
   for (var i = 0; i < info.length; i++) {
@@ -157,13 +175,16 @@ function _show_car_information(info) {
   }
   _log("-----차량정보 "+info.length+"대------");
 }
+*/
 
+/*
 // 버튼을 누를때
 function _btn_car_stat() {
   _get_carinfo(function(info) {
     _show_car_information(info);
   });
 }
+*/
 
 
 // 차량정보 얻어오기 ajax 호출
@@ -174,6 +195,8 @@ function _get_carinfo(callback) {
   // ajax.php?mode=car_status
 
   if (opt_only_driving) data['driving'] = '1'; // 운행중인 차량만 조회
+  if (opt_team) data['team'] = opt_team; // 조회할 팀
+  //console.log(data);
 
   $.ajax({
     method: "GET",
@@ -181,7 +204,7 @@ function _get_carinfo(callback) {
     data: data,
   })
   .done(function( msg ) {
-    console.log( "data : " + msg );
+    //console.log( "data : " + msg );
     var car_info = $.parseJSON( msg );
     callback(car_info);
   });
@@ -268,37 +291,9 @@ function _marker_info_content(item) {
   return iwContent;
 }
 
-// 마커를 처음으로 셋팅
-function _make_markers() {
-  _get_carinfo(function(info) {
-
-    _show_car_information(info);
-
-    for (var i = 0; i < info.length; i++) {
-      var item = info[i];
-      //console.log( item );
-      _logd( JSON.stringify(item));
-
-      var lat = item['lat'];
-      var lng = item['lng'];
-      var pos = new daum.maps.LatLng(lat, lng);
-      var driver_team = item['driver_team'];
-
-      var content = _marker_info_content(item);
-      var infowindow = _make_a_infowindow(content);
-      var marker = _make_a_marker(pos, infowindow, driver_team);
-      markers.push(marker);
-      windows.push(infowindow);
-
-    }
-
-  });
-}
-
 function _update_markers() {
-  _log('위치 업데이트');
-
-  _clear_all();
+  //_log('위치 업데이트');
+  _clear_all(); // 지도에서 마커를 모두 제거한다.
 
   _get_carinfo(function(info) {
     _logd("차량대수:"+info.length);
@@ -309,8 +304,6 @@ function _update_markers() {
       var lng = item['lng'];
       var pos = new daum.maps.LatLng(lat, lng);
       var driver_team = item['driver_team'];
-
-      //markers[i].setPosition(pos);
 
       var content = _marker_info_content(item);
       var infowindow = _make_a_infowindow(content);
@@ -354,10 +347,14 @@ function _map_range() {
 
   // 지도를 재설정할 범위정보를 가지고 있을 LatLngBounds 객체를 생성합니다
   var bounds = new daum.maps.LatLngBounds();    
-  var maxLng = 129.5899200439453; // 포항 동쪽
+
+  var maxLng = 129.5899200439453; // 포항 동쪽끝
+  var minLng = 125.83465576171875; // 서쪽끝
+
   for (var i = 0; i < points.length; i++) {
     var lat = points[i].getLat();
     var lng = points[i].getLng();
+    if (lng < minLng) continue; // 우리나라 범위를 벗어나면 스킵
     if (lng > maxLng) continue; // 우리나라 범위를 벗어나면 스킵
     bounds.extend(points[i]);
   }
@@ -366,7 +363,8 @@ function _map_range() {
 
 // onload
 $(function() {
-  _make_markers();
+  _update_markers();
+  //_make_markers();
   setTimeout(function() { _map_range(); }, 1000);
 });
 </script>

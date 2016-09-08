@@ -129,6 +129,7 @@ class location {
     if ($loc_id > 0) return $loc_id;
 
     $title = trim($title_etc);
+    if (!$title) return 0;
 
     $qry = "SELECT max(id) max from location";
     $row = db_fetchone($qry);

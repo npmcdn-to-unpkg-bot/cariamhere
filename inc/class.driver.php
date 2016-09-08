@@ -1,5 +1,6 @@
 <?php
 
+  if (@!$env['path_include']) @$env['path_include'] = '.';
   include_once("$env[path_include]/class.carinfo.php");
   include_once("$env[path_include]/class.person.php");
   include_once("$env[path_include]/class.location.php");
@@ -13,7 +14,8 @@ class driver {
 
   // apikey 갱신
   function update_appkey($phone_hash, $appkey) {
-    $qry = "UPDATE driver SET apikey='$appkey' where phone_hash='$phone_hash'";
+    $qry = "UPDATE driver SET apikey='$appkey', apikey_date=now()"
+        ." where phone_hash='$phone_hash'";
     $ret = db_query($qry);
   }
 
@@ -299,8 +301,6 @@ class driver {
     $ret = db_query($qry);
 
     // 전송주기는 개인별로 다름
-    //global $conf;
-    //$interval = $conf['interval_driving'];
     $interval = $driver_row['gperiod'];
 
     // run 정보를 driver 에 반영
@@ -317,7 +317,7 @@ class driver {
     $tel = $driver_row['driver_tel'];
     $person_id = $driver_row['person_id'];
     $person_name = $driver_row['person_name'];
-
+    $chat_id = $driver_row['chat_id'];
     $person_id = $driver_row['person_id'];
 
     // 목적지명
@@ -330,13 +330,14 @@ class driver {
     $msg = "[출발] $name($team) \n"
      ."$depart ---> $going\n"
      ."출발시간: $now\n"
-     ."인사: $person_name($person_id)\n"
+     ."인사: $person_name(No.$person_id)\n"
      ;
 
     alert_log($msg, '운행시작');
 
     $clstg = new telegram();
-    $clstg->enqueue_all($msg, 0);
+    //$clstg->enqueue_all($msg, 0);
+    $clstg->send_monitor_bot($chat_id, $msg);
   }
 
   // 경유지 리스트
@@ -371,7 +372,7 @@ class driver {
   }
 
   // 운전자 위치 설정
-  function at_location($row_driver, $driver_id, $run_id, $lat, $lng, &$elapsed) {
+  function at_location($driver_row, $driver_id, $run_id, $lat, $lng, &$elapsed) {
 
     if (!$run_id) return 'run_id is null';
 
@@ -388,7 +389,7 @@ class driver {
     $elapsed = $row_run['e'];
 
     // 차량도 함께 위치 설정
-    $car_id = $row_driver['car_id'];
+    $car_id = $driver_row['car_id'];
     if ($car_id) {
       $clscar = new carinfo();
       $clscar->set_position($car_id, $lat, $lng);
@@ -433,7 +434,7 @@ class driver {
   }
 
   // 운행 종료
-  function finish_driving($row_driver, $driver_id, $run_id, &$elapsed) {
+  function finish_driving($driver_row, $driver_id, $run_id, &$elapsed) {
 
     if (!$run_id) return 'run_id is null';
 
@@ -467,8 +468,8 @@ class driver {
     $depart_location = $clsloc->get_location($depart_from);
     $depart_from_title = $depart_location['loc_title'];
 
-    $dlat = $row_driver['lat'];
-    $dlng = $row_driver['lng'];
+    $dlat = $driver_row['lat'];
+    $dlng = $driver_row['lng'];
     if ($dlat && $dlng) {
       // 최종 좌표와 목적지까지 거리
       $dist1 = distance($row_location['lat'], $row_location['lng'], $dlat, $dlng, "K");
@@ -495,37 +496,38 @@ class driver {
       ." WHERE id='$driver_id'";
     $ret = db_query($qry);
 
-    $name = $row_driver['driver_name'];
-    $team = $row_driver['driver_team'];
-    $person_id = $row_driver['person_id'];
-    $person_name = $row_driver['person_name'];
+    $name = $driver_row['driver_name'];
+    $team = $driver_row['driver_team'];
+    $person_id = $driver_row['person_id'];
+    $person_name = $driver_row['person_name'];
+    $chat_id = $driver_row['chat_id'];
 
     $now = get_now();
 
     global $conf;
     $url = $conf['iamhere_record_url'];
 
-    $msg = "---------도착>> $name($team)\n"
-      ."도착시간: $now\n"
-      ."출발지: $depart_from_title\n"
-      ."목적지: $going_to_title\n"
-      ."인사: $person_name($person_id)\n"
-      ."목적지와 거리: {$dist1}km\n"
-      ."운행기록: $url/home.php?mode=map&id=$run_id\n"
-      ."소요시간: {$elapsed}분\n"
-      ;
-
+    $a = array();
+    $a[] = "도착>> $name($team)";
+    $a[] = "도착시간: $now";
+    $a[] = "출발지: $depart_from_title";
+    $a[] = "목적지: $going_to_title";
+    $a[] = "인사: $person_name(No.$person_id)";
+    $a[] = "목적지와 거리: {$dist1}km";
+    $a[] = "소요시간: {$elapsed}분";
+    $a[] = "운행기록: $url/home.php?mode=map&id=$run_id";
+    $msg = join("\n", $a);
     alert_log($msg, '운행종료');
 
     $clstg = new telegram();
-    $clstg->enqueue_all($msg, 0);
+    $clstg->send_monitor_bot($chat_id, $a);
   }
 
   // VIP 변경
   // API
-  function set_person($row_driver, $per_no) {
-    $driver_id = $row_driver['id'];
-    if ($row_driver['is_driving']) {
+  function set_person($driver_row, $per_no) {
+    $driver_id = $driver_row['id'];
+    if ($driver_row['is_driving']) {
       return 'cannot change person during driving';
     }
 
@@ -536,7 +538,7 @@ class driver {
 
   // 현재 지정된 VIP 정보
   // API
-  function query_person($row_driver) {
+  function query_person($driver_row) {
     $clsperson = new person();
     $clsperson->person_information($per_no);
   }

@@ -17,6 +17,8 @@ create table  driver (
   driver_team   char(10) not null default '' comment '소속팀',
 
   apikey     char(50) default '' comment 'API 사용키',
+  apikey_date  datetime  comment 'API 키 생성시간',
+
   pushkey    char(100) default '' comment '푸쉬알람 키',
   rflag      tinyint default 0 comment '가입 여부',
 
@@ -42,6 +44,9 @@ create table  driver (
 );
 
   alter table driver add column
+  apikey_date  datetime  comment 'API 키 생성시간' after apikey;
+
+  alter table driver add column
   bot1con   tinyint default 0 comment '모니터링봇 연결여부' after chat_id;
   alter table driver add column
   bot2con   tinyint default 1 comment '공지봇 연결여부' after bot1con;
@@ -51,54 +56,6 @@ create table  driver (
 
  alter table driver add column
   chat_id   int not null default 0 comment 'telegram chat_id';
-
-mysql> desc driver;
-+-------------+------------+------+-----+---------+----------------+
-| Field       | Type       | Null | Key | Default | Extra          |
-+-------------+------------+------+-----+---------+----------------+
-| id          | int(11)    | NO   | PRI | NULL    | auto_increment |
-| driver_name | char(50)   | NO   |     |         |                |
-| driver_cho  | char(50)   | NO   |     |         |                |
-| driver_no   | char(20)   | NO   |     |         |                |
-| driver_stat | char(20)   | NO   |     |         |                |
-| driver_tel  | char(20)   | NO   |     |         |                |
-| did         | char(200)  | NO   |     |         |                |
-| phone_hash  | char(100)  | NO   |     |         |                |
-| phone_os    | char(10)   | NO   |     |         |                |
-| role        | char(10)   | NO   |     |         |                |
-| driver_team | char(10)   | NO   |     |         |                |
-| apikey      | char(50)   | YES  |     |         |                |
-| pushkey     | char(100)  | YES  |     |         |                |
-| rflag       | tinyint(4) | YES  |     | 0       |                |
-| run_id      | int(11)    | NO   |     | 0       |                |
-| car_id      | int(11)    | NO   |     | 0       |                |
-| person_id   | int(11)    | YES  |     | NULL    |                |
-| lat         | double     | YES  |     | NULL    |                |
-| lng         | double     | YES  |     | NULL    |                |
-| is_driving  | tinyint(4) | YES  |     | 0       |                |
-| udate       | datetime   | YES  |     | NULL    |                |
-| idate       | datetime   | YES  |     | NULL    |                |
-| own1        | char(10)   | YES  |     | NULL    |                |
-| own2        | char(20)   | YES  |     | NULL    |                |
-| own3        | char(20)   | YES  |     | NULL    |                |
-| own4        | char(20)   | YES  |     | NULL    |                |
-| own5        | char(20)   | YES  |     | NULL    |                |
-| own6        | char(20)   | YES  |     | NULL    |                |
-| own7        | char(20)   | YES  |     | NULL    |                |
-| own8        | char(20)   | YES  |     | NULL    |                |
-| own9        | char(20)   | YES  |     | NULL    |                |
-| own10       | char(20)   | YES  |     | NULL    |                |
-| drv1        | char(20)   | YES  |     | NULL    |                |
-| drv2        | char(20)   | YES  |     | NULL    |                |
-| drv3        | char(20)   | YES  |     | NULL    |                |
-| drv4        | char(20)   | YES  |     | NULL    |                |
-| drv5        | char(20)   | YES  |     | NULL    |                |
-| drv6        | char(20)   | YES  |     | NULL    |                |
-| flagTerm    | tinyint(4) | YES  |     | 0       |                |
-| emergency   | char(10)   | YES  |     |         |                |
-| drv7        | char(10)   | YES  |     | NULL    |                |
-+-------------+------------+------+-----+---------+----------------+
-41 rows in set (0.00 sec)
 
 
   alter table driver add column
@@ -152,19 +109,6 @@ alter table driver add column
 alter table driver add column
   address  char(50) comment '현재 주소'
   after lng;
-
-alter table driver add column
-  dep_id   int  default 0 commnet '현재여정 출발지 location id'
-  after address;
-alter table driver add column
-  des_id   int  default 0 commnet '현재여정 목적지 location id'
-  after address;
-alter table driver add column
-  dep_name char(100) default '' commnet '현재여정 출발지 제목'
-  after address;
-alter table driver add column
-  des_name char(100) default '' commnet '현재여정 목적지 제목'
-  after address;
 
 alter table driver add column
   is_driving   tinyint default 0 comment '운행중인지 여부'

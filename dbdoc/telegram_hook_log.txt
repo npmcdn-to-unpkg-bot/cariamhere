@@ -1,0 +1,11 @@
+
+drop table  telegram_hook_log   ;
+create table  telegram_hook_log   (
+  id int auto_increment primary key,
+  chat_id       int,
+  postraw       text comment '메시지',
+  mtype         tinyint default 0 comment '봇종류 0=모니티링봇, 1=공지봇',
+  idate         datetime comment '큐입력'
+);
+
+

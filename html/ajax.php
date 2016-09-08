@@ -24,6 +24,8 @@ if ($mode == 'car_status') {
   $opt['좌표정보있음'] = true;
   if ($form['driving']) $opt['운행중인차량'] = true;
 
+  if ($form['team']) $opt['팀'] = $form['team'];
+
   $data = $objCar->list_car($sql_where='', $debug, $opt);
   if ($debug) dd($data);
 

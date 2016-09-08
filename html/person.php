@@ -8,9 +8,6 @@
 
   $source_title = '인사정보';
 
-  $debug = true;
-  $debug = false;
-
   $clsperson = new person();
 
   $sql_select = "SELECT p.*, Nat.*"
@@ -323,9 +320,9 @@ EOS;
 
 if ($mode == 'add2do') {
 
-  // 업로드전 모두 삭제
-  $qry = "DELETE FROM person";
-  $ret = db_query($qry);
+  # // 업로드전 모두 삭제
+  # $qry = "DELETE FROM person";
+  # $ret = db_query($qry);
 
   $content = $form['content'];
   $rows = preg_split("/\n/", $content);
@@ -334,7 +331,6 @@ if ($mode == 'add2do') {
     $line = trim($line);
     if (!$line) continue;
     $cols = _person_split($line);
-
 
     $s = array();
     $s[] = "per1='{$cols[0]}'"; // 번호
@@ -353,8 +349,7 @@ if ($mode == 'add2do') {
 
     $sql_set = " SET ".join(",", $s);
     $qry = "INSERT INTO person $sql_set";
-    if ($debug) dd($qry);
-    else $ret = db_query($qry);
+    $ret = db_query($qry);
   }
 
   $qry = "UPDATE person"

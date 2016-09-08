@@ -53,7 +53,7 @@ class telegram {
     return $url;
   }
 
-  // 메시지 전송
+  // 메시지 전송 (사용금지)
   function send_msg($chat_id, $text, $mtype) {
     $url = $this->url($mtype);
 
@@ -68,8 +68,11 @@ class telegram {
     return false; // fail
   }
 
+
+
   // 메시지 전송
   function send_msg_post($chat_id, $text, $mtype) {
+    if (!$chat_id) return;
     $url = $this->url($mtype)."/sendMessage";
 
     $postfields = array('chat_id'=>$chat_id, 'text'=>$text);
@@ -84,14 +87,42 @@ class telegram {
     //$this->dd($result);
 
     $info = json_decode($result, true);
-    $this->dd($info);
+    //$this->dd($info);
     if ($info['ok']) return true; // success
     return false; // fail
   }
+  // 모니터링용봇
+  function send_monitor_bot($chat_id, $obj) {
+    if (!$chat_id) return;
+    $this->send_log($chat_id, $obj, 0);
+    if (is_array($obj)) $text = join("\n", $obj); else $text = "$obj";
+    return $this->send_msg_post($chat_id, $text, 0);
+  }
+  // 공지용봇
+  function send_notice_bot($chat_id, $obj) {
+    if (!$chat_id) return;
+    $this->send_log($chat_id, $obj, 1);
+    if (is_array($obj)) $text = join("\n", $obj); else $text = "$obj";
+    return $this->send_msg_post($chat_id, $text, 1);
+  }
+  // 전송 로그
+  function send_log($chat_id, $obj, $mtype) {
+    $str = json_encode($obj);
+    $str = db_escape_string($str);
+    $qry = "insert into telegram_send_log set chat_id='$chat_id', msg='$str', mtype='$mtype', idate=now()";
+    db_query($qry);
+  }
+
+  // 후킹 로그 (webhook 쪽에서 insert)
+  function hook_log($chat_id, $postraw, $mtype) {
+    $str = json_encode($postraw);
+    $str = db_escape_string($str);
+    $qry = "insert into telegram_hook_log set chat_id='$chat_id', postraw='$str', mtype='$mtype', idate=now()";
+    db_query($qry);
+  }
 
 
-
-  // 메시지 전송
+  // 메시지 전송 사용금지
   function sendMessage($chat_id, $text) {
     $t = urlencode($text);
     $url = $this->url."/sendMessage?chat_id=$chat_id&text=$t";
