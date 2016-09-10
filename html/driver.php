@@ -78,51 +78,54 @@ function _summary() {
   global $form;
   global $clsdriver;
 
-  if ($form['smtm']) {
-    $f_team = $form['team'];
-  } else $f_team = '';
-  $info = $clsdriver->driver_summary($f_team);
+  $f_team = $form['team'];
+  $info = $clsdriver->driver_summary($f_team, $sum);
+  $info['전체'] = $sum;
+//dd($form); dd($info);
 
+  //$large = ' btn-lg';
+
+  $v = $form['team'];
   $teams = $clsdriver->driver_all_teams();
-  $teams[] = '전체';
+  $teams[] = '전체';  if ($v == 'all' || $v == '') $v = '전체';
+  print("<div>");
   print("<div class='btn-group' role='group' aria-label='...' style=''>");
   foreach ($teams as $team) {
-    if ($team == $f_team) $cls = "btn btn-warning btn-lg";
-    else $cls = "btn btn-default btn-lg";
-    print("<button type='button' class='$cls' onclick=\"_summgo2('$team')\">$team</button>");
+    if ($team == $v) $cls = "btn btn-warning $large";
+    else $cls = "btn btn-default $large";
+    print("<button type='button' class='$cls' onclick=\"_seldt('$team')\">$team</button>");
   }
   print("</div>");
+  print("</div>");
 
+  print("<div>");
   print("<div class='btn-group' role='group' aria-label='...' style=''>");
   foreach ($info as $ds=>$count) {
-         if ($ds == '운전중') $cls = "btn btn-success btn-lg";
-    else if ($ds == '대기중') $cls = "btn btn-info btn-lg";
-    else if ($ds == '비상상황') $cls = "btn btn-danger btn-lg";
-    else $cls = "btn btn-default btn-lg";
-    print("<button type='button' class='$cls' onclick=\"_summgo('$ds')\">$ds<span class='badge'>$count</span></button>");
+         if ($ds == 'Unknown') $cls = "btn $large";
+    else if ($ds == '운전중') $cls = "btn btn-success $large";
+    else if ($ds == '대기중') $cls = "btn btn-info $large";
+    else if ($ds == '비상상황') $cls = "btn btn-danger $large";
+    else $cls = "btn btn-default $large";
+    print("<button type='button' class='$cls' onclick=\"_selds('$ds')\">$ds<span class='badge'>$count</span></button>");
   }
   print("</div>");
-
+  print("</div>");
 
   print<<<EOS
 <script>
-function _summgo(ds) {
+function _selds(ds) {
   var form = document.search_form;
-       if (ds == '운전중') form.ds.value = 'DS_DRIVE';
+       if (ds == 'Unknown') form.ds.value = 'unknown';
+  else if (ds == '운전중') form.ds.value = 'DS_DRIVE';
   else if (ds == '대기중') form.ds.value = 'DS_STOP';
   else if (ds == '비상상황') form.ds.value = 'DS_EMERGEN';
+  else if (ds == '전체') form.ds.value = 'all';
   else form.ds.value = 'all';
-  form.smtm.value = '';
   form.submit();
 }
-function _summgo2(team) {
+function _seldt(team) {
   var form = document.search_form;
-  if (team == '전체') {
-    team = 'all';
-    form.smtm.value = '';
-  } else {
-    form.smtm.value = '1';
-  }
+  if (team == '전체') team = 'all';
   form.team.value=team;
   form.submit();
 }
@@ -267,8 +270,6 @@ EOS;
   if ($row['team_leader']) $chk = ' checked'; else $chk = '';
   $cb = "&nbsp;&nbsp;&nbsp;&nbsp;<label><input type='checkbox' name='team_leader'$chk>팀장역할</label>";
   print _data_tr('소속팀', $html.$cb);
-
-  $opt = $clsdriver->select_team_option($row['driver_team']);
 
   $list = array('5초:5초','10초:10','20초:20','30초:30','60초:60');
   $preset = $row['gperiod']; if (!$preset) $preset = '30';
@@ -508,7 +509,6 @@ EOS;
 <td align='left'>
 <input type='hidden' name='mode' value='$mode'>
 <input type='hidden' name='page' value='{$form['page']}'>
-<input type='hidden' name='smtm' value='0'>
 EOS;
 
   $v = $form['search'];
@@ -527,6 +527,9 @@ EOS;
   $ti = textinput_general('person_name', $v, 10, 'keypress_text()', true, 0, '', 'ui-corner-all','의전이름');
   print("$ti");
 
+  $v = $form['fltl']; if ($v) $chk = ' checked'; else $chk = '';
+  print("<label><input type='checkbox' name='fltl' $chk>팀장</label>");
+
   print("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 
   $ds = $form['ds'];
@@ -536,6 +539,7 @@ EOS;
   $v = $form['team'];
   $opt = $clsdriver->select_team_option($v);
   print("팀:<select name='team'>$opt</select>");
+
 
   $sel = array(); $sort = $form['sort'];
   if ($sort == '') $sel[1] = ' selected'; else $sel[$sort] = ' selected';
@@ -558,7 +562,7 @@ EOS;
   print("<input type='button' onclick='_vopt()' value='표시정보' class='btn'>");
 
   $fck = array(); // field check '' or ' checked'
-  fck_init($fck, $defaults='1,2,5,10');
+  fck_init($fck, $defaults='1,2,5,10,12');
   print<<<EOS
 <div id="vopt" style='display:none;'>
 <label><input type='checkbox' name='fd01' $fck[1]>팀</label>
@@ -575,6 +579,7 @@ EOS;
 <label><input type='checkbox' name='fd12' $fck[12]>최종업데이트</label>
 <label><input type='checkbox' name='fd13' $fck[13]>메시지전송</label>
 <label><input type='checkbox' name='fd14' $fck[14]>팀장여부</label>
+<label><input type='checkbox' name='fd15' $fck[15]>API최종접속</label>
 </div>
 EOS;
 
@@ -599,7 +604,6 @@ function sf_0() {
 }
 function sf_1() {
   document.search_form.page.value = '1';
-  document.search_form.smtm.value = '';
   sf_0();
 }
 
@@ -618,6 +622,9 @@ EOS;
   $v = $form['dno'];
   if ($v) $w[] = "(d.id='$v')";
 
+  $v = $form['fltl'];
+  if ($v) $w[] = "(d.team_leader='1')";
+
   $v = $form['person_name'];
   if ($v) $w[] = "(p.person_name LIKE '%$v%' OR p.person_cho LIKE '%$v%')";
 
@@ -628,7 +635,10 @@ EOS;
   if ($v && $v != 'all') $w[] = "d.driver_team='$v'";
 
   $ds = $form['ds'];
-  if ($ds != '' && $ds != 'all') $w[] = "d.driver_stat='$ds'";
+  if ($ds != '' && $ds != 'all') {
+    if ($ds == 'unknown') $w[] = "d.driver_stat=''";
+    else $w[] = "d.driver_stat='$ds'";
+  }
 
   $sql_where = sql_where_join($w, $d=0, 'AND');
 
@@ -637,7 +647,7 @@ EOS;
        .", d.chat_id, d.bot1con, d.bot2con"
        .", d.car_id, d.emergency, d.udate driver_udate"
        .", d.phone_os, d.drv1, d.drv2"
-       .", d.driver_tel, d.driver_no, d.team_leader";
+       .", d.driver_tel, d.driver_no, d.team_leader, d.apikey_date";
 
   $sql_join   = $clsdriver->sql_join_4();
 
@@ -699,6 +709,7 @@ EOS;
   if ($form['fd12']) { $head[] = '최종업데이트'; }
   if ($form['fd13']) { $head[] = '메시지'; }
   if ($form['fd14']) { $head[] = '팀장역할'; }
+  if ($form['fd15']) { $head[] = 'API최종접속'; }
   print table_head_general($head);
   print("<tbody>");
 
@@ -764,6 +775,9 @@ EOS;
     if ($form['fd14']) {
       if ($row['team_leader']) $str = '팀장'; else $str = '-';
       $fields[] = $str;
+    }
+    if ($form['fd15']) {
+      $fields[] = $row['apikey_date'];
     }
 
     print("<tr>");

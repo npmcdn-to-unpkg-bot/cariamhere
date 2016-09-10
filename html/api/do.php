@@ -9,6 +9,9 @@
   include_once("$env[prefix]/inc/class.person.php");
   include_once("$env[prefix]/inc/class.notice.php");
 
+  $logd = true; // apilog 에 기록
+  $logd = false;
+
 ### {{{
 function ok_response($resp) {
   $resp['result'] = 'ok';
@@ -81,15 +84,20 @@ function _get_driver($appkey) {
 
 // 회원가입
 if ($action == 'register') {
+  if ($logd) apilog("register");
 
   $goyu = $data['goyu'];
   $tel = $data['tel'];
   $did = $data['did'];
   $pushkey = $data['pushkey'];
   $phone_os = $data['phone_os'];
+  if (!$goyu) error_response('등록실패');
+  if (!$tel) error_response('등록실패');
+  if (!$did) error_response('등록실패');
+  if (!$pushkey) error_response('등록실패');
+  if (!$phone_os) error_response('등록실패');
 
   $phone_hash = '';
-
   $ver = app_version(); // version info
 
   list($ret, $errmsg) = $clsdriver->register_driver($goyu, $tel, $sosok, $did, $pushkey, $phone_os, $phone_hash, $name);
@@ -106,6 +114,7 @@ if ($action == 'register') {
 
 // appKey 받아오기
 if ($action == 'get_appkey') {
+  if ($logd) apilog("get_appkey");
 
   $did = $data['did'];
   $phone_hash = $data['phone_hash'];
@@ -133,6 +142,8 @@ if ($action == 'get_appkey') {
 }
 
 if ($action == 'latest_version') {
+  if ($logd) apilog("latest_version");
+
   $appkey = _check_appkey();
   $row = _get_driver($appkey);
 
@@ -151,9 +162,9 @@ if ($action == 'latest_version') {
 }
 
 
+/*
 // 사용금지
 if ($action == 'get_driver_info') {
-
   error_response("deprecated");
 
   $appkey = _check_appkey();
@@ -168,10 +179,13 @@ if ($action == 'get_driver_info') {
   ok_response($resp);
   exit;
 }
+*/
 
 
 // 공지사항
 if ($action == 'list_notice') {
+  if ($logd) apilog("list_notice");
+
   $appkey = _check_appkey();
   $row = _get_driver($appkey);
 
@@ -190,8 +204,10 @@ if ($action == 'list_notice') {
 }
 
 
-// 드라이버 상태 정보 얻기
+// 운전자 상태 정보 얻기
 if ($action == 'get_driver_status') {
+  if ($logd) apilog("get_driver_status");
+
   $appkey = _check_appkey();
   $row = _get_driver($appkey);
   //dd($row);
@@ -205,9 +221,10 @@ if ($action == 'get_driver_status') {
   exit;
 }
 
+/*
 // 드라이버 상태 정보 설정 (사용금지)
 if ($action == 'set_driver_status') {
-
+  if ($logd) apilog("set_driver_status deprecated");
   error_response("deprecated");
 
   $appkey = _check_appkey();
@@ -232,7 +249,7 @@ if ($action == 'set_driver_status') {
   ok_response($resp);
   exit;
 }
-
+*/
 
 // 차량 리스트
 if ($action == 'list_car') {
@@ -247,6 +264,7 @@ if ($action == 'list_car') {
 
 // 장소 리스트
 if ($action == 'list_location') {
+  if ($logd) apilog("list_location");
   $appkey = _check_appkey();
   $row = _get_driver($appkey);
 
@@ -259,6 +277,7 @@ if ($action == 'list_location') {
 }
 
 
+/*
 if ($action == 'list_role') {
   $appkey = _check_appkey();
   $row = _get_driver($appkey);
@@ -268,9 +287,11 @@ if ($action == 'list_role') {
   $resp = array('list'=>$info);
   ok_response($resp);
 }
+*/
 
 // 의전대상자 리스트
 if ($action == 'list_person') {
+  if ($logd) apilog("list_person");
   $appkey = _check_appkey();
   $row = _get_driver($appkey);
 
@@ -281,6 +302,7 @@ if ($action == 'list_person') {
 }
 
 
+/*
 // 역할 변경 (사용안함)
 if ($action == 'change_role') {
   $appkey = _check_appkey();
@@ -293,7 +315,7 @@ if ($action == 'change_role') {
   $resp = array('ret'=>$ret);
   ok_response($resp);
 }
-
+*/
 
 // 차량 설정
 if ($action == 'bind_driver_car') {
@@ -310,6 +332,7 @@ if ($action == 'bind_driver_car') {
 
 // 운전자 상태 리스트
 if ($action == 'get_all_driver_status') {
+  if ($logd) apilog("get_all_driver_status");
   $appkey = _check_appkey();
   $row = _get_driver($appkey);
 
@@ -320,9 +343,10 @@ if ($action == 'get_all_driver_status') {
   exit;
 }
 
+/*
 // 드라이버 위치 전송
 if ($action == 'set_driver_location') {
-
+  if ($logd) apilog("set_driver_location deprecated");
   error_response("deprecated");
 
   $appkey = _check_appkey();
@@ -343,10 +367,12 @@ if ($action == 'set_driver_location') {
   ok_response($resp);
   exit;
 }
+*/
 
+/*
 // 출발지,목적지 설정
 if ($action == 'set_schedule') {
-
+  if ($logd) apilog("set_schedule deprecated");
   error_response("deprecated");
 
   $appkey = _check_appkey();
@@ -370,9 +396,11 @@ if ($action == 'set_schedule') {
   ok_response($resp);
   exit;
 }
+*/
 
 // 운행시작
 if ($action == 'start_driving') {
+  if ($logd) apilog("start_driving");
 
   $appkey = _check_appkey();
   $driver_row = _get_driver($appkey);
@@ -408,6 +436,7 @@ if ($action == 'start_driving') {
 
 // 운전자 위치 전송
 if ($action == 'at_location') {
+  if ($logd) apilog("at_location");
 
   $appkey = _check_appkey();
   $row_driver = _get_driver($appkey);
@@ -431,6 +460,7 @@ if ($action == 'at_location') {
 
 // 운행종료
 if ($action == 'finish_driving') {
+  if ($logd) apilog("finish_driving");
 
   $appkey = _check_appkey();
   $row_driver = _get_driver($appkey);
@@ -455,6 +485,7 @@ if ($action == 'finish_driving') {
 
 // 어플종료
 if ($action == 'exit_app') {
+  if ($logd) apilog("exit_app");
 
   $appkey = _check_appkey();
   $row_driver = _get_driver($appkey);
@@ -492,6 +523,8 @@ if ($action == 'query_person') {
 
 // VIP 설정
 if ($action == 'set_person') {
+  if ($logd) apilog("set_person");
+
   $appkey = _check_appkey();
   $row = _get_driver($appkey);
 
@@ -515,6 +548,8 @@ if ($action == 'set_person') {
 
 // 비상상황
 if ($action == 'list_emergency') {
+  if ($logd) apilog("list_embergency");
+
   $appkey = _check_appkey();
   $driver_row = _get_driver($appkey);
   $driver_id = $driver_row['id'];
@@ -531,6 +566,8 @@ if ($action == 'list_emergency') {
 
 // 비상상황
 if ($action == 'do_emergency') {
+  if ($logd) apilog("do_embergency");
+
   $appkey = _check_appkey();
   $driver_row = _get_driver($appkey);
   $driver_id = $driver_row['id'];
@@ -552,6 +589,8 @@ if ($action == 'do_emergency') {
 
 // 비상상황 해제
 if ($action == 'exit_emergency') {
+  if ($logd) apilog("exit_embergency");
+
   $appkey = _check_appkey();
   $driver_row = _get_driver($appkey);
   $driver_id = $driver_row['id'];
@@ -568,6 +607,8 @@ if ($action == 'exit_emergency') {
 
 // 인사 정보 검색
 if ($action == 'person_information') {
+  if ($logd) apilog("person_information");
+
   $appkey = _check_appkey();
   $driver_row = _get_driver($appkey);
 

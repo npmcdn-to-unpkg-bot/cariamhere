@@ -358,12 +358,14 @@ function _map_range() {
 
   var maxLng = 129.5899200439453; // 포항 동쪽끝
   var minLng = 125.83465576171875; // 서쪽끝
+  var minLat = 33.158247668082396; // 마라도 남쪽끝
 
   for (var i = 0; i < points.length; i++) {
     var lat = points[i].getLat();
     var lng = points[i].getLng();
     if (lng < minLng) continue; // 우리나라 범위를 벗어나면 스킵
     if (lng > maxLng) continue; // 우리나라 범위를 벗어나면 스킵
+    if (lat < minLat) continue; // 우리나라 범위를 벗어나면 스킵
     bounds.extend(points[i]);
   }
   map.setBounds(bounds);

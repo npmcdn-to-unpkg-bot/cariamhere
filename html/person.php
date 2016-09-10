@@ -400,6 +400,8 @@ EOS;
   MainPageHead($source_title);
   ParagraphTitle($source_title);
 
+  //$large = ' btn-lg';
+
   $f_pg = $form['pg'];
   $groups = $clsperson->person_groups();
   $groups[] = array('title'=>'전체','value'=>'all');
@@ -407,8 +409,8 @@ EOS;
   foreach ($groups as $gt) {
     $title = $gt['title'];
     $value = $gt['value'];
-    if ($value == $f_pg) $cls = "btn btn-warning btn-lg";
-    else $cls = "btn btn-default btn-lg";
+    if ($value == $f_pg) $cls = "btn btn-warning $large";
+    else $cls = "btn btn-default $large";
     print("<button type='button' class='$cls' onclick=\"_selgroup('$value')\">$title</button>");
   }
   print("</div>");
@@ -420,8 +422,8 @@ EOS;
   foreach ($levels as $gt) {
     $title = $gt['title'];
     $value = $gt['value'];
-    if ($value == $f_pl) $cls = "btn btn-warning btn-lg";
-    else $cls = "btn btn-default btn-lg";
+    if ($value == $f_pl) $cls = "btn btn-warning $large";
+    else $cls = "btn btn-default $large";
     print("<button type='button' class='$cls' onclick=\"_sellevel('$value')\">$title</button>");
   }
   print("</div>");
@@ -432,12 +434,12 @@ EOS;
 function _selgroup(pg) {
   var form = document.search_form;
   form.pg.value=pg;
-  form.submit();
+  sf_1();
 }
 function _sellevel(pl) {
   var form = document.search_form;
   form.pl.value=pl;
-  form.submit();
+  sf_1();
 }
 </script>
 EOS;
@@ -630,10 +632,10 @@ EOS;
   if ($v) $w[] = "(p.person_position LIKE '%$v%')";
 
   $v = $form['pg'];
-  if ($v) $w[] = "(p.person_group='$v' OR p.person_group='0$v')";
+  if ($v && $v != 'all') $w[] = "(p.person_group='$v' OR p.person_group='0$v')";
 
   $v = $form['pl'];
-  if ($v) $w[] = "(p.person_level='$v')";
+  if ($v && $v != 'all') $w[] = "(p.person_level='$v')";
 
   $sql_where = sql_where_join($w, $d=0, 'AND');
 

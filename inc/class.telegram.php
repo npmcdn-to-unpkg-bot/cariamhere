@@ -19,6 +19,16 @@ class telegram {
      $this->url = "https://api.telegram.org/bot$token";
   }
 
+  // 특수 문자
+  function char($c) {
+         if ($c == 'ok') return '👌';
+    else if ($c == 'bell') return '🔔';
+    else if ($c == 'start') return '🚀';
+	else if ($c == 'stop') return '🚧';
+	
+	
+  }
+
   function dd($obj) {
     $str = var_export($obj, true);
     file_put_contents("/tmp/log.txt", $str, FILE_APPEND);

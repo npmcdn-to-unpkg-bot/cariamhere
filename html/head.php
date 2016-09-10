@@ -92,16 +92,19 @@ EOS;
 <div id="page-content-wrapper">
 EOS;
 
+  $targ = '_blank';
   print<<<EOS
 <div>
-<a href='/driver.php'>운전자</a> ::
-<a href='/person.php'>의전인사</a> ::
-<a href='/car.php'>차량</a> ::
-<a href='/location.php'>장소</a> ::
-<a href='/notice.php'>공지</a> ::
-<a href='/run.php'>운행기록</a> ::
-<a href='/alert.php'>알람</a> ::
-<a href='/map.php'>실시간위치</a>
+<a href='/driver.php' target='$targ'>운전자</a> ::
+<a href='/person.php' target='$targ'>의전인사</a> ::
+<a href='/car.php' target='$targ'>차량</a> ::
+<a href='/location.php' target='$targ'>장소</a> ::
+<a href='/notice.php' target='$targ'>공지</a> ::
+<a href='/run.php' target='$targ'>운행기록</a> ::
+<a href='/alert.php' target='$targ'>알람</a> ::
+<a href='/map.php' target='$targ'>실시간위치</a> ::
+<a href='/apilog.php' target='$targ'>apilog</a> ::
+<a href='http://iamhere.scjmatthias.net' target='$targ'>iamhere</a> ::
 </div>
 EOS;
 

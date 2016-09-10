@@ -1,0 +1,465 @@
+BODY {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+P {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+H1 {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+H2 {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+H3 {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+H4 {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+H5 {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+H6 {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+UL {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+OL {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+LI {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+DL {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+DT {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+DD {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+TABLE {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+TH {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+TD {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+FORM {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+FIELDSET {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+LEGEND {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+INPUT {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+TEXTAREA {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+BUTTON {
+	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px; -webkit-text-size-adjust: none
+}
+BODY {
+	LINE-HEIGHT: 1.25em; FONT-FAMILY: "³ª´®°íµñ",NanumGothic,"±¼¸²",Gulim,Helvetica,AppleGothic,Sans-serif; FONT-SIZE: 14px
+}
+INPUT {
+	LINE-HEIGHT: 1.25em; FONT-FAMILY: "³ª´®°íµñ",NanumGothic,"±¼¸²",Gulim,Helvetica,AppleGothic,Sans-serif; FONT-SIZE: 14px
+}
+TEXTAREA {
+	LINE-HEIGHT: 1.25em; FONT-FAMILY: "³ª´®°íµñ",NanumGothic,"±¼¸²",Gulim,Helvetica,AppleGothic,Sans-serif; FONT-SIZE: 14px
+}
+SELECT {
+	LINE-HEIGHT: 1.25em; FONT-FAMILY: "³ª´®°íµñ",NanumGothic,"±¼¸²",Gulim,Helvetica,AppleGothic,Sans-serif; FONT-SIZE: 14px
+}
+TABLE {
+	LINE-HEIGHT: 1.25em; FONT-FAMILY: "³ª´®°íµñ",NanumGothic,"±¼¸²",Gulim,Helvetica,AppleGothic,Sans-serif; FONT-SIZE: 14px
+}
+BUTTON {
+	LINE-HEIGHT: 1.25em; FONT-FAMILY: "³ª´®°íµñ",NanumGothic,"±¼¸²",Gulim,Helvetica,AppleGothic,Sans-serif; FONT-SIZE: 14px
+}
+BODY {
+	POSITION: relative; BACKGROUND-COLOR: #f4f4f4; WORD-WRAP: break-word; COLOR: #000; WORD-BREAK: break-all
+}
+BODY.o {
+	MIN-WIDTH: 320px
+}
+IMG {
+	BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px
+}
+FIELDSET {
+	BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px
+}
+UL {
+	LIST-STYLE-TYPE: none
+}
+OL {
+	LIST-STYLE-TYPE: none
+}
+A {
+	COLOR: #000; CURSOR: pointer; TEXT-DECORATION: none
+}
+EM {
+	FONT-STYLE: normal
+}
+ADDRESS {
+	FONT-STYLE: normal
+}
+
+
+.hc {
+  POSITION: absolute; LINE-HEIGHT: 0; WIDTH: 0px; HEIGHT: 0px; VISIBILITY: hidden; FONT-SIZE: 0px; OVERFLOW: hidden; LEFT: -1000em
+}
+
+.gct {
+	POSITION: absolute; LINE-HEIGHT: 0; WIDTH: 0px; HEIGHT: 0px; VISIBILITY: hidden; FONT-SIZE: 0px; OVERFLOW: hidden; LEFT: -1000em
+}
+.nc {
+	DISPLAY: none !important
+}
+HR {
+	DISPLAY: none !important
+}
+
+
+
+.hl {
+	PADDING-BOTTOM: 11px; PADDING-LEFT: 0px; WIDTH: 100%; PADDING-RIGHT: 0px; CLEAR: both; VERTICAL-ALIGN: top; OVERFLOW: hidden; PADDING-TOP: 2px;
+}
+.hl .hl_view {
+	HEIGHT: 284px;
+}
+.hl .view_li {
+	POSITION: absolute; WIDTH: 100%; MAX-WIDTH: 100%; BACKGROUND: #f8f8f8; MAX-HEIGHT: 100%;
+}
+.hl .li1 {
+	OVERFLOW: hidden
+}
+.hl .li1 LI {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 10px; PADDING-RIGHT: 10px; HEIGHT: 2.43em; BORDER-TOP: #e5e5e5 1px solid; PADDING-TOP: 0px;
+}
+.hl .li1 LI:first-child {
+	BORDER-TOP-WIDTH: 0px
+}
+.hl .li1 LI A {
+	LINE-HEIGHT: 2.43em; WIDTH: 100%; TEXT-OVERFLOW: ellipsis; DISPLAY: inline-block; WHITE-SPACE: nowrap; LETTER-SPACING: -1px; COLOR: #000; OVERFLOW: hidden
+}
+
+
+
+.hl .pg {
+	POSITION: relative; TEXT-ALIGN: center; PADDING-BOTTOM: 0px; PADDING-LEFT: 10px; PADDING-RIGHT: 10px; CLEAR: both; PADDING-TOP: 5px
+}
+.hl .pg .pgd {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 12px; PADDING-RIGHT: 12px; DISPLAY: inline-block; VERTICAL-ALIGN: top; PADDING-TOP: 0px
+}
+.hl .pg .pgd LI {
+	PADDING-BOTTOM: 0px; LINE-HEIGHT: 27px; PADDING-LEFT: 3px; PADDING-RIGHT: 2px; DISPLAY: inline; FLOAT: left; PADDING-TOP: 0px
+}
+.hl .pg .pgd IMG {
+	MARGIN-TOP: 9px; BACKGROUND: url(http://static.naver.com/www/m/im/ic_pgd.gif) no-repeat 0px -9px; VERTICAL-ALIGN: top
+}
+.hl .pg .pgd IMG.on {
+	BACKGROUND-POSITION: 0px 0px
+}
+.hl .pg .pv {
+	WIDTH: 38px; DISPLAY: inline-block; BACKGROUND: url(http://static.naver.com/www/m/im/bt_hl2.png) #e8e8e8 no-repeat 0px 0px; HEIGHT: 27px; VERTICAL-ALIGN: middle; OVERFLOW: hidden
+}
+.hl .pg .nx {
+	WIDTH: 38px; DISPLAY: inline-block; BACKGROUND: url(http://static.naver.com/www/m/im/bt_hl2.png) #e8e8e8 no-repeat 0px 0px; HEIGHT: 27px; VERTICAL-ALIGN: middle; OVERFLOW: hidden
+}
+.hl .pg .nx {
+	BACKGROUND-COLOR: #ddd; BACKGROUND-POSITION: 0px -27px
+}
+.hl .pg .pr {
+	POSITION: absolute; TOP: 8px; RIGHT: 9px
+}
+.hl .pg .pr A {
+	PADDING-BOTTOM: 3px; PADDING-LEFT: 3px; PADDING-RIGHT: 3px; DISPLAY: block; COLOR: #1172b6; FONT-SIZE: 0.86em; PADDING-TOP: 3px
+}
+.ns_bar {
+	MARGIN-TOP: 9px; BORDER-TOP: #3dad11 2px solid
+}
+.ns {
+	PADDING-TOP: 8px
+}
+.ns H2 {
+	BORDER-BOTTOM: #d4d4d4 1px solid; PADDING-BOTTOM: 3px; PADDING-LEFT: 10px; PADDING-RIGHT: 0px; LETTER-SPACING: -1px; COLOR: #000; FONT-SIZE: 1em; FONT-WEIGHT: normal; PADDING-TOP: 0px
+}
+.ns UL {
+	MARGIN: 3px 10px 0px; OVERFLOW: hidden
+}
+.ns LI {
+	POSITION: relative; WIDTH: 75px; FLOAT: left; HEIGHT: 96px; OVERFLOW: hidden
+}
+.ns A {
+	TEXT-ALIGN: center; LINE-HEIGHT: 1em; WIDTH: 100%; DISPLAY: block; LETTER-SPACING: -1px; HEIGHT: 100%; FONT-SIZE: 0.86em; OVERFLOW: hidden
+}
+.ns .i {
+	MARGIN: 7px 0px 6px 9px; WIDTH: 57px; DISPLAY: block; BACKGROUND: url(http://static.naver.com/www/m/im/nsv11.jpg) #e1e1e1; HEIGHT: 57px
+}
+.ns .wn {
+	WHITE-SPACE: nowrap
+}
+.ns1 .i {
+	BACKGROUND-POSITION: 0px 0px
+}
+.ns2 .i {
+	BACKGROUND-POSITION: -57px 0px
+}
+.ns3 .i {
+	BACKGROUND-POSITION: -114px 0px
+}
+.ns4 .i {
+	BACKGROUND-POSITION: -171px 0px
+}
+.ns5 .i {
+	BACKGROUND-POSITION: 0px -57px
+}
+.ns6 .i {
+	BACKGROUND-POSITION: -57px -57px
+}
+.ns7 .i {
+	BACKGROUND-POSITION: -114px -57px
+}
+.ns8 .i {
+	BACKGROUND-POSITION: -171px -57px
+}
+.ns9 .i {
+	BACKGROUND-POSITION: 0px -114px
+}
+.ns10 .i {
+	BACKGROUND-POSITION: -57px -114px
+}
+.ns11 .i {
+	BACKGROUND-POSITION: -114px -114px
+}
+.ns12 .i {
+	BACKGROUND-POSITION: -171px -114px
+}
+.ns13 .i {
+	BACKGROUND-POSITION: 0px -171px
+}
+.ns14 .i {
+	BACKGROUND-POSITION: -57px -171px
+}
+.ns15 .i {
+	BACKGROUND-POSITION: -114px -171px
+}
+.ns16 .i {
+	BACKGROUND-POSITION: -171px -171px
+}
+.ns17 .i {
+	BACKGROUND-POSITION: 0px -228px
+}
+.ns19 .i {
+	BACKGROUND-POSITION: -57px -228px
+}
+.ns20 .i {
+	BACKGROUND-POSITION: -114px -228px
+}
+.ns22 .i {
+	BACKGROUND-POSITION: -171px -228px
+}
+.ns23 .i {
+	BACKGROUND-POSITION: 0px -285px
+}
+
+
+
+.in1 {
+	POSITION: absolute; TEXT-ALIGN: center; PADDING-LEFT: 1px; FONT: bold 1.16em/23px Helvetica; BACKGROUND: url(http://static.naver.com/www/m/im/in.png) no-repeat; LETTER-SPACING: 0px; HEIGHT: 29px; COLOR: #fff; TOP: 0px; RIGHT: 0px
+}
+.in2 {
+	POSITION: absolute; TEXT-ALIGN: center; PADDING-LEFT: 1px; FONT: bold 1.16em/23px Helvetica; BACKGROUND: url(http://static.naver.com/www/m/im/in.png) no-repeat; LETTER-SPACING: 0px; HEIGHT: 29px; COLOR: #fff; TOP: 0px; RIGHT: 0px
+}
+.in3 {
+	POSITION: absolute; TEXT-ALIGN: center; PADDING-LEFT: 1px; FONT: bold 1.16em/23px Helvetica; BACKGROUND: url(http://static.naver.com/www/m/im/in.png) no-repeat; LETTER-SPACING: 0px; HEIGHT: 29px; COLOR: #fff; TOP: 0px; RIGHT: 0px
+}
+.in4 {
+	POSITION: absolute; TEXT-ALIGN: center; PADDING-LEFT: 1px; FONT: bold 1.16em/23px Helvetica; BACKGROUND: url(http://static.naver.com/www/m/im/in.png) no-repeat; LETTER-SPACING: 0px; HEIGHT: 29px; COLOR: #fff; TOP: 0px; RIGHT: 0px
+}
+.inr {
+	POSITION: absolute; TEXT-ALIGN: center; PADDING-LEFT: 1px; FONT: bold 1.16em/23px Helvetica; BACKGROUND: url(http://static.naver.com/www/m/im/in.png) no-repeat; LETTER-SPACING: 0px; HEIGHT: 29px; COLOR: #fff; TOP: 0px; RIGHT: 0px
+}
+.in1 {
+	WIDTH: 25px; BACKGROUND-POSITION: 0px 0px
+}
+.in2 {
+	WIDTH: 33px; BACKGROUND-POSITION: 0px -30px
+}
+.in3 {
+	PADDING-LEFT: 2px; WIDTH: 38px; BACKGROUND-POSITION: 0px -60px
+}
+.inr {
+	PADDING-LEFT: 2px; WIDTH: 38px; BACKGROUND-POSITION: 0px -60px
+}
+.in4 {
+	PADDING-LEFT: 2px; WIDTH: 44px; BACKGROUND-POSITION: 0px -90px
+}
+.inr {
+	FONT-SIZE: 1em
+}
+.icn {
+	WIDTH: 11px; BACKGROUND: url(http://static.naver.com/www/m/im/buv4.png) #e12 no-repeat -32px -665px; HEIGHT: 11px; MARGIN-LEFT: 0.2em; VERTICAL-ALIGN: -1px
+}
+.adw {
+	BORDER-BOTTOM: #d5d5d5 1px solid; BORDER-LEFT: #d5d5d5 1px solid; MARGIN: 1em 10px 0px; CLEAR: both; BORDER-TOP: #d5d5d5 1px solid; BORDER-RIGHT: #d5d5d5 1px solid
+}
+.flb {
+	Z-INDEX: 100; POSITION: absolute; TEXT-ALIGN: center; WIDTH: 100%; TOP: 84px; LEFT: 0px
+}
+.flbw {
+	BORDER-BOTTOM: #777 1px solid; POSITION: relative; TEXT-ALIGN: left; BORDER-LEFT: #777 1px solid; MARGIN: 0px auto; WIDTH: 280px; HEIGHT: 95px; BORDER-TOP: #777 1px solid; BORDER-RIGHT: #777 1px solid; -webkit-border-radius: 6px; -webkit-box-shadow: 0 0 6px #c6c6c6
+}
+.o .flbw {
+	BORDER-BOTTOM-STYLE: none; PADDING-BOTTOM: 0px; BORDER-RIGHT-STYLE: none; PADDING-LEFT: 9px; WIDTH: 283px; PADDING-RIGHT: 0px; BORDER-TOP-STYLE: none; BACKGROUND: url(http://static.naver.com/m/mail/im/bg_flbo.png) no-repeat 0px 0px; HEIGHT: 98px; BORDER-LEFT-STYLE: none; PADDING-TOP: 9px
+}
+.flblk {
+	BORDER-BOTTOM: #fff 3px solid; BORDER-LEFT: #fff 3px solid; WIDTH: 274px; DISPLAY: block; BACKGROUND: url(http://static.naver.com/m/mail/im/bg_flb.gif) #fff repeat-x 0px 0px; HEIGHT: 89px; BORDER-TOP: #fff 3px solid; BORDER-RIGHT: #fff 3px solid; -webkit-border-radius: 6px
+}
+.o .flblk {
+	BORDER-BOTTOM-STYLE: none; BORDER-RIGHT-STYLE: none; BORDER-TOP-STYLE: none; BORDER-LEFT-STYLE: none
+}
+.flbct {
+	PADDING-BOTTOM: 27px; PADDING-LEFT: 96px; PADDING-RIGHT: 0px; DISPLAY: block; BACKGROUND: url(http://static.naver.com/m/mail/im/im_mpflb.png) no-repeat 0px 21px; PADDING-TOP: 27px
+}
+.flb .bt {
+	Z-INDEX: 1; POSITION: absolute; PADDING-BOTTOM: 6px; PADDING-LEFT: 6px; PADDING-RIGHT: 6px; DISPLAY: block; BACKGROUND: url(http://static.naver.com/e.gif); TOP: 0px; RIGHT: 0px; PADDING-TOP: 6px
+}
+.o .flb .bt {
+	TOP: 8px; RIGHT: 8px
+}
+.flb .btw {
+	BORDER-BOTTOM: #bcbcbc 1px solid; BORDER-LEFT: #bcbcbc 1px solid; PADDING-BOTTOM: 4px; PADDING-LEFT: 3px; PADDING-RIGHT: 3px; DISPLAY: block; BORDER-TOP: #bcbcbc 1px solid; BORDER-RIGHT: #bcbcbc 1px solid; PADDING-TOP: 4px
+}
+.flb .st3 {
+	COLOR: #32a800
+}
+.flb2 {
+	Z-INDEX: 100; POSITION: absolute; TEXT-ALIGN: center; WIDTH: 100%; HEIGHT: 94px; TOP: 84px; PADDING-TOP: 10px; LEFT: 0px
+}
+.flb2 .flbw2 {
+	POSITION: relative; MARGIN: 0px auto; WIDTH: 276px
+}
+.flb2 .bt2 {
+	POSITION: absolute; WIDTH: 31px; DISPLAY: block; HEIGHT: 31px; TOP: 6px; RIGHT: 8px
+}
+.los {
+	POSITION: relative; PADDING-BOTTOM: 1em; PADDING-LEFT: 0px; WIDTH: 100%; PADDING-RIGHT: 0px; LETTER-SPACING: -1px; PADDING-TOP: 1em
+}
+.losctw {
+	MARGIN: 0px 11.5em 0px 10px; COLOR: #666; FONT-SIZE: 0.86em
+}
+.losctw2 {
+	MARGIN-RIGHT: 4em
+}
+.losct {
+	LINE-HEIGHT: 25px; WIDTH: 100%; TEXT-OVERFLOW: ellipsis; WHITE-SPACE: nowrap; HEIGHT: 25px; OVERFLOW: hidden
+}
+.losbtw {
+	POSITION: absolute; TOP: 1em; RIGHT: 10px
+}
+.losbt1 {
+	DISPLAY: inline-block; FONT-SIZE: 0.78em; VERTICAL-ALIGN: top; -webkit-border-radius: 2px
+}
+.losbt2 {
+	DISPLAY: inline-block; FONT-SIZE: 0.78em; VERTICAL-ALIGN: top; -webkit-border-radius: 2px
+}
+.losbt1 {
+	BORDER-BOTTOM: #647d97 1px solid; BORDER-LEFT: #647d97 1px solid; BACKGROUND: url(http://static.naver.com/www/m/im/losbt1.png) #627b9d no-repeat 0px 0px; LETTER-SPACING: -1px; COLOR: #fff; BORDER-TOP: #647d97 1px solid; BORDER-RIGHT: #647d97 1px solid
+}
+.losbt1 .w {
+	LINE-HEIGHT: 23px; HEIGHT: 23px
+}
+.losbt2 {
+	LINE-HEIGHT: 23px; HEIGHT: 23px
+}
+.losbt1 .w {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 1.7em; PADDING-RIGHT: 0.2em; PADDING-TOP: 0px
+}
+.s2 .losbt1 .w {
+	MARGIN: 0px -1.1em 0px -0.95em
+}
+.a .losbt1 .w {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 1.8em; PADDING-RIGHT: 0.4em; PADDING-TOP: 0px
+}
+.losbt2 {
+	BORDER-BOTTOM: #bcbcbc 1px solid; BORDER-LEFT: #bcbcbc 1px solid; PADDING-BOTTOM: 0px; PADDING-LEFT: 0.4em; PADDING-RIGHT: 0.4em; DISPLAY: inline-block; BACKGROUND: url(http://static.naver.com/m/cm/im/bt.gif) #f1f1f1 repeat-x 0px 0px; COLOR: #666; BORDER-TOP: #bcbcbc 1px solid; BORDER-RIGHT: #bcbcbc 1px solid; PADDING-TOP: 0px
+}
+.s .losbt2 {
+	PADDING-RIGHT: 0.3em
+}
+
+
+.ft_apt {
+	PADDING-BOTTOM: 1.22em; PADDING-LEFT: 10px; PADDING-RIGHT: 10px; CLEAR: both; OVERFLOW: hidden; PADDING-TOP: 0.64em
+}
+.ft_apt .ft_ap {
+	PADDING-BOTTOM: 3px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; DISPLAY: inline-block; BACKGROUND: url(http://static.naver.com/www/m/im/ic_btm.gif) no-repeat 0px 2px; COLOR: #333; FONT-SIZE: 0.93em; PADDING-TOP: 3px
+}
+.ft_apt .ft_t {
+	PADDING-BOTTOM: 3px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; DISPLAY: inline-block; BACKGROUND: url(http://static.naver.com/www/m/im/ic_btm.gif) no-repeat 0px 2px; COLOR: #333; FONT-SIZE: 0.93em; PADDING-TOP: 3px
+}
+.ft_apt .ft_ap {
+	PADDING-LEFT: 1.86em; FLOAT: left
+}
+.ft_apt .ft_t {
+	PADDING-LEFT: 1.5em; BACKGROUND-POSITION: 0px -65px; FLOAT: right
+}
+
+@media Unknown    
+{
+.ns .i {
+	BACKGROUND-IMAGE: url(http://static.naver.com/www/m/im/nsv_h.jpg); -webkit-background-size: 228px 342px
+}
+    }
+.rk LI A {
+	ZOOM: 1; BACKGROUND: url(http://static.naver.com/e.gif)
+}
+.rkl .pg .pv {
+	_margin-top: 4px
+}
+.rkl .pg .nx {
+	_margin-top: 4px
+}
+.ns .i {
+	MARGIN-LEFT: 0px
+}
+
+
+
+.hl .li1 {
+	MARGIN-TOP: -1px
+}
+.hl .li2 LI.ct {
+	WIDTH: 33% !important
+}
+.hl .pg {
+	HEIGHT: 32px
+}
+.hl .pg .pgd {
+	_vertical-align: middle
+}
+.hl .pg .pgd LI {
+	FLOAT: none
+}
+.hl .pg .pgd {
+	DISPLAY: inline
+}
+.hl .pg .pgd IMG {
+	MARGIN-TOP: 0px; VERTICAL-ALIGN: middle
+}
+.hl .pg .pv {
+	DISPLAY: inline
+}
+.hl .pg .nx {
+	DISPLAY: inline
+}

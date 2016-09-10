@@ -24,18 +24,31 @@ function _dbq($qry) {
   $ret = db_query($qry);
 }
 
+function _val($str) {
+  $str = trim($str);
+  $str = preg_replace("/'/", "", $str);
+  return $str;
+}
+
 ### }}}
 
 ### {{{
 // 저장하기
 if ($mode == 'add2do') {
 
-  if ($form['ovwr'] == '1') { // 덮어쓰기
-    $overwrite = true;
-  } else if ($form['ovwr'] == '2') { // 추가하기
-    $overwrite = false;
-  } else die('오류');
+# if ($form['ovwr'] == '1') { // 덮어쓰기
+#   $overwrite = true;
+# } else if ($form['ovwr'] == '2') { // 추가하기
+#   $overwrite = false;
+# } else die('오류');
 //dd($form); exit;
+
+# // 업로드전 모두 삭제
+# $qry = "DELETE FROM driver";
+# $ret = db_query($qry);
+# $qry = "DELETE FROM carinfo";
+# $ret = db_query($qry);
+
 
   $content = $form['content'];
   _split_list($rows, $content);
@@ -48,127 +61,145 @@ if ($mode == 'add2do') {
 
     if ($debug) dd($cols);
 
-    $own1 = trim($cols[0]); // 지파명      0
-    $own2 = trim($cols[1]); // 교회명      1
-    $own3 = trim($cols[2]); // 실소유자    2
-    $own4 = trim($cols[3]); // 연락처      3
-    $own5 = trim($cols[4]); // 모델명      4
-    $own6 = trim($cols[5]); // 차량번호    5
-    $car_no = $own6;
-    $own7 = trim($cols[6]); // 차종        6
-    $own8 = trim($cols[7]); // 색상        7
-    $own9 = trim($cols[8]); // 배기량      8
-    $own10= trim($cols[9]); // 연식        9
-
-    $drv1 = trim($cols[10]); // 지파        10
-    $drv2 = trim($cols[11]); // 교회        11
-    $drv3 = trim($cols[12]); // 이름        12
-    $drv4 = trim($cols[13]); // 연령        13
-    $drv5 = trim($cols[14]); // 연락처      14
-    $drv6 = trim($cols[15]); // 고유번호    15
-    $driver_id = trim($cols[16]); // DB번호 16
-    $drv7 = trim($cols[17]); // 팀          17
-
     $s = array();
+
+    $own1 = _val($cols[0]); // 지파명
     $s[] = "own1='{$own1}'";
+
+    $own2 = _val($cols[1]); // 교회명
     $s[] = "own2='{$own2}'";
+
+    $own3 = _val($cols[2]); // 실소유자
     $s[] = "own3='{$own3}'";
+
+    $own4 = _val($cols[3]); // 연락처
     $s[] = "own4='{$own4}'";
-    $s[] = "own5='{$own5}'";
-    $s[] = "own6='{$own6}'";
+
+    $v = _val($cols[4]); // 모델명
+    $s[] = "own5='{$v}'";
+    $s[] = "car_model='{$v}'"; // 모델명
+
+    $v = _val($cols[5]); // 차량번호
+    $car_no = $v;
+    $s[] = "own6='{$v}'";
+    $s[] = "car_no='{$v}'"; // 차량번호
+
+    $own7 = _val($cols[6]); // 차종
     $s[] = "own7='{$own7}'";
-    $s[] = "own8='{$own8}'";
+
+    $v = _val($cols[7]); // 색상
+    $s[] = "car_color='{$v}'"; // 색상
+    $s[] = "own8='{$v}'";
+
+    $own9 = _val($cols[8]); // 배기량
     $s[] = "own9='{$own9}'";
+
+    $own10= _val($cols[9]); // 연식
     $s[] = "own10='{$own10}'";
 
-    $s1 = $s;
-    $s1[] = "car_no='{$own6}'"; // 차량번호
-    $s1[] = "car_model='{$own5}'"; // 모델명
-    $s1[] = "car_color='{$own8}'"; // 색상
- 
-    if ($overwrite) {
-      $qry = "select * from carinfo where car_no='$car_no'";
-      $row = db_fetchone($qry);
-      if (!$row) die("차량 $car_no 가 등록되어 있지 않습니다.");
-      $car_id = $row['id'];
-
-      $s1[] = "driver_id ='{$driver_id}'";
-      $sql_set = " SET ".join(",", $s1);
-      $qry = "UPDATE carinfo"
-       .$sql_set
-       ." WHERE id='$car_id'";
-      $ret = _dbq($qry);
-
-    } else {
+    $qry = "select * from carinfo where car_no='$car_no'";
+    $row = db_fetchone($qry);
+    if (!$row) {
 
       $sql_set = " SET ".join(",", $s);
       $qry = "INSERT INTO carinfo $sql_set";
       $ret = _dbq($qry);
 
       $qry = "SELECT LAST_INSERT_ID() as id";
-      if ($debug) dd($qry);
       $row = db_fetchone($qry);
       $car_id = $row['id'];
+
+    } else {
+
+      $car_id = $row['id'];
+      $sql_set = " SET ".join(",", $s);
+      $qry = "UPDATE carinfo"
+       .$sql_set
+       ." WHERE id='$car_id'";
+      $ret = _dbq($qry);
     }
 
-    $s[] = "drv1='{$drv1}'";
-    $s[] = "drv2='{$drv2}'";
-    $driver_name = $drv3;
+
+    $s = array();
+
+    $v = _val($cols[10]); // 지파
+    $s[] = "drv1='{$v}'";
+
+    $v = _val($cols[11]); // 교회
+    $s[] = "drv2='{$v}'";
+
+    $v = _val($cols[12]); // 이름
+    $driver_name = $v;
     if ($driver_name == '') die('운전자 이름 미입력');
     $s[] = "drv3='{$driver_name}'";
+    $s[] = "driver_name='$driver_name'";
+
     $driver_cho = cho_hangul($driver_name);
     $s[] = "driver_cho='{$driver_cho}'"; // driver_cho
-    $s[] = "drv4='{$drv4}'";
-    $tel = $drv5;
+
+    $v = _val($cols[13]); // 연령
+    $s[] = "drv4='{$v}'";
+
+    $v = _val($cols[14]); // 연락처
+    $tel = $v;
     if (strlen($tel) == 9) $tel = "010-$tel";
     $s[] = "drv5='{$tel}'"; // 전화번호
-    $s[] = "drv6='{$drv6}'"; // 고유번호
-    $s[] = "drv7='{$drv7}'"; // 팀
+    $s[] = "driver_tel='$tel'";
 
-    if ($overwrite) {
+    $v = _val($cols[15]); // 고유번호
+    $driver_no = $v;
+    $s[] = "driver_no='$v'";
 
-      $s[] = "car_id='{$car_id}'";
-      $s[] = "driver_name='$driver_name'";
-      $s[] = "driver_tel='$tel'";
-      $s[] = "driver_no='$drv6'";
-      //$s[] = "driver_stat='DS_STOP'";
-      $s[] = "driver_team='$drv7'";
+    $v = _val($cols[16]); // 운전자번호
+    $driver_id = $v;
+
+    $v = _val($cols[17]); // 팀
+    $s[] = "drv7='{$v}'"; // 팀
+    $s[] = "driver_team='$v'";
+
+    $qry = "select * from driver where id='$driver_id'";
+    $row = db_fetchone($qry);
+    if (!$row) {
+
+      $s[] = "id='{$driver_id}'";
       $sql_set = " SET ".join(",", $s);
+      $qry = "INSERT INTO driver $sql_set";
+      $ret = _dbq($qry);
 
+    } else {
+
+      $sql_set = " SET ".join(",", $s);
       $qry = "UPDATE driver"
        .$sql_set
       ." where id='$driver_id'";
       if ($debug) dd($qry);
       $ret = db_query($qry);
+    }
 
       $qry = "UPDATE carinfo"
-       ." SET driver_id='$driver_id', car_no=own6, car_model=own5, car_color=own8"
+       ." SET driver_id='$driver_id'"
        ." WHERE id='$car_id'";
-      if ($debug) dd($qry);
-      $ret = db_query($qry);
+      $ret = _dbq($qry);
 
-    } else {
-
-      $s[] = "id='{$driver_id}'";
-      $sql_set = " SET ".join(",", $s);
-      $qry = "INSERT INTO driver $sql_set";
-      if ($debug) dd($qry);
-      $ret = db_query($qry);
-
-    }
+      $qry = "UPDATE driver"
+       ." SET car_id='$car_id'"
+       ." WHERE id='$driver_id'";
+      $ret = _dbq($qry);
 
     $count++;
   }
 
   // 전화번호에서 - 제거
   $qry = "update driver set driver_tel = concat( substring(driver_tel,1,3), substring(driver_tel,5,4), substring(driver_tel,10,4)) where length(driver_tel)=13;";
-  if ($debug) dd($qry);
-  $ret = db_query($qry);
+  $ret = _dbq($qry);
 
   // 고유번호에서 - 제거
   $qry = "update driver set driver_no=concat(substring(driver_no,1,8), substring(driver_no,10,5)) where length(driver_no)=14";
-  if ($debug) dd($qry);
-  $ret = db_query($qry);
+  $ret = _dbq($qry);
+
+  // 운전자 상태 초기화
+  $qry = "update driver set driver_stat='DS_STOP'";
+  $ret = _dbq($qry);
 
   print<<<EOS
 <p>$count 건 완료.
@@ -252,7 +283,7 @@ EOS;
   // 운전자 정보 (지파명~고유번호)
   $content = $form['content'];
   if (!$content) $content =<<<EOS
-지파명	교회명	실소유자명	연락처	모델명	차량번호	차종	색상	배기량	연식	지파	교회	이름	연령	연락처	고유번호	번호
+지파명,교회명,실소유자명,연락처,모델명,차량번호,차종,색상,배기량,연식,지파,교회,이름,연령,연락처,고유번호,번호,팀
 EOS;
 
  print<<<EOS
@@ -263,8 +294,10 @@ $content
 <input type='button' value='다운로드' onclick='sf_down()' class='btn btn-warning'>
 <input type='button' value='미리보기' onclick='sf_1()' class='btn btn-primary'>
 <input type='button' value='저장하기' onclick='sf_2()' class='btn btn-primary'>
+<!--
 <label><input type='radio' name='ovwr' value='1'>덮어쓰기</label>
 <label><input type='radio' name='ovwr' value='2' checked>추가하기</label>
+-->
 </form>
 
 <script>
@@ -295,6 +328,7 @@ EOS;
 <th>색상</th>
 <th>배기량</th>
 <th>연식</th>
+
 <th>지파</th>
 <th>교회</th>
 <th>운전자이름</th>
@@ -302,6 +336,7 @@ EOS;
 <th>연락처</th>
 <th>고유번호</th>
 <th>번호</th>
+<th>팀</th>
 </tr>
 EOS;
 
@@ -314,7 +349,7 @@ EOS;
 
     $cnt++;
     print("<tr>");
-    for ($i = 0; $i < 17; $i++) {
+    for ($i = 0; $i < 18; $i++) {
       print("<td>{$cols[$i]}</td>");
     }
     print("</tr>");

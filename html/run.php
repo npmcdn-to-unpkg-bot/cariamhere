@@ -24,12 +24,14 @@ function _summary() {
   global $clsdriver;
   $info = $clsdriver->driver_summary();
 
+  //$large = ' btn-lg';
+
   print("<div class='btn-group' role='group' aria-label='...' style=''>");
   foreach ($info as $ds=>$count) {
-         if ($ds == '운전중') $cls = "btn btn-success btn-lg";
-    else if ($ds == '대기중') $cls = "btn btn-info btn-lg";
-    else if ($ds == '비상상황') $cls = "btn btn-danger btn-lg";
-    else $cls = "btn btn-default btn-lg";
+         if ($ds == '운전중') $cls = "btn btn-success $large";
+    else if ($ds == '대기중') $cls = "btn btn-info $large";
+    else if ($ds == '비상상황') $cls = "btn btn-danger $large";
+    else $cls = "btn btn-default $large";
     print("<button type='button' class='$cls' onclick=\"_summgo('$ds')\">$ds<span class='badge'>$count</span></button>");
   }
   print("</div>");
@@ -77,13 +79,17 @@ if ($mode == 'map') {
   $ret = db_query($qry);
   $pts = array();
   $dts = array();
+  $pdts = array();
+
   $cnt = 0;
   while ($row = db_fetch($ret)) {
     $cnt++;
     //dd($row);
     $pts[] = array($row['lat'], $row['lng']);
     $dts[] = $row['idate'];
+    $pdts[] = array($row['lat'], $row['lng'], $row['idate'], $cnt);
   }
+
   //dd($pts);
   //dd($dts);
   $points = json_encode($pts);
@@ -132,7 +138,6 @@ function _map_range() {
   }
   map.setBounds(bounds);
 }
-
 
 function addMarker(position, date) {
 
@@ -193,6 +198,17 @@ $(function() {
 EOS;
   //dd($points);
 
+  print<<<EOS
+<style>
+p.detail { margin-top: 0; margin-bottom:0; }
+</style>
+EOS;
+  $pdts = array_reverse($pdts);
+  foreach ($pdts as $item) {
+    list($lat, $lng, $date, $count) = $item;
+    print("<p class='detail'>[$count] $date ($lat, $lng)</p>");
+  }
+
   PopupPageTail();
   exit;
 }
@@ -201,8 +217,7 @@ EOS;
   MainPageHead($source_title);
   ParagraphTitle($source_title);
 
-  _summary();
-
+  //_summary();
 
   ## {{
   $btn = button_general('조회', 0, "sf_1()", $style='width:70px; height:50px;', $class='btn btn-primary');

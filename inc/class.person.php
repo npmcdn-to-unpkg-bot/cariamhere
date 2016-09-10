@@ -23,19 +23,18 @@ function person_groups() {
   $list = array(
     array('title'=>'1', 'value'=>'1'),
     array('title'=>'2', 'value'=>'2'),
-    array('title'=>'3', 'value'=>'3'),
     array('title'=>'4', 'value'=>'4'),
     array('title'=>'5', 'value'=>'5'),
     array('title'=>'6', 'value'=>'6'),
     array('title'=>'7', 'value'=>'7'),
     array('title'=>'8', 'value'=>'8'),
-    array('title'=>'9', 'value'=>'9'),
   );
   return $list;
 }
 
 function person_group_option($preset='') {
   $opt = '';
+  $opt .= "<option value='all'>=선택=</option>";
   $list = $this->person_groups();
 
   $flag = false;
@@ -68,6 +67,7 @@ function person_levels() {
 
 function person_level_option($preset='') {
   $opt = '';
+  $opt .= "<option value='all'>=선택=</option>";
   $list = $this->person_levels();
 
   $flag = false;
@@ -142,19 +142,39 @@ function get_person_obj(&$row) {
     'name'=>$row['person_name'],
     'group'=>$row['person_group'],
     'level'=>$lev,
+    'position'=>$row['person_position'],
     'hotel'=>$row['person_hotel'],
     'nation'=>$row['person_nation'],
   );
   return $a;
 }
+// 클라이언트로 전송되는 정보 (목록보기, 간략버전)
+function get_person_obj_simple(&$row) {
+  $lev = $this->get_level_string($row['person_level']);
+  $a = array(
+    //'person_id'=>$row['per_no'],
+    'per_no'=>$row['per_no'],
+    'name'=>$row['person_name'],
+    'group'=>$row['person_group'],
+    'level'=>$lev,
+    //'position'=>$row['person_position'],
+    //'hotel'=>$row['person_hotel'],
+    //'nnum'=>$row['person_nation'],
+    'nation'=>$row['nname'],
+  );
+  return $a;
+}
+
 
 // API
 function list_person() {
-  $qry = "SELECT * FROM person";
+  $qry = "SELECT p.*, Nat.nname
+ FROM person p
+ left join Nat on p.person_nation=Nat.nnum";
   $ret = db_query($qry);
   $info = array();
   while ($row = db_fetch($ret)) {
-    $info[] = $this->get_person_obj($row);
+    $info[] = $this->get_person_obj_simple($row);
   }
   return $info;
 }
@@ -216,7 +236,7 @@ function person_information_v2($search) {
   $lvl = $this->get_level_string($row['person_level']);
 
   $name = sprintf("(G%s,$lvl)%s", $row['person_group'], $row['person_name']);
-  $p['name'] = $name;
+  $p['name_long'] = $name;
   $info = $p;
 
   return $info;

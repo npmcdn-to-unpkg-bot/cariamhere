@@ -355,7 +355,7 @@ EOS;
 
   $qry = "SELECT l.*"
    .$sql_from.$sql_where
-   ." ORDER BY l.loc_title"
+   ." ORDER BY l.loc_group, l.loc_title"
    ." LIMIT $start,$ipp";
   $ret = db_query($qry);
 

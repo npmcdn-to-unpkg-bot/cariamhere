@@ -54,6 +54,9 @@ class location {
     $row = db_fetchone($qry);
     return $row['loc_title'];
   }
+  function location_name($id) {
+    return $this->id2name($id);
+  }
 
   function get_location($id) {
     $qry = "SELECT * FROM location WHERE id='$id'";
