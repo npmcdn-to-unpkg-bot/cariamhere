@@ -1,5 +1,11 @@
 <?php
 
+  if (@!$env['path_include']) @$env['path_include'] = '.';
+  include_once("$env[path_include]/class.carinfo.php");
+  include_once("$env[path_include]/class.person.php");
+  include_once("$env[path_include]/class.location.php");
+  include_once("$env[path_include]/class.driver.php");
+
 class telegram {
   var $debug = false;
   var $token;
@@ -68,14 +74,42 @@ class telegram {
     return false; // fail
   }
 
+  // 사진 전송
+  function send_photo($chat_id, $localpath, $mtype) {
+    if (!$chat_id) return;
+    $url = $this->url($mtype)."/sendPhoto?chat_id=".$chat_id;
 
+    $postfields = array('chat_id'=>$chat_id, 'photo'=> new CURLFile(realpath($localpath)));
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+      "Content-Type: multipart/form-data"
+    ));
 
-  // 메시지 전송
-  function send_msg_post($chat_id, $text, $mtype) {
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // On dev server only!
+    $result = curl_exec($ch);
+    //$this->dd($result);
+
+    $info = json_decode($result, true);
+    //$this->dd($info);
+    if ($info['ok']) return true; // success
+    return false; // fail
+  }
+
+  // 테스트 메시지 전송 (curl & post)
+  function send_msg_post($chat_id, $text, $mtype, $reply_markup=null) {
     if (!$chat_id) return;
     $url = $this->url($mtype)."/sendMessage";
 
     $postfields = array('chat_id'=>$chat_id, 'text'=>$text);
+    if ($reply_markup) {
+      $json = json_encode($reply_markup);
+      $postfields['reply_markup'] = $json;
+    }
+
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -92,18 +126,20 @@ class telegram {
     return false; // fail
   }
   // 모니터링용봇
-  function send_monitor_bot($chat_id, $obj) {
+  function send_monitor_bot($chat_id, $obj, $reply_markup=null) {
     if (!$chat_id) return;
-    $this->send_log($chat_id, $obj, 0);
+    $mtype = 0;
+    $this->send_log($chat_id, array($obj,$reply_markup), $mtype);
     if (is_array($obj)) $text = join("\n", $obj); else $text = "$obj";
-    return $this->send_msg_post($chat_id, $text, 0);
+    return $this->send_msg_post($chat_id, $text, $mtype, $reply_markup);
   }
   // 공지용봇
-  function send_notice_bot($chat_id, $obj) {
+  function send_notice_bot($chat_id, $obj, $reply_markup=null) {
     if (!$chat_id) return;
-    $this->send_log($chat_id, $obj, 1);
+    $mtype = 1;
+    $this->send_log($chat_id, array($obj,$reply_markup), $mtype);
     if (is_array($obj)) $text = join("\n", $obj); else $text = "$obj";
-    return $this->send_msg_post($chat_id, $text, 1);
+    return $this->send_msg_post($chat_id, $text, $mtype, $reply_markup);
   }
   // 전송 로그
   function send_log($chat_id, $obj, $mtype) {
@@ -172,7 +208,38 @@ class telegram {
     }
   }
 
+  // 봇과 개인대화창에서 메시지 처리
+  function private_message($from_chat_id, $message, $mtype) {
+    // 개인대화창에서 봇에게 메시지 전송은 모니터링봇(mtype=0) 만 가능
+    if ($mtype != 0) return;
 
+    if (trim($message) == '내정보') $this->proc_myinfo($from_chat_id, $mtype);
+  }
+  function proc_myinfo($from_chat_id, $mtype) {
+    if ($mtype != 0) return;
+
+    $driver = new driver();
+    $driver_row = $driver->get_driver_by_chat_id($from_chat_id);
+    $name = $driver_row['driver_name'];
+    $team = $driver_row['driver_team'];
+
+    $msg = array();
+    $msg[] = "$name 님!! 만나뵙게되어 반갑습니다.";
+    $msg[] = "소속팀: $team";
+    $this->send_monitor_bot($from_chat_id, $msg);
+
+    //$localpath = "/www/carmax/repository/html/img/iamhere.jpg";
+    //$this->send_photo($from_chat_id, $localpath, $mtype);
+
+    $reply_markup = array();
+    $reply_markup['inline_keyboard'] = array(
+      array( array('text'=>'help1','callback_data'=>'1') ),
+      array( array('text'=>'help2','callback_data'=>'2') ),
+      array( array('text'=>'help3','callback_data'=>'3') ),
+    );
+    $text = "선택하세요";
+    $this->send_monitor_bot($from_chat_id, $text, $reply_markup);
+  }
 
 };
 

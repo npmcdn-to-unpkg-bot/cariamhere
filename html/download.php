@@ -143,6 +143,52 @@ if ($mode == 'run') {
   exit;
 }
 
+if ($mode == 'person') {
+  if ($form['preview']) $debug = 1;
+  download_head('carmax', $debug);
+
+  $qry = "select p.*, Nat.nname
+ from person p
+ left join Nat on p.person_nation=Nat.nnum";
+
+  print("<tr>");
+  download_th('번호');
+  download_th('ID');
+  download_th('인사번호');
+  download_th('공식한글이름');
+  download_th('행사계층');
+  download_th('소속및직책');
+  download_th('레벨');
+  download_th('호텔');
+  download_th('국가코드');
+  download_th('국가명');
+  print("</tr>");
+
+  $ret = db_query($qry);
+
+  $cnt = 0;
+  while ($row = db_fetch($ret)) {
+  $cnt++;
+  //dd($row);
+  print("<tr>");
+  download_td($cnt);
+  download_td($row['id']);
+  download_td($row['per_no']);
+  download_td($row['person_name']);
+  download_td($row['person_group']);
+  download_td($row['person_position']);
+  download_td($row['person_level']);
+  download_td($row['person_hotel']);
+  download_td($row['person_nation']);
+  download_td($row['nname']);
+  print("</tr>");
+  }
+
+  download_tail();
+  exit;
+}
+
+
 ### }}}
 
   MainPageHead($source_title);
@@ -151,11 +197,13 @@ if ($mode == 'run') {
   print<<<EOS
 <form name='form' action='$env[self]' method='post'>
 <input type='hidden' name='mode' value=''>
-<label><input type='checkbox' name='preview'>미리보기</label>
+<label><input type='checkbox' name='preview' checked>미리보기</label>
 <input type='button' value='다운로드' onclick='sf_1()' class='btn btn-warning'>
+<input type='button' value='업로드' onclick='up1()' class='btn btn-primary'>
 </form>
 <script>
 function sf_1() { document.form.mode.value = 'car_and_driver'; document.form.submit(); }
+function up1() { urlGo("/upload.php"); }
 </script>
 EOS;
 
@@ -163,11 +211,25 @@ EOS;
   print<<<EOS
 <form name='form2' action='$env[self]' method='post'>
 <input type='hidden' name='mode' value=''>
-<label><input type='checkbox' name='preview'>미리보기</label>
+<label><input type='checkbox' name='preview' checked>미리보기</label>
 <input type='button' value='다운로드' onclick='sf_2()' class='btn btn-warning'>
 </form>
 <script>
 function sf_2() { document.form2.mode.value = 'run'; document.form2.submit(); }
+</script>
+EOS;
+
+  ParagraphTitle('VIP인사');
+  print<<<EOS
+<form name='form3' action='$env[self]' method='post'>
+<input type='hidden' name='mode' value=''>
+<label><input type='checkbox' name='preview' checked>미리보기</label>
+<input type='button' value='다운로드' onclick='sf_3()' class='btn btn-warning'>
+<input type='button' value='업로드' onclick='up3()' class='btn btn-primary'>
+</form>
+<script>
+function sf_3() { document.form3.mode.value = 'person'; document.form3.submit(); }
+function up3() { var url = "/person.php?mode=add2"; urlGo(url); }
 </script>
 EOS;
 

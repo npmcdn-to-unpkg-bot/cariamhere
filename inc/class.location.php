@@ -104,6 +104,7 @@ class location {
     return $info;
   }
 
+  // 경유지 정보
   function list_passby_locations() {
     $w = array('1');
     $w[] = "loc_group='경유지'";

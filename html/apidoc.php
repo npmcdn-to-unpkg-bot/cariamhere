@@ -371,6 +371,14 @@ EOS;
   $comment = " ";
   $html .= _panel($title, $content, $comment);
 
+  $title = "[운행] 어플종료(exit_app)";
+  $action = 'exit_app';
+  $info = array( 'appkey'=>'' );
+  $rinfo = array('result'=>'성공여부');
+  $content = _content($action, $info, $rinfo);
+  $comment = " ";
+  $html .= _panel($title, $content, $comment);
+
   $title = "[인사] 현재지정된 인사 조회(query_person)";
   $action = 'query_person';
   $info = array( 'appkey'=>'',

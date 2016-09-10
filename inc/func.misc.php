@@ -1525,4 +1525,13 @@ function download_td($str) {
 EOS;
 }
 
+function apilog($o) {
+  if (!is_string($o)) $a = var_export($o, true);
+  else $a = $o;
+
+  $msg = db_escape_string($a);
+  $qry = "insert into apilog set log='$msg', idate=now()";
+  db_query($qry);
+}
+
 ?>

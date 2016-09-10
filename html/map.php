@@ -6,8 +6,8 @@
 
   $source_title = '실시간 차량위치';
 
-  $debug = '1';
   $debug = '0';
+  $debug = '1'; // 지도 아래에 로그 메시지 출력
 
 ### {{{
 ### }}}
@@ -138,14 +138,22 @@ function _change_time() {
 
   var ms = 0;
        if (time == 1) ms = 1000;
+  else if (time == 2) ms = 2000;
+  else if (time == 3) ms = 3000;
   else if (time == 5) ms = 5000;
   else if (time == 10) ms = 10000;
   else if (time == 30) ms = 30000;
   else if (time == 60) ms = 60000;
   else ms = 0;
 
+  _log('자동 업데이트 설정'+ms+' ms초');
+
   if (_int) clearInterval(_int);
-  if (ms > 0) _int = setInterval(function() { _update_markers(); }, ms);
+  if (ms > 0) {
+    _int = setInterval(function() {
+      _update_markers();
+    }, ms);
+  }
 }
 
 // 교통량 정보 보기/끄기
@@ -236,19 +244,19 @@ function _make_a_infowindow(content) {
 
 function _make_a_marker(pos, infowindow, driver_team) {
 
-  var src;
-       if (driver_team == '1팀') src = "/img/marker/1.png";
-  else if (driver_team == '2팀') src = "/img/marker/2.png";
-  else if (driver_team == '3팀') src = "/img/marker/3.png";
-  else if (driver_team == '4팀') src = "/img/marker/4.png";
-  else if (driver_team == '5팀') src = "/img/marker/5.png";
-  else if (driver_team == '6팀') src = "/img/marker/6.png";
-  else if (driver_team == '7팀') src = "/img/marker/7.png";
-  else                           src = "";
+  var src, w, h, a, b;
+       if (driver_team == '1팀') {src = "/img/marker/1.png"; w=20; h=30; a=10; b=30; }
+  else if (driver_team == '2팀') {src = "/img/marker/2.png"; w=20; h=30; a=10; b=30; }
+  else if (driver_team == '3팀') {src = "/img/marker/3.png"; w=20; h=30; a=10; b=30; }
+  else if (driver_team == '4팀') {src = "/img/marker/4.png"; w=20; h=30; a=10; b=30; }
+  else if (driver_team == '5팀') {src = "/img/marker/5.png"; w=20; h=30; a=10; b=30; }
+  else if (driver_team == '6팀') {src = "/img/marker/6.png"; w=20; h=30; a=10; b=30; }
+  else if (driver_team == '7팀') {src = "/img/marker/7.png"; w=20; h=30; a=10; b=30; }
+  else                           {src = "/img/marker/dot1.png"; w=10; h=10; a=5; b=5; }
 
   if (src) {
-    var size = new daum.maps.Size(20,30);
-    var option = { offset: new daum.maps.Point(10,30)};
+    var size = new daum.maps.Size(w,h);
+    var option = { offset: new daum.maps.Point(a,b)};
     var markerImage = new daum.maps.MarkerImage(src, size, option);
   } else {
     var markerImage = null;
@@ -292,7 +300,7 @@ function _marker_info_content(item) {
 }
 
 function _update_markers() {
-  //_log('위치 업데이트');
+  _log('위치 업데이트');
   _clear_all(); // 지도에서 마커를 모두 제거한다.
 
   _get_carinfo(function(info) {

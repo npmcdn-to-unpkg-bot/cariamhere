@@ -39,17 +39,33 @@ function _register($appkey, $from_chat_id) {
 
   $update_id = $data['update_id'];
   $message = $data['message'];
+
   $from = $message['from'];
   $from_chat_id = $from['id'];
+
+  $chat = $message['chat'];
+  $chat_id = $chat['id']; // chat_id (group or person)
+  $chat_type = $chat['type']; // group or ??
+
   $text = $message['text'];
 
-  $clstg = new telegram();
-  $clstg->hook_log($from_chat_id, $data, $mtype=0);
+  $mtype = 0; // this hook's mtype=0
 
-  // 사용자 등록
+  $clstg = new telegram();
+  $clstg->hook_log($from_chat_id, $data, $mtype);
+
+  // 사용자 등록 (/start)
   if (preg_match("/\/start /", $text)) {
     list($a, $appkey) = preg_split("/ /", $text);
     _register($appkey, $from_chat_id);
+  }
+
+  if ($chat_type == 'group') {
+    $text = "그룹방에 저를 초대해 주셨네요.b^b";
+    $clstg->send_msg_post($chat_id, $text, $mtype);
+
+  } else if ($chat_type == 'private') {
+    $clstg->private_message($chat_id, $text, $mtype);
   }
 
 ?>

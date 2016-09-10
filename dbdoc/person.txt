@@ -10,8 +10,8 @@ create table  person (
   person_group   char(10) not null default '' comment '인사 그룹',
   person_position   char(20) not null default '' comment '대표직책(한글)',
   person_hotel      char(10) not null default '' comment '호텔',
-  person_fflag   tinyint default 0 comment '깃발부착대상자여부',
   person_nation  int     default 0 comment '국가',
+  person_level   char(10) not null default '' comment '레벨 vvip, vip, general',
   memo    text  comment '메모',
 
   driver_id   int  default 0 comment '최종 수행기사',
@@ -25,6 +25,15 @@ create table  person (
   per5   char(10) comment '호텔명',
   per6   char(10) comment '국적',
 );
+
+
+
+  person_fflag   tinyint default 0 comment '깃발부착대상자여부',
+alter table person drop column person_fflag;
+
+alter table person add column
+  person_level   char(10) not null default '' comment '레벨 vvip, vip, general' after person_nation;
+
 
 alter table person add column
   driver_id   int  default 0 comment '최종 수행기사' after memo;
@@ -65,26 +74,4 @@ alter table person add column per4 char(30) comment '국가';
 
 person_name=per1, person_group=per2, person_fflag=per3,
 
-mysql> desc person;
-+-----------------+------------+------+-----+---------+----------------+
-| Field           | Type       | Null | Key | Default | Extra          |
-+-----------------+------------+------+-----+---------+----------------+
-| id              | int(11)    | NO   | PRI | NULL    | auto_increment |
-| per_no          | char(4)    | NO   |     |         |                |
-| person_name     | char(50)   | NO   |     |         |                |
-| person_cho      | char(50)   | NO   |     |         |                |
-| person_group    | char(10)   | NO   |     |         |                |
-| person_position | char(20)   | NO   |     |         |                |
-| person_hotel    | char(10)   | NO   |     |         |                |
-| person_fflag    | tinyint(4) | YES  |     | 0       |                |
-| person_nation   | int(11)    | YES  |     | 0       |                |
-| memo            | text       | YES  |     | NULL    |                |
-| udate           | datetime   | YES  |     | NULL    |                |
-| idate           | datetime   | YES  |     | NULL    |                |
-| per1            | char(50)   | YES  |     | NULL    |                |
-| per2            | char(10)   | YES  |     | NULL    |                |
-| per3            | char(2)    | YES  |     | NULL    |                |
-| per4            | char(30)   | YES  |     | NULL    |                |
-+-----------------+------------+------+-----+---------+----------------+
-16 rows in set (0.00 sec)
 

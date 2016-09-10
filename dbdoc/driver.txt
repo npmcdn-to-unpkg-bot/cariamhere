@@ -40,8 +40,13 @@ create table  driver (
   bot1con   tinyint default 0 comment '모니터링봇 연결여부',
   bot2con   tinyint default 1 comment '공지봇 연결여부',
 
-  gperiod tinyint default 30 comment 'GPS보고주기'
+  gperiod tinyint default 30 comment 'GPS보고주기',
+  team_leader tinyint default 0 comment '팀장여부'
 );
+
+  alter table driver add column
+  team_leader tinyint default 0 comment '팀장여부';
+
 
   alter table driver add column
   apikey_date  datetime  comment 'API 키 생성시간' after apikey;

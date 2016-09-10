@@ -41,6 +41,7 @@ function _sqlset(&$s) {
 
   $s[] = "per_no='{$form['per_no']}'";
   $s[] = "person_group='{$form['person_group']}'";
+  $s[] = "person_level='{$form['person_level']}'";
   $s[] = "person_name='{$form['person_name']}'";
   $s[] = "person_cho='{$person_cho}'";
 
@@ -60,7 +61,7 @@ EOS;
 }
 
 function _person_split($line) {
-  $cols = preg_split("/[,\t]/", $line);
+  $cols = preg_split("/[\t]/", $line);
   return $cols;
 }
 
@@ -139,20 +140,22 @@ EOS;
 </tr>
 EOS;
 
-
-  $click_select = true;
-
   print _data_tr('ID', $row['id']);
 
-  $html = textinput_general('per_no', $row['per_no'], '20', $onkeypress='', $click_select, $maxlength=0);
+  $html = textinput_general('per_no', $row['per_no'], '20', '', true, 0);
   print _data_tr('인사번호', $html);
 
   $preset = $row['person_group'];
   $opt = $clsperson->person_group_option($preset);
   $html = "<select name='person_group'>$opt</select>";
-  print _data_tr('분류', $html);
+  print _data_tr('그룹', $html);
 
-  $html = textinput_general('person_name', $row['person_name'], '40', $onkeypress='', $click_select, $maxlength=0);
+  $preset = $row['person_level'];
+  $opt = $clsperson->person_level_option($preset);
+  $html = "<select name='person_level'>$opt</select>";
+  print _data_tr('레벨', $html);
+
+  $html = textinput_general('person_name', $row['person_name'], '40', '', true, 0);
   print _data_tr('이름', $html);
 
   print _data_tr('이름초성', $row['person_cho']);
@@ -166,7 +169,7 @@ EOS;
   print _data_tr('국가', $html);
   print $script;
 
-  $html = textinput_general('person_hotel', $row['person_hotel'], '20', $onkeypress='', $click_select, $maxlength=0);
+  $html = textinput_general('person_hotel', $row['person_hotel'], '20', '', true, 0);
   print _data_tr('호텔', $html);
 
   $html = textarea_general('memo', $row['memo'], 60, 5, true);
@@ -217,6 +220,7 @@ EOS;
 
   print _data_tr('이름', $row['person_name']);
   print _data_tr('그룹', $row['person_group']);
+  print _data_tr('레벨', $row['person_level']);
   print _data_tr('국가', $row['nname']);
   print _data_tr('메모', $row['memo']);
 
@@ -255,14 +259,12 @@ if ($mode == 'add2') {
 
   print<<<EOS
 <form name='form' action='$env[self]' method='post'>
-
-<p> 형식 : 인사번호,공식한글이름,행사계층,대표직책(한),호텔명,국적
-
+<p>형식:인사번호,공식한글이름,행사계층,대표직책(한),호텔명,국적,레벨
 <input type='hidden' name='mode' value='add2b'>
 EOS;
   $content = $form['content'];
   if (!$content) $content =<<<EOS
-인사번호	공식한글이름	행사계층	대표직책(한)	호텔명	국적
+인사번호,공식한글이름,행사계층,대표직책(한),호텔명,국적,레벨
 EOS;
 
   print<<<EOS
@@ -270,8 +272,8 @@ EOS;
 $content
 </textarea>
 
-<input type='button' value='미리보기' onclick='sf_1()'>
-<input type='button' value='저장하기' onclick='sf_2()'>
+<input type='button' value='미리보기' onclick='sf_1()' class='btn btn-primary'>
+<input type='button' value='저장하기' onclick='sf_2()' class='btn btn-primary'>
 </form>
 
 <script>
@@ -291,6 +293,7 @@ EOS;
 <th>대표직책(한)</th>
 <th>호텔명</th>
 <th>국적</th>
+<th>레벨</th>
 </tr>
 EOS;
 
@@ -307,6 +310,7 @@ EOS;
 <td nowrap class='nowrap'>{$cols[3]}</td>
 <td nowrap class='nowrap'>{$cols[4]}</td>
 <td nowrap class='nowrap'>{$cols[5]}</td>
+<td nowrap class='nowrap'>{$cols[6]}</td>
 </tr>
 EOS;
   }
@@ -320,9 +324,9 @@ EOS;
 
 if ($mode == 'add2do') {
 
-  # // 업로드전 모두 삭제
-  # $qry = "DELETE FROM person";
-  # $ret = db_query($qry);
+# // 업로드전 모두 삭제
+# $qry = "DELETE FROM person";
+# $ret = db_query($qry);
 
   $content = $form['content'];
   $rows = preg_split("/\n/", $content);
@@ -333,29 +337,57 @@ if ($mode == 'add2do') {
     $cols = _person_split($line);
 
     $s = array();
-    $s[] = "per1='{$cols[0]}'"; // 번호
-    $s[] = "per2='{$cols[1]}'"; // 이름
-    $s[] = "per3='{$cols[2]}'";
-    $s[] = "per4='{$cols[3]}'";
-    $s[] = "per5='{$cols[4]}'";
-    $s[] = "per6='{$cols[5]}'";
+
+    $v = $cols[0];
+    $per_no = $cols[0];
+#   $s[] = "per_no='{$v}'"; // 인사번호
+#   $s[] = "id='{$v}'"; // 인사번호
+
+    $v = $cols[1];
+    $s[] = "person_name='{$v}'"; // 공식한글이름
+    $person_cho = cho_hangul($v);
+    $s[] = "person_cho='{$person_cho}'"; // 초성
+
+    $v = preg_replace("/^0/", "", $cols[2]); // 앞에 0은 제거
+    $s[] = "person_group='{$v}'"; // 행사그룹
+
+    $v = $cols[3];
+    $s[] = "person_position='{$v}'"; // 직책명
+
+    $v = $cols[4];
+    $s[] = "person_hotel='{$v}'"; // 호텔명
 
     $nation = $cols[5];
     $nation_code = $personObj->get_nation_code($nation);
     $s[] = "person_nation='{$nation_code}'"; // 국가
 
-    $person_cho = cho_hangul($cols[1]);
-    $s[] = "person_cho='{$person_cho}'"; // 초성
+    $v = $cols[6];
+         if ($v == 'VVIP') $level = 'vvip';
+    else if ($v == 'VIP') $level = 'vip';
+    else if ($v == '일반') $level = 'general';
+    else $level = '';
+    $s[] = "person_level='{$level}'"; // 레벨
 
-    $sql_set = " SET ".join(",", $s);
-    $qry = "INSERT INTO person $sql_set";
-    $ret = db_query($qry);
+    $qry = "select * from person where per_no='$per_no'";
+    $row = db_fetchone($qry);
+    if ($row) {
+      $s[] = "per_no='$per_no'";
+      $sql_set = " SET ".join(",", $s);
+      $qry = "UPDATE person $sql_set WHERE id='$per_no'";
+      $ret = db_query($qry);
+    } else {
+      $s[] = "per_no='$per_no'";
+      $sql_set = " SET ".join(",", $s);
+      $qry = "INSERT INTO person $sql_set";
+      $ret = db_query($qry);
+    }
+
   }
 
-  $qry = "UPDATE person"
-     ." SET per_no=per1, person_name=per2, person_group=per3, person_position=per4, person_hotel=per5"
-     ." WHERE person_name=''";
-  $ret = db_query($qry);
+# $qry = "UPDATE person"
+#    ." SET per_no=per1, person_name=per2, person_group=per3, person_position=per4, person_hotel=per5"
+#    ." WHERE person_name=''";
+# $ret = db_query($qry);
 
   print<<<EOS
 <a href='$env[self]'>업로드 완료. 돌아가기</a>
@@ -368,8 +400,51 @@ EOS;
   MainPageHead($source_title);
   ParagraphTitle($source_title);
 
+  $f_pg = $form['pg'];
+  $groups = $clsperson->person_groups();
+  $groups[] = array('title'=>'전체','value'=>'all');
+  print("<div class='btn-group' role='group' aria-label='...' style=''>");
+  foreach ($groups as $gt) {
+    $title = $gt['title'];
+    $value = $gt['value'];
+    if ($value == $f_pg) $cls = "btn btn-warning btn-lg";
+    else $cls = "btn btn-default btn-lg";
+    print("<button type='button' class='$cls' onclick=\"_selgroup('$value')\">$title</button>");
+  }
+  print("</div>");
+
+  $f_pl = $form['pl'];
+  $levels = $clsperson->person_levels();
+  $levels[] = array('title'=>'전체','value'=>'all');
+  print("<div class='btn-group' role='group' aria-label='...' style=''>");
+  foreach ($levels as $gt) {
+    $title = $gt['title'];
+    $value = $gt['value'];
+    if ($value == $f_pl) $cls = "btn btn-warning btn-lg";
+    else $cls = "btn btn-default btn-lg";
+    print("<button type='button' class='$cls' onclick=\"_sellevel('$value')\">$title</button>");
+  }
+  print("</div>");
+
+
+  print<<<EOS
+<script>
+function _selgroup(pg) {
+  var form = document.search_form;
+  form.pg.value=pg;
+  form.submit();
+}
+function _sellevel(pl) {
+  var form = document.search_form;
+  form.pl.value=pl;
+  form.submit();
+}
+</script>
+EOS;
+
+
   ## {{
-  $btn = button_general('조회', 0, "sf_1()", $style='', $class='btn btn-primary');
+  $btn = button_general('조회', 0, "sf_1()", $style='width:70px; height:50px;', $class='btn btn-primary');
   print<<<EOS
 <form name='search_form' method='get'>
 $btn
@@ -378,18 +453,20 @@ $btn
 EOS;
 
   $v = $form['search'];
-  $ti = textinput_general('search', $v, $size='10', 'keypress_text()', true, 0, $id='', 'ui-corner-all');
-  print("인사이름/인사번호:$ti");
+  $ti = textinput_general('search', $v, $size='20', 'keypress_text()', true, 0, '', 'ui-corner-all','인사이름,인사번호');
+  print $ti;
 
   $v = $form['jik'];
-  $ti = textinput_general('jik', $v, $size='10', 'keypress_text()', $click_select=true, $maxlength=0, $id='', 'ui-corner-all');
-  print("직책:$ti");
+  $ti = textinput_general('jik', $v, $size='10', 'keypress_text()', true, 0, '', 'ui-corner-all', '직책');
+  print $ti;
 
   $v = $form['pg'];
   $opt = $clsperson->person_group_option($v);
-  print<<<EOS
-그룹:<select name='pg'>$opt</select>
-EOS;
+  print("그룹:<select name='pg'>$opt</select>");
+
+  $v = $form['pl'];
+  $opt = $clsperson->person_level_option($v);
+  print("레벨:<select name='pl'>$opt</select>");
 
   $sel = array(); $sort = $form['sort'];
   if ($sort == '') $sel[1] = ' selected'; else $sel[$sort] = ' selected';
@@ -553,7 +630,10 @@ EOS;
   if ($v) $w[] = "(p.person_position LIKE '%$v%')";
 
   $v = $form['pg'];
-  if ($v) $w[] = "(p.person_group='$v')";
+  if ($v) $w[] = "(p.person_group='$v' OR p.person_group='0$v')";
+
+  $v = $form['pl'];
+  if ($v) $w[] = "(p.person_level='$v')";
 
   $sql_where = sql_where_join($w, $d=0, 'AND');
 
@@ -566,15 +646,16 @@ EOS;
   print pagination_bootstrap2($page, $total, $ipp, '_page');
 
   $sort = $form['sort']; if ($sort == '') $sort = '1';
-       if ($sort == '1') $o = "p.udate";
+       if ($sort == '1') $o = "p.udate DESC";
   else if ($sort == '2') $o = "p.person_name";
   else if ($sort == '3') $o = "Nat.nname";
-  else                   $o = "p.udate";
+  else                   $o = "p.udate DESC";
   $sql_order = " ORDER BY $o";
   //dd($sql_order);
 
   $qry = $sql_select.$sql_from.$sql_join.$sql_where.$sql_order
     ." LIMIT $start,$ipp";
+//dd($qry);
 
   $ret = db_query($qry);
 
@@ -590,7 +671,7 @@ $buttons
 
 <table class='table table-striped dataC' id='resultTable'>
 EOS;
-  print table_head_general(array('인사번호','이름','그룹','직책','국가','호텔'));
+  print table_head_general(array('인사번호','이름','그룹','직책','레벨','국가','호텔'));
   print("<tbody>");
 
   $cnt = 0;
@@ -608,6 +689,7 @@ EOS;
 <td nowrap class='nowrap'>{$edit}</td>
 <td nowrap class='nowrap'>{$row['person_group']}</td>
 <td nowrap class='nowrap'>{$row['person_position']}</td>
+<td nowrap class='nowrap'>{$row['person_level']}</td>
 <td nowrap class='nowrap'>{$row['nname']}</td>
 <td nowrap class='nowrap'>{$row['person_hotel']}</td>
 </tr>

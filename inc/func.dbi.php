@@ -135,4 +135,30 @@ function db_query_insert($qry, $debug=0) {
   return $ret;
 }
 
+function db_query_api($qry, $debug=0) {
+  global $mysqli;
+  global $env;
+  //if ($debug) { dd($qry); return; }
+  //if (@$env['_db_debug_']) dd($qry);
+  //if (@$env['_db_clock_']) $t1 = microtime();
+  $ret = $mysqli->query($qry);
+  //$err = $mysqli->error;
+  //if (@$env['_db_clock_']) $t2 = microtime();
+  //if (@$env['_db_clock_']) dd(sprintf("query elapsed time = %f micro time", $t2-$t1));
+  //if ($err) { if (is_developer()) die($qry.$err); else die($err); }
+  return $ret;
+}
+function db_fetchone_api($qry, $debug=0) {
+  global $mysqli;
+  //if ($debug) { dd($qry); return; }
+  //global $env; if (@$env['_db_debug_']) dd($qry);
+  //if (@$env['_db_clock_']) $t1 = microtime();
+  $ret = $mysqli->query($qry);
+  //$err = $mysqli->error;
+  //if (@$env['_db_clock_']) $t2 = microtime();
+  //if (@$env['_db_clock_']) dd(sprintf("query elapsed time = %f micro time", $t2-$t1));
+  //if ($err) { if (is_developer()) die($qry.$err); else die($err); }
+  return $ret->fetch_assoc();
+}
+
 ?>

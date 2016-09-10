@@ -1,0 +1,29 @@
+
+# 경유지 근처에 도달하면 알림
+# 경유지 반경 얼마에 근접하면 이벤트가 발생
+# 반경내 처음으로 도달할때 이 테이블에 insert 발생
+# run_id 와 location_id 가 키가 되어서 중복 insert 방지
+# lat1, lng1, time1, dist1 은 처음으로  반경내에서 이벤트 발생 위치 좌표와 시간과 경유지와 거리
+# ncount 는 경유지 반경내에서 이벤트 발생 횟수 
+
+drop table  pass_event;
+
+create table  pass_event (
+  id int auto_increment primary key,
+
+  driver_id     int,
+  run_id        int,
+  location_id   int,
+
+  lat1  double   comment '위치',
+  lng1  double   comment '위치',
+  time1  datetime comment '시간',
+  dist1  int     comment '거리',
+
+  ncount  int default 0 comment '카운트',
+
+  idate datetime,
+  unique(run_id, location_id)
+);
+
+

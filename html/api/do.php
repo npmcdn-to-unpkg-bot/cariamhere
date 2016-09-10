@@ -375,8 +375,8 @@ if ($action == 'set_schedule') {
 if ($action == 'start_driving') {
 
   $appkey = _check_appkey();
-  $row = _get_driver($appkey);
-  $driver_id = $row['id'];
+  $driver_row = _get_driver($appkey);
+  $driver_id = $driver_row['id'];
 
   $depart_from = $data['depart_from'];
   $going_to    = $data['going_to'];
@@ -391,17 +391,16 @@ if ($action == 'start_driving') {
   // $going_to : 목적지 ID
   // $interval : 위치 전송 주기 (output)
   // $driving_session_id : 세션ID (output)
-  $clsdriver->start_driving($row, $driver_id, $depart_from, $going_to, $interval, $driving_session_id);
+  $clsdriver->start_driving($driver_row, $driver_id, $depart_from, $going_to, $interval, $driving_session_id);
+  $pid = $driver_row['person_id'];
+  $prow = $clsperson->get_person($pid);
+  $pobj = $clsperson->get_person_obj($prow);
 
   $resp = array(
     'driver_id'=>$driver_id,
     'gps_interval'=>$interval,
     'run_id'=>$driving_session_id,
-    'person'=> array(
-      'person_id'=>$row['person_id'],
-      'name'=>$row['person_name'],
-      'group'=>$row['person_group'],
-     )
+    'person'=> $pobj,
   );
   ok_response($resp);
   exit;
@@ -454,6 +453,22 @@ if ($action == 'finish_driving') {
   exit;
 }
 
+// 어플종료
+if ($action == 'exit_app') {
+
+  $appkey = _check_appkey();
+  $row_driver = _get_driver($appkey);
+
+  $driver_id = $row_driver['id'];
+
+  // TODO : 운전자의 운행중인 기록을 모두 종료상태로 처리
+
+  $resp = array();
+  ok_response($resp);
+  exit;
+}
+
+
 // VIP 조회
 if ($action == 'query_person') {
   $appkey = _check_appkey();
@@ -462,7 +477,7 @@ if ($action == 'query_person') {
 
   if ($row['person_id']) {
     $per_no = $row['person_id'];
-    $info = $clsperson->person_information($per_no);
+    $info = $clsperson->person_information_v2($per_no);
   } else {
     $info = null;
   }
@@ -488,7 +503,7 @@ if ($action == 'set_person') {
   $error = $clsdriver->set_person($row, $per_no);
   if ($error) error_response($error);
 
-  $info = $clsperson->person_information($per_no);
+  $info = $clsperson->person_information_v2($per_no);
 
   $resp = array(
     'driver_id'=>$driver_id,
@@ -568,11 +583,6 @@ if ($action == 'person_information') {
   ok_response($resp);
   exit;
 }
-
-
-
-
-
 
   exit;
 

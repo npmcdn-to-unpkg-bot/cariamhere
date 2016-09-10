@@ -76,6 +76,7 @@ EOS;
  print("<li><a href='/run.php'>운행기록(run)</a></li>");
  print("<li><a href='/map.php'>실시간 차량위치</a></li>");
  print("<li><a href='/alert.php'>알람(alert)</a></li>");
+ print("<li><a href='/download.php'>업로드/다운로드</a></li>");
  print("<li><a href='/index.php?mode=logout'>로그아웃</a></li>");
  print("<li><a href='#'>-----------------</a></li>");
 

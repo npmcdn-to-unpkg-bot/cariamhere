@@ -7,25 +7,29 @@ function person() {
 
 }
 
-function get_person($id) {
-
-  $sql_select = "SELECT p.*, Nat.*"
-    .", IF(p.person_fflag, 'O', 'X') _fflag";
+function get_person($per_no) {
+  $sql_select = "SELECT p.*, Nat.*";
   $sql_from = " FROM person p";
   $sql_join = " LEFT JOIN Nat ON p.person_nation=Nat.nnum";
 
   $qry = $sql_select.$sql_from.$sql_join
-    ." WHERE p.id='$id'"
-     ;
+    ." WHERE p.per_no='$per_no'" ;
+  //apilog("get person $qry");
   $row = db_fetchone($qry);
   return $row;
 }
 
 function person_groups() {
   $list = array(
-    array('title'=>'A그룹', 'value'=>'A'),
-    array('title'=>'B그룹', 'value'=>'B'),
-    array('title'=>'C그룹', 'value'=>'C'),
+    array('title'=>'1', 'value'=>'1'),
+    array('title'=>'2', 'value'=>'2'),
+    array('title'=>'3', 'value'=>'3'),
+    array('title'=>'4', 'value'=>'4'),
+    array('title'=>'5', 'value'=>'5'),
+    array('title'=>'6', 'value'=>'6'),
+    array('title'=>'7', 'value'=>'7'),
+    array('title'=>'8', 'value'=>'8'),
+    array('title'=>'9', 'value'=>'9'),
   );
   return $list;
 }
@@ -53,6 +57,35 @@ function person_group_option($preset='') {
   return $opt;
 }
 
+function person_levels() {
+  $list = array(
+    array('title'=>'VVIP', 'value'=>'vvip'),
+    array('title'=>'VIP', 'value'=>'vip'),
+    array('title'=>'일반', 'value'=>'general'),
+  );
+  return $list;
+}
+
+function person_level_option($preset='') {
+  $opt = '';
+  $list = $this->person_levels();
+
+  $flag = false;
+  foreach ($list as $item) {
+
+    $value = $item['value'];
+    $title = $item['title'];
+
+    if ($preset == $value) {
+      $sel = ' selected'; $flag = true;
+    } else $sel = '';
+    $opt .= "<option value='$value'$sel>$title</option>";
+  }
+  if (!$flag) {
+    $opt .= "<option value='$preset' selected>$preset</option>";
+  }
+  return $opt;
+}
 
 function select_option_person($preset='') {
   $opt = '';
@@ -94,19 +127,34 @@ function list_person_raw() {
   return $info;
 }
 
+function get_level_string($person_level) {
+  if ($person_level == 'vvip') return 'VVIP';
+  else if ($person_level == 'vip') return 'VIP';
+  else return '일반';
+}
+
+// 클라이언트로 전송되는 정보
+function get_person_obj(&$row) {
+  $lev = $this->get_level_string($row['person_level']);
+  $a = array(
+    'person_id'=>$row['per_no'], // id 가 아니라 per_no
+    'per_no'=>$row['per_no'], // id 가 아니라 per_no
+    'name'=>$row['person_name'],
+    'group'=>$row['person_group'],
+    'level'=>$lev,
+    'hotel'=>$row['person_hotel'],
+    'nation'=>$row['person_nation'],
+  );
+  return $a;
+}
+
 // API
 function list_person() {
   $qry = "SELECT * FROM person";
   $ret = db_query($qry);
   $info = array();
   while ($row = db_fetch($ret)) {
-    $info[] = array(
-      'person_id'=>$row['per_no'], // id 가 아니라 per_no
-      'name'=>$row['person_name'],
-      'group'=>$row['person_group'],
-      'flag'=>$row['person_fflag'],
-      'nation'=>$row['person_nation'],
-    );
+    $info[] = $this->get_person_obj($row);
   }
   return $info;
 }
@@ -116,15 +164,6 @@ function get_nation_code($nname) {
   $qry = "select * from Nat where nname='$nname'";
   $row = db_fetchone($qry);
   return $row['nnum'];
-/*
-MariaDB [carmaxscj]> select * from Nat;
-+-----------------------------------------------+------+--------+--------+-------+
-| nname                                         | nnum | ncode3 | ncode2 | inuse |
-+-----------------------------------------------+------+--------+--------+-------+
-| 해외                                          |    0 | 해외   | 해외   |     1 |
-| 아프가니스탄                                  |    4 | AFG    | AF     |     1 |
-| 알바니아                                      |    8 | ALB    | AL     |     1 |
-*/
 }
 
 // API
@@ -134,15 +173,17 @@ function person_information($per_no) {
  LEFT JOIN Nat n ON p.person_nation=n.nnum WHERE p.per_no='$per_no'";
   $row = db_fetchone($qry);
 
-  $info = array(
-    'person_id'=>$row['per_no'],
-    'per_no'=>$row['per_no'],
-    'name'=>$row['person_name'],
-    'group'=>$row['person_group'],
-    'position'=>$row['person_position'],
-    'nation'=>$row['nname'],
-    'hotel'=>$row['person_hotel'],
-  );
+  $info = $this->get_person_obj($row);
+# array(
+#   'person_id'=>$row['per_no'],
+#   'per_no'=>$row['per_no'],
+#   'name'=>$row['person_name'],
+#   'group'=>$row['person_group'],
+#   'level'=>$row['person_level'],
+#   'position'=>$row['person_position'],
+#   'nation'=>$row['nname'],
+#   'hotel'=>$row['person_hotel'],
+# );
   return $info;
 }
 
@@ -170,15 +211,13 @@ function person_information_v2($search) {
   $qry = "SELECT p.*, n.nname".$sql_from.$sql_join.$sql_where;
   $row = db_fetchone($qry);
 
-  $info = array(
-    'person_id'=>$row['per_no'],
-    'per_no'=>$row['per_no'],
-    'name'=>$row['person_name'],
-    'group'=>$row['person_group'],
-    'position'=>$row['person_position'],
-    'nation'=>$row['nname'],
-    'hotel'=>$row['person_hotel'],
-  );
+  $p = $this->get_person_obj($row);
+
+  $lvl = $this->get_level_string($row['person_level']);
+
+  $name = sprintf("(G%s,$lvl)%s", $row['person_group'], $row['person_name']);
+  $p['name'] = $name;
+  $info = $p;
 
   return $info;
 }

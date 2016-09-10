@@ -58,6 +58,10 @@ function _sqlset(&$s) {
   $s[] = "lng='{$form['lng']}'";
 
   $s[] = "car_id='{$form['car_id']}'";
+
+  if ($form['team_leader']) $v = '1'; else $v = '0';
+  $s[] = "team_leader='$v'";
+
 //dd($s); exit;
 
 }
@@ -260,7 +264,9 @@ EOS;
 
   $opt = $clsdriver->select_team_option($row['driver_team']);
   $html = "<select name='driver_team'>$opt</select>";
-  print _data_tr('소속팀', $html);
+  if ($row['team_leader']) $chk = ' checked'; else $chk = '';
+  $cb = "&nbsp;&nbsp;&nbsp;&nbsp;<label><input type='checkbox' name='team_leader'$chk>팀장역할</label>";
+  print _data_tr('소속팀', $html.$cb);
 
   $opt = $clsdriver->select_team_option($row['driver_team']);
 
@@ -493,7 +499,7 @@ EOS;
   _summary();
 
   ## {{
-  $btn = button_general('조회', 0, "sf_1()", $style='width:50px;height:50px;', $class='btn btn-primary');
+  $btn = button_general('조회', 0, "sf_1()", $style='width:70px;height:50px;', $class='btn btn-primary');
   print<<<EOS
 <table border='0' style='margin-top:10px;'>
 <form name='search_form' method='get'>
@@ -568,6 +574,7 @@ EOS;
 <label><input type='checkbox' name='fd11' $fck[11]>GPS좌표</label>
 <label><input type='checkbox' name='fd12' $fck[12]>최종업데이트</label>
 <label><input type='checkbox' name='fd13' $fck[13]>메시지전송</label>
+<label><input type='checkbox' name='fd14' $fck[14]>팀장여부</label>
 </div>
 EOS;
 
@@ -630,7 +637,7 @@ EOS;
        .", d.chat_id, d.bot1con, d.bot2con"
        .", d.car_id, d.emergency, d.udate driver_udate"
        .", d.phone_os, d.drv1, d.drv2"
-       .", d.driver_tel, d.driver_no";
+       .", d.driver_tel, d.driver_no, d.team_leader";
 
   $sql_join   = $clsdriver->sql_join_4();
 
@@ -660,8 +667,6 @@ EOS;
 
   $btn = array();
   $btn[] = button_general('입력', 0, "_add()", $style='', $class='btn btn-primary');
-  $btn[] = button_general('엑셀업로드', 0, "_add2()", $style='', $class='btn btn-info');
-  $btn[] = button_general('다운로드', 0, "_down()", $style='', $class='btn btn-info');
   $btn[] =<<<EOS
 검색(이름,초성):<input type='text' name='searchq' onkeyup="searchq();" onclick='this.select()' onclick='this.select()'>
 EOS;
@@ -693,6 +698,7 @@ EOS;
   if ($form['fd11']) { $head[] = 'GPS좌표'; }
   if ($form['fd12']) { $head[] = '최종업데이트'; }
   if ($form['fd13']) { $head[] = '메시지'; }
+  if ($form['fd14']) { $head[] = '팀장역할'; }
   print table_head_general($head);
   print("<tbody>");
 
@@ -754,6 +760,10 @@ EOS;
         $btn = '';
       }
       $fields[] = $btn;
+    }
+    if ($form['fd14']) {
+      if ($row['team_leader']) $str = '팀장'; else $str = '-';
+      $fields[] = $str;
     }
 
     print("<tr>");
@@ -822,8 +832,6 @@ EOS;
   print<<<EOS
 <script>
 function _add() { var url = "$env[self]?mode=add"; wopen(url,600,600,1,1); }
-function _add2() { var url = "upload.php"; urlGo(url); }
-function _down() { var url = "download.php"; urlGo(url); }
 
 var qcall = 0;
 var tbody_origin = null;
