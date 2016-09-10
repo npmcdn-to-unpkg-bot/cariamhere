@@ -530,6 +530,12 @@ EOS;
   $v = $form['fltl']; if ($v) $chk = ' checked'; else $chk = '';
   print("<label><input type='checkbox' name='fltl' $chk>팀장</label>");
 
+  $v = $form['crdm']; if ($v) $chk = ' checked'; else $chk = '';
+  print("<label><input type='checkbox' name='crdm' $chk>차량매칭없음</label>");
+
+  $v = $form['tmne']; if ($v) $chk = ' checked'; else $chk = '';
+  print("<label><input type='checkbox' name='tmne' $chk>소속팀없음</label>");
+
   print("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 
   $ds = $form['ds'];
@@ -622,8 +628,9 @@ EOS;
   $v = $form['dno'];
   if ($v) $w[] = "(d.id='$v')";
 
-  $v = $form['fltl'];
-  if ($v) $w[] = "(d.team_leader='1')";
+  $v = $form['fltl']; if ($v) $w[] = "(d.team_leader='1')";
+  $v = $form['crdm']; if ($v) $w[] = "(d.car_id=0 OR d.car_id is null)";
+  $v = $form['tmne']; if ($v) $w[] = "(d.driver_team='all' OR d.driver_team='')";
 
   $v = $form['person_name'];
   if ($v) $w[] = "(p.person_name LIKE '%$v%' OR p.person_cho LIKE '%$v%')";

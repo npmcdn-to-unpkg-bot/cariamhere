@@ -84,13 +84,24 @@ EOS;
 
   script_daum_map(2); // 
   print<<<EOS
-<div class="map_wrap">
+<style>
+div#map_wrap {
+ position:relative;
+ overflow:hidden;
+ width:100%;
+ height:300px;
+}
+</style>
+<div id="map_wrap">
  <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div> 
 </div>
+
 <div style='text-align:center'>
-<input type='button' onclick='zoomIn()' value='확대' style='width:80px;height:50px;'>
-<input type='button' onclick='zoomOut()' value='축소' style='width:80px;height:50px;'>
-<input type='button' onclick='reloadData()' value='새로고침' style='width:80px;height:50px;'>
+<input type='button' onclick='zoomIn()' value='확대(+)' class='btn btn-primary'
+ style='width:80px;height:50px;font-size:10pt;font-weight:bold;'>
+<input type='button' onclick='zoomOut()' value='축소(-)' class='btn btn-warning'
+ style='width:80px;height:50px;font-size:10pt;font-weight:bold;'>
+<input type='button' onclick='reloadData()' value='새로고침' class='btn btn-success' style='width:80px;height:50px;'>
 </div>
 
 <script>
@@ -223,43 +234,16 @@ $(function() {
   });
 
   _map_range();
+
+  // 지도영역 크기를 조절
+  var h = $( window ).height() - 100;
+  //console.log(h);
+  $('div#map_wrap').height(h);
+  $('div#map').height(h);
+  map.relayout();
 });
-
-
 </script>
 EOS;
-
-/*
-  print<<<EOS
-<p>시작:{$info['stime']}
-<p>종료:{$info['etime']}
-<p>데이터:$num_points
-EOS;
-*/
-
-  $a = array();
-  $plat = $plng = 0;
-  foreach ($list as $item) {
-    list($lat, $lng, $date) = $item;
-    if ($plat && $plng) {
-      $dist = sprintf("%4d", distance($lat, $lng, $plat, $plng, 'K')*1000);
-    } else $dist = 0;
-    $plat = $lat; $plng = $lng;
-    $a[] = array($lat, $lng, $date, $dist);
-  }
-  //dd($a);
-  $r = array_reverse($a);
-
-    print<<<EOS
-시간, 이동거리(m)<br>
-EOS;
-  foreach ($r as $item) {
-    list($lat, $lng, $date, $dist) = $item;
-    list($d, $t) = preg_split("/ /", $date);
-    print<<<EOS
-$t ($lat, $lng) {$dist}<br>
-EOS;
-  }
 
   record_tail();
   exit;
@@ -267,21 +251,30 @@ EOS;
 
 if ($mode == 'botconnect') {
   $bot = $form['bot'];
-       if ($bot == '1') $url = "http://telegram.me/IamHere_330918_bot?start=vCH1vGWJxfSeofSAs0K5PA";
-  else if ($bot == '2') $url = "http://telegram.me/IamHere_notice_330918_bot?start=test";
+
+  $row = $_SESSION['driver'];
+  $appkey = $row['apikey'];
+
+       if ($bot == '1') $url = "http://telegram.me/IamHere_330918_bot?start=$appkey";
+  else if ($bot == '2') $url = "http://telegram.me/IamHere_notice_330918_bot?start=$appkey";
   Redirect($url);
   exit;
 }
 
 ### }}}
 
-  record_head('운행 기록');
+  record_head('팀장 메뉴');
 
   $mysess = $_SESSION['driver'];
   //dd($mysess);
   $driver_id = $mysess['id'];
   $driver_name = $mysess['driver_name'];
 
+  print<<<EOS
+작업중입니다.
+EOS;
+
+/*
   $w = array('1');
   $w[] = "r.driver_id='$driver_id'";
   $sql_where = sql_where_join($w, $d=0, 'AND');
@@ -297,13 +290,17 @@ if ($mode == 'botconnect') {
     ." LIMIT 0,10";
 
   print<<<EOS
-<div>
-<p>운전자: $driver_name</p>
-</div>
+<style>
+div.head { text-align:center; }
+</style>
 
+<div class='head'>
+<p>$driver_name (운행기록 최근10건)</p>
+</div>
 EOS;
 
-  print("<table class='table table-striped'>");
+  ## {{
+  print("<table class='table table-striped' width='100%'>");
   print table_head_general(array('출발지<br>목적지','출발시간<br>도착시간','소요시간','지도'));
 
   $ret = db_query($qry);
@@ -336,49 +333,13 @@ EOS;
   }
 
   print("</table>");
-  print("<div><p>최근 10건 까지만 가능합니다.</p></div>");
   print<<<EOS
 <script>
 function _map(id) { var url = "$env[self]?mode=map&id="+id; urlGo(url); }
 </script>
 EOS;
-
-/*
-
-  print<<<EOS
-<div style='background-color:#000; color:#fff; text-align:center; padding:5px 5px 5px 5px;'>
-<h4>텔레그램으로 알림받기</h4>
-</div>
-EOS;
-
-  print<<<EOS
-<div data-role="content">
-<p>아래 링크를 누르고, 작업을 수행할 때 사용하는 앱에서 텔레그램을 선택하세요.</p>
-<p>텔레그렘에서 봇이 연결됩니다. 시작을 누릅니다.</p>
-</div>
-
-<input type='button' class="btn btn-success" onclick="_botconnect(1,'IamHere 모니터링(봇)')" value="모니터링용 봇 연결하기">
-<input type='button' class="btn btn-success" onclick="_botconnect(2,'IamHere 공지(봇)')" value="공지용 봇 연결하기">
-
-<div data-role="content">
-<p></p>
-<p></p>
-<p></p>
-<p></p>
-</div>
-
-<script>
-function _botconnect(bot, title) {
-  var msg = "텔레그램으로 연결합니다. 연결된 프로그램에서 텔레그램을 선택해 주세요.\\n\\n"
-       +title+" 대화창 아래에 시작을 눌러주시면 됩니다.";
-  if (!confirm(msg)) return;
-  var url = "$env[self]?mode=botconnect&bot="+bot;
-  urlGo(url);
-}
-</script>
-EOS;
+  ## }}
 */
-
 
   record_tail();
   exit;

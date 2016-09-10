@@ -20,13 +20,43 @@ class driver {
     if ($this->log_enable) apilog($msg);
   }
 
+  // 메시지로 알린다.
+  // 소속 팀장과 상황실로도 알린다
+  // chat_id 는 사용자 본인의 것임
   function chat_notice($chat_id, $msg) {
     $this->apilog("chat_notice chat_id=$chat_id");
     $clstg = new telegram();
-    if ($this->telegram_enable) {
-      $clstg->send_monitor_bot($chat_id, $msg);
+    if (!$this->telegram_enable) return;
+
+    $list = array();
+    $list[$chat_id] = true; // 본인에게 알림
+
+    $driver_row = $this->driver_row;
+    $team = $driver_row['driver_team'];
+    $chatids = $this->team_leader_chat_ids($team); // 소속팀 팀장
+    foreach ($chatids as $id) {
+      $list[$id] = true;
+    }
+    //apilog($list);
+
+    // 대상자들에게 보냄
+    foreach ($list as $id=>$tmp) {
+      $clstg->send_monitor_bot($id, $msg);
     }
   }
+
+  function team_leader_chat_ids($team) {
+    $qry = "select chat_id from driver where driver_team='$team'";
+    $ret = db_query($qry);
+    $a = array();
+    while ($row = db_fetch($ret)) {
+      $chatid = $row['chat_id'];
+      if (!$chatid) continue;
+      $a[] = $chatid;
+    }
+    return $a;
+  }
+
   function char($c) {
     $clstg = new telegram();
     return $clstg->char($c);
@@ -368,8 +398,10 @@ class driver {
      ;
     alert_log($msg, '운행시작');
 
-    $emoji = $this->char('start');
     $chat_id = $driver_row['chat_id'];
+    $this->chat_id = $driver_row['chat_id'];
+    $this->driver_row = $driver_row;
+    $emoji = $this->char('start');
     $this->chat_notice($chat_id, $emoji.$msg); // 메신저로 알림
   }
 
@@ -571,6 +603,9 @@ class driver {
   function finish_driving($driver_row, $driver_id, $run_id, &$elapsed) {
     $this->apilog("운행종료 $driver_id, $run_id");
 
+    $this->chat_id = $driver_row['chat_id'];
+    $this->driver_row = $driver_row;
+
     if (!$run_id) return 'run_id is null';
 
     // run 정보 확인
@@ -695,7 +730,8 @@ class driver {
     $msg = "비상상황 [$code/$e_name] $name($team) \n[ Tel: $tel ]";
     alert_log($msg, '긴급');
 
-    $a = array(); $a[] = "===================="; $a[] = $msg; $a[] = "====================";
+    $emoji = $this->char('siren');
+    $a = array(); $a[] = "===================="; $a[] = $emoji.$msg; $a[] = "====================";
     $chat_id = $driver_row['chat_id'];
     $this->chat_notice($chat_id, $a); // 메신저로 알림
   }

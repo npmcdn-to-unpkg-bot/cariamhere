@@ -24,9 +24,8 @@ class telegram {
          if ($c == 'ok') return '👌';
     else if ($c == 'bell') return '🔔';
     else if ($c == 'start') return '🚀';
-	else if ($c == 'stop') return '🚧';
-	
-	
+    else if ($c == 'stop') return '🚧';
+    else if ($c == 'siren') return '🚨';
   }
 
   function dd($obj) {
