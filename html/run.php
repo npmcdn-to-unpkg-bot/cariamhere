@@ -49,7 +49,6 @@ function _summgo(ds) {
 EOS;
 }
 
-
 ### }}}
 
 ### {{{
@@ -97,10 +96,11 @@ if ($mode == 'map') {
   $num_points = $cnt;
 
   PopupPageHead($source_title);
-  ParagraphTitle($source_title);
+  //ParagraphTitle($source_title);
 
   //dd($info);
   print<<<EOS
+<a href='$env[self]?mode=map2&id=$run_id'>test</a>
 <div>
 운전자:{$info['driver_name']}
 시작:{$info['stime']}
@@ -212,6 +212,176 @@ EOS;
   PopupPageTail();
   exit;
 }
+
+/*
+if ($mode == 'getlog') {
+print 'aaaaaaaaa';
+exit;
+  $run_id = $form['id'];
+
+  $sql_from = " FROM run r";
+  $sql_select = $clsdriver->sql_select_run_1();
+  $sql_join   = $clsdriver->sql_join_3();
+  $sql_where = " WHERE r.id='$run_id'";
+  $qry = $sql_select.$sql_from.$sql_join.$sql_where;
+  $info = db_fetchone($qry);
+
+  $qry = "SELECT * FROM run_log where run_id='$run_id'";
+  $ret = db_query($qry);
+  $pts = array();
+  $dts = array();
+  $pdts = array();
+
+  $cnt = 0;
+  while ($row = db_fetch($ret)) {
+    $cnt++;
+    //dd($row);
+    $pts[] = array($row['lat'], $row['lng']);
+    $dts[] = $row['idate'];
+    $pdts[] = array($row['lat'], $row['lng'], $row['idate'], $cnt);
+  }
+  print json_encode($pts);
+  exit;
+}
+*/
+
+// 구글지도에 표시
+if ($mode == 'map2') {
+  $run_id = $form['id'];
+
+  $sql_from = " FROM run r";
+  $sql_select = $clsdriver->sql_select_run_1();
+  $sql_join   = $clsdriver->sql_join_3();
+  $sql_where = " WHERE r.id='$run_id'";
+  $qry = $sql_select.$sql_from.$sql_join.$sql_where;
+  $info = db_fetchone($qry);
+
+  $qry = "SELECT * FROM run_log where run_id='$run_id'";
+  $ret = db_query($qry);
+  $pts = array();
+  $dts = array();
+  $pdts = array();
+
+  $cnt = 0;
+  while ($row = db_fetch($ret)) {
+    $cnt++;
+    //dd($row);
+    $pts[] = array($row['lat'], $row['lng']);
+    $dts[] = $row['idate'];
+    $pdts[] = array($row['lat'], $row['lng'], $row['idate'], $cnt);
+  }
+
+  //dd($pts);
+  //dd($dts);
+  $points = json_encode($pts);
+  $dates = json_encode($dts);
+  $num_points = $cnt;
+
+  PopupPageHead($source_title);
+
+  //dd($info);
+  print<<<EOS
+<div>
+운전자:{$info['driver_name']}
+시작:{$info['stime']}
+종료:{$info['etime']}
+데이터:$num_points
+</div>
+EOS;
+
+  print<<<EOS
+<div id="map" style="width:600px;height:600px;"></div>
+
+<script>
+var map;
+var markers = [];
+
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: -34.397, lng: 150.644},
+    //scrollwheel: false,
+    zoom: 13,
+  });
+}
+
+function _get_carinfo(callback) {
+  $.ajax({
+    method: "GET",
+    url: "$env[self]?mode=getlog&id=$run_id",
+    data: {
+      "mode": "status"
+    }
+  })
+  .done(function( msg ) {
+console.log(msg);
+    var info = $.parseJSON( msg );
+    callback(info);
+  });
+}
+
+function _make_markers() {
+
+  _get_carinfo(function(info) {
+//    console.log(info);
+
+/*
+    for (var i = 0; i < info.length; i++) {
+
+      var item = info[i];
+      var lat = item['lat'];
+      var lng = item['lng'];
+      var car_no = item['car_no'];
+      var driver_name = item['driver_name'];
+      var driver_id = item['id'];
+      if (!lat) continue;
+      if (!lng) continue;
+
+      //console.log( item );
+
+      var title = driver_name;
+      if (car_no) title += "/" + car_no;
+
+      var p = new google.maps.LatLng(lat, lng);
+      //console.log(p);
+
+      var marker = new google.maps.Marker({
+        position: p,
+        map: map,
+        title: title,
+        animation: google.maps.Animation.DROP,
+        draggable:true,
+        driver_id: driver_id
+      });
+      //console.log(marker);
+
+      markers.push(marker);
+
+      marker.addListener('dragend', function() {
+        _push_position(this);
+        //map.setZoom(14);
+        //map.setCenter(this.getPosition());
+      });
+
+    }
+*/
+    //_map_range();
+
+  });
+}
+
+
+$(function() {
+  _make_markers();
+});
+</script>
+EOS;
+  //dd($points);
+
+  script_google_map();
+  PopupPageTail();
+  exit;
+}
+## }}
 
 
   MainPageHead($source_title);
@@ -428,7 +598,7 @@ EOS;
       $et = mktime_date_string($row['end_time']);
       $st = mktime_date_string($row['start_time']);
       $elap = getHumanTime($et-$st);
-    } else $elap = '';
+    } else $elap = '...';
     $fields[] = $elap;
 
     if ($form['fd02']) $fields[] = $row['loc1'];

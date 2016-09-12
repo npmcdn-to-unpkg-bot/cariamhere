@@ -1,10 +1,12 @@
 <?php
 
+  if (@!$env['path_include']) @$env['path_include'] = '.';
+  include_once("$env[path_include]/class.telegram.php");
+
 class location {
   var $debug = false;
 
   function location() {
-
   }
 
   function option_location_group($preset='') {
@@ -19,10 +21,11 @@ class location {
   // APIs
   // pflag = true 경유지 포함
   function location_groups($pflag=true) {
-    if ($pflag)
-    return array('공항','숙소','행사장','기타','경유지');
-    else
-    return array('공항','숙소','행사장','기타');
+    $a = array('공항','숙소','행사장','기타');
+    if ($pflag) {
+      $a[] = '경유지';
+    }
+    return $a;
   }
 
   function select_option_location($preset='') {
@@ -129,7 +132,7 @@ class location {
   }
 
   // 장소선택에서 기타장소입력시, db에등록한후 ID리턴
-  function location_add($loc_id, $title_etc) {
+  function location_add($loc_id, $title_etc, &$driver_row) {
     if ($loc_id > 0) return $loc_id;
 
     $title = trim($title_etc);
@@ -143,6 +146,10 @@ class location {
     $qry = "insert into location "
      ." set id='$id', loc_title='$title', loc_group='기타', lat='$lat', lng='$lng', udate=now(), idate=now()"; 
     db_query($qry);
+
+    $clstg = new telegram();
+    $chat_id = $driver_row['chat_id'];
+    $clstg->send_monitor_bot($chat_id, "기타장소 등록: $title_etc");
 
     return $id;
   }

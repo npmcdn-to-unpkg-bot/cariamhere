@@ -1049,11 +1049,19 @@ function get_keycount($k) {
   return $row['c'];
 }
 
+function daum_map_key_round() {
+  global $conf;
+  $keys = $conf['daum_map_keys']; // 몇개 중에서 랜덤하게 뽑기
+  $n = count($keys);
+  $idx = rand(0, $n-1);
+  $key = $keys[$idx];
+  return $key;
+}
+
 // script_daum_map();
 function script_daum_map($k=1) {
   global $conf;
-  keycountup($k);
-       if ($k == 1) $key = $conf['daum_map_key'];
+       if ($k == 1) $key = daum_map_key_round();
   else if ($k == 2) $key = $conf['daum_map_key2'];
   print<<<EOS
 <script type="text/javascript" src="//apis.daum.net/maps/maps3.js?apikey=$key&libraries=services,clusterer"></script>

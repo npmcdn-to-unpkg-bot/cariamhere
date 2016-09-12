@@ -4,7 +4,6 @@
   include_once("$env[prefix]/inc/common.record.php");
   include_once("$env[prefix]/inc/class.driver.php");
 
-
 ### {{{
 if ($mode == 'get_log') {
   //dd($form);
@@ -291,6 +290,7 @@ div.head { text-align:center; }
 
 <div class='head'>
 <p>$driver_name (운행기록 최근10건)</p>
+<p><a href='logout.php'>로그아웃</a></p>
 </div>
 EOS;
 

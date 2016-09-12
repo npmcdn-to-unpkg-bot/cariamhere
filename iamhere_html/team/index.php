@@ -21,7 +21,7 @@ if ($mode == 'dologin') {
     setcookie("tel", $tel, time()+3600*24*30);
   }
 
-  $_SESSION['logined'] = true;
+  $_SESSION['team_logined'] = true;
   $_SESSION['driver'] = $row;
 
   $url = $form['url'];

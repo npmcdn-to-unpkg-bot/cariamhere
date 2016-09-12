@@ -10,20 +10,25 @@ class driver {
   var $debug = false;
   var $telegram_enable = true; // 텔레그렘 연동 전체 on/off
 
-  var $log_enable = true; // apilog
+  var $log_enable = 0; // apilog
   var $chat_id = 0; // 운전자 chat_id (method간 공유)
   var $driver_row = null; // 운전자 정보 (method간 공유)
+  var $send_to_team_leaders = true; // 팀장에게도 메시지를 보냄 (기본 true 이지만 개발시 false)
 
   function driver() {
   }
+
+  // 디버깅을 위해 로그를 남김
   function apilog($msg) {
     if ($this->log_enable) apilog($msg);
   }
 
+  ## {{
   // 메시지로 알린다.
   // 소속 팀장과 상황실로도 알린다
   // chat_id 는 사용자 본인의 것임
-  function chat_notice($chat_id, $msg) {
+  // $contact 이 설정되면 전화번호를 이어서 전송함 $contact = array('tel'=>'114','name='긴급전화');
+  function chat_notice($chat_id, $msg, $contact=null) {
     $this->apilog("chat_notice chat_id=$chat_id");
     $clstg = new telegram();
     if (!$this->telegram_enable) return;
@@ -31,21 +36,37 @@ class driver {
     $list = array();
     $list[$chat_id] = true; // 본인에게 알림
 
-    $driver_row = $this->driver_row;
-    $team = $driver_row['driver_team'];
-    $chatids = $this->team_leader_chat_ids($team); // 소속팀 팀장
-    foreach ($chatids as $id) {
-      $list[$id] = true;
+    if ($this->send_to_team_leaders) {
+      $driver_row = $this->driver_row;
+      $team = $driver_row['driver_team'];
+      $chatids = $this->team_leader_chat_ids($team); // 소속팀 팀장
+      foreach ($chatids as $id) $list[$id] = true;
     }
     //apilog($list);
 
     // 대상자들에게 보냄
     foreach ($list as $id=>$tmp) {
-      $clstg->send_monitor_bot($id, $msg);
+      $clstg->send_monitor_bot($id, $msg); // 메시지 전송
+      if ($contact) { // 연락처 전송
+        $clstg->send_contact($chat_id, $contact['tel'], $contact['name'], '');
+      }
     }
   }
 
+  // 팀장의 텔레 아이디
   function team_leader_chat_ids($team) {
+    $qry = "select chat_id from driver where driver_team='$team' and team_leader=1";
+    $ret = db_query($qry);
+    $a = array();
+    while ($row = db_fetch($ret)) {
+      $chatid = $row['chat_id'];
+      if (!$chatid) continue;
+      $a[] = $chatid;
+    }
+    return $a;
+  }
+  // 특정팀윈의 텔레 아이디
+  function team_member_chat_ids($team) {
     $qry = "select chat_id from driver where driver_team='$team'";
     $ret = db_query($qry);
     $a = array();
@@ -61,7 +82,9 @@ class driver {
     $clstg = new telegram();
     return $clstg->char($c);
   }
+  ## }}
 
+ ## 인증관련 {{
   // apikey 갱신
   function update_appkey($phone_hash, $appkey) {
     $qry = "UPDATE driver SET apikey='$appkey', apikey_date=now()"
@@ -94,7 +117,8 @@ class driver {
 
   // 운전자 정보 취득
   function _get_driver($sql_where) {
-    $qry = "SELECT d.*"
+    $qry = "SELECT d.id id, d.driver_name, d.driver_no, d.driver_stat, d.driver_team, d.run_id, d.car_id, d.person_id"
+  .", d.lat, d.lng, d.is_driving, d.emergency, d.chat_id, d.team_leader, d.gperiod, d.driver_tel"
   .", p.person_name, p.person_group, p.per_no person_id, p.person_level"
   ." FROM driver d"
   ." LEFT JOIN person p ON d.person_id=p.per_no"
@@ -163,7 +187,10 @@ class driver {
     $this->apilog('운전자등록 성공');
     return array(true, 'success'); // 성공
   }
+  ## }}
 
+  ## 상태정보 관련
+  ## {{
   // 운전자 상태 (코드->제목)
   function get_ds_name($code) {
     $qry = "SELECT * FROM Ds WHERE Ds='$code'";
@@ -236,6 +263,7 @@ class driver {
     }
     return $info;
   }
+  ## }}
 
   // 운전자가 현재 운행중일때, 운행기록의 인사정보를 바꾼다.
   function set_run_person($driver_id, $person_id) {
@@ -243,7 +271,7 @@ class driver {
     if ($row['is_driving']) {
       //dd($row);
       $run_id = $row['run_id'];
-      $qry = "update run set person_id='$person_id' where id='$run_id'";
+      $qry = "UPDATE RUN SET person_id='$person_id' where id='$run_id'";
       db_query($qry);
     }
   }
@@ -292,7 +320,9 @@ class driver {
     return $opt;
   }
 
-  // 운전자 위치 설정 (디버깅용)
+  ## 운행관련
+  ## {{
+  // 운전자 위치 설정 (디버깅용) (사용금지)
   function set_driver_location($driver_id, $lat, $lng) {
     $row = $this->get_driver_by_id($driver_id);
 
@@ -329,6 +359,17 @@ class driver {
     $sql_set = " SET ".join(",", $s);
     $qry = "INSERT INTO run_log $sql_set";
     $ret = db_query($qry);
+  }
+
+  function run_log_count($run_id) {
+    $qry = "select count(*) count from run_log where run_id='$run_id'";
+    $row = db_fetchone($qry);
+    return $row['count'];
+  }
+  function run_count($driver_id) {
+    $qry = "select count(*) count from run where driver_id='$driver_id'";
+    $row = db_fetchone($qry);
+    return $row['count'];
   }
 
   //------------------------------
@@ -392,7 +433,7 @@ class driver {
     $now = get_now();
 
     $msg = "[출발] $name($team) \n"
-     ."$depart ---> $going\n"
+     ."$depart → $going\n"
      ."출발시간: $now\n"
      ."인사: $person_name(No.$person_id)\n"
      ;
@@ -445,7 +486,7 @@ class driver {
     if ($row) {
 
       $this->apilog("경유지근처 update $driver_id, $run_id, $location_id, $dist");
-      $qry = "update pass_event"
+      $qry = "UPDATE pass_event"
          ." set ncount=ncount+1" // 카운트를 증가
          ." where run_id='$run_id' and location_id='$location_id'";
       db_query_api($qry);
@@ -603,10 +644,11 @@ class driver {
   function finish_driving($driver_row, $driver_id, $run_id, &$elapsed) {
     $this->apilog("운행종료 $driver_id, $run_id");
 
+    if (!$run_id) return 'run_id is null';
+
+    // 다른 함수에서 처리를 위해 클래스 전역변수에 저장
     $this->chat_id = $driver_row['chat_id'];
     $this->driver_row = $driver_row;
-
-    if (!$run_id) return 'run_id is null';
 
     // run 정보 확인
     $qry = "SELECT r.*"
@@ -616,26 +658,19 @@ class driver {
     $row_run = db_fetchone($qry);
     if (!$row_run) return 'run_id is invalid';
     $elapsed = $row_run['e'];
-    $elapsed = sprintf("%d", $elapsed/60);
+    $elapsed = sprintf("%d", $elapsed/60); // 소요시간(분)
 
     $lat_e = $row_run['lat_e']; // 최종 좌표
     $lng_e = $row_run['lng_e'];
 
-    #if ($lat_e || $lng_e) { // 최종 좌표 입력됨
-    #  return '운행이 이미 종료되었습니다.';
-    #}
-
-    $going_to = $row_run['going_to'];
-    $depart_from = $row_run['depart_from'];
+    $depart_from = $row_run['depart_from']; // 출발지
+    $going_to = $row_run['going_to']; // 목적지
 
     $clsloc = new location();
     $row_location = $clsloc->get_location($going_to);
-    // 목적지명
-    $going_to_title = $row_location['loc_title'];
-
-    // 출발지명
+    $going_to_title = $row_location['loc_title']; // 목적지명
     $depart_location = $clsloc->get_location($depart_from);
-    $depart_from_title = $depart_location['loc_title'];
+    $depart_from_title = $depart_location['loc_title']; // 출발지명
 
     $dlat = $driver_row['lat'];
     $dlng = $driver_row['lng'];
@@ -651,13 +686,13 @@ class driver {
     $s[] = "udate=NOW()";
     $s[] = "lat_e=lat"; // 최종 좌표
     $s[] = "lng_e=lng";
-    $s[] = "is_driving=0";
+    $s[] = "is_driving=0"; // 운전중이 아님으로 설정
     $sql_set = " SET ".join(",", $s);
     $qry = "UPDATE run $sql_set"
       ." WHERE id='$run_id' AND driver_id='$driver_id'";
     $ret = db_query($qry);
 
-    // driver 에 반영
+    // driver 업데이트
     $qry = "UPDATE driver"
       // run_id 는 지우지 않음 (최근 운행 기록을 조회하기 위해)
       ." SET is_driving=0, driver_stat='DS_STOP'"
@@ -691,7 +726,10 @@ class driver {
     $chat_id = $driver_row['chat_id'];
     $this->chat_notice($chat_id, $a); // 메신저로 알림
   }
+  ## }}
 
+  ## 인사관련
+  ## {{
   // VIP 변경
   // API
   function set_person($driver_row, $per_no) {
@@ -712,8 +750,11 @@ class driver {
     $clsperson = new person();
     $clsperson->person_information($per_no);
   }
+  ## }}
 
 
+  ## 비상상황
+  ## {{
   // API
   // 비상상황
   function do_emergency($driver_row, $code) {
@@ -733,7 +774,8 @@ class driver {
     $emoji = $this->char('siren');
     $a = array(); $a[] = "===================="; $a[] = $emoji.$msg; $a[] = "====================";
     $chat_id = $driver_row['chat_id'];
-    $this->chat_notice($chat_id, $a); // 메신저로 알림
+    $contact = array('tel'=>$tel, 'name'=>$name);
+    $this->chat_notice($chat_id, $a, $contact); // 메신저로 알림
   }
 
   // API
@@ -741,6 +783,7 @@ class driver {
   function exit_emergency($driver_row) {
     $driver_id = $driver_row['id'];
     $name = $driver_row['driver_name'];
+    $tel = $driver_row['driver_tel'];
     $team = $driver_row['driver_team'];
 
     $qry = "UPDATE driver SET driver_stat='DS_STOP', emergency='' WHERE id='$driver_id'";
@@ -752,10 +795,25 @@ class driver {
     $emoji = $this->char('ok');
     $a = array(); $a[] = "===================="; $a[] = $emoji.$msg; $a[] = "====================";
     $chat_id = $driver_row['chat_id'];
-    $this->chat_notice($chat_id, $a); // 메신저로 알림
+    $contact = array('tel'=>$tel, 'name'=>$name);
+    $this->chat_notice($chat_id, $a, $contact); // 메신저로 알림
   }
 
+  function emergency_list() {
+    $info = array();
+    $info['EMER1'] = '차량고장';
+    $info['EMER2'] = '접촉사고';
+    $info['EMER9'] = '기타사항';
+    return $info;
+  }
+  function emergency_code2name($code) {
+    $list = $this->emergency_list();
+    return $list[$code];
+  }
+  ## }}
 
+  ## 공통 쿼리
+  ## {{
   // $sql_select = $clsdriver->sql_select_run_1();
   // $sql_join   = $clsdriver->sql_join_##($pj);
   //   $qry = $sql_select.$sql_from.$sql_join.$sql_where;
@@ -805,18 +863,7 @@ class driver {
        .$this->sql_join_common_1();
     return $sql_join;
   }
-
-  function emergency_list() {
-    $info = array();
-    $info['EMER1'] = '차량고장';
-    $info['EMER2'] = '접촉사고';
-    $info['EMER9'] = '기타사항';
-    return $info;
-  }
-  function emergency_code2name($code) {
-    $list = $this->emergency_list();
-    return $list[$code];
-  }
+  ## }}
 
   function driver_status_html(&$row) {
     $em = $row['emergency'];
@@ -825,17 +872,6 @@ class driver {
     else if ($this->is_emergency_status($ds)) $ds = "<span class='drs ds_emergency'>$ds($em)</span>";
     else $ds = "<span class='drs ds_not_driving'>$ds</span>";
     return $ds;
-  }
-
-  function run_log_count($run_id) {
-    $qry = "select count(*) count from run_log where run_id='$run_id'";
-    $row = db_fetchone($qry);
-    return $row['count'];
-  }
-  function run_count($driver_id) {
-    $qry = "select count(*) count from run where driver_id='$driver_id'";
-    $row = db_fetchone($qry);
-    return $row['count'];
   }
 
 }; // class

@@ -1,11 +1,13 @@
 <?php
 
   include_once("./path.php");
-  include_once("$env[prefix]/inc/common.record.php");
+  include_once("$env[prefix]/inc/common.team.php");
   include_once("$env[prefix]/inc/class.driver.php");
-
+  include_once("$env[prefix]/inc/class.telegram.php");
 
 ### {{{
+
+/*
 if ($mode == 'get_log') {
   //dd($form);
 
@@ -260,6 +262,27 @@ if ($mode == 'botconnect') {
   Redirect($url);
   exit;
 }
+*/
+
+if ($mode == 'call') {
+  $driver_id = $form['driver_id'];
+  $clsdriver = new driver();
+  $driver_row = $clsdriver->get_driver_by_id($driver_id);
+  //dd($driver_row);
+  $chat_id = $driver_row['chat_id'];
+  if (!$chat_id) iError('텔레그램 연동이 안되었습니다.', $go_back=0, $win_close=0, $exit=1);
+
+  $clstg = new telegram();
+  $text = '팀장님께서 호출 하셨습니다.';
+  $success = $clstg->send_msg_post($chat_id, $text, $mtype=1);
+
+  if ($success) {
+    iError('호출하였습니다.', $go_back=0, $win_close=0, $exit=1);
+  } else {
+    iError('메시지 전송 실패.', $go_back=0, $win_close=0, $exit=1);
+  }
+  exit;
+}
 
 ### }}}
 
@@ -271,75 +294,94 @@ if ($mode == 'botconnect') {
   $driver_name = $mysess['driver_name'];
 
   print<<<EOS
-작업중입니다.
-EOS;
-
-/*
-  $w = array('1');
-  $w[] = "r.driver_id='$driver_id'";
-  $sql_where = sql_where_join($w, $d=0, 'AND');
-  
-  $clsdriver = new driver();
-  $sql_from = " FROM run r";
-
-  $sql_join   = $clsdriver->sql_join_3();
-  $sql_select = $clsdriver->sql_select_run_1();
-
-  $qry = $sql_select.$sql_from.$sql_join.$sql_where
-    ." ORDER BY r.idate DESC"
-    ." LIMIT 0,10";
-
-  print<<<EOS
 <style>
 div.head { text-align:center; }
 </style>
 
 <div class='head'>
-<p>$driver_name (운행기록 최근10건)</p>
+<p>$driver_name <a href='logout.php'>로그아웃</a></p>
 </div>
 EOS;
 
-  ## {{
-  print("<table class='table table-striped' width='100%'>");
-  print table_head_general(array('출발지<br>목적지','출발시간<br>도착시간','소요시간','지도'));
 
+  $mysess = $_SESSION['driver'];
+  //dd($_SESSION);
+  //dd($mysess);
+
+  $driver_id = $mysess['id'];
+  $my_name = $mysess['driver_name'];
+  $my_team = $mysess['driver_team'];
+
+/*
+  $qry = "select d.driver_name, d.driver_stat
+, r.start_time, r.end_time
+, l1.loc_title loc1
+, l2.loc_title loc2
+ from driver d
+ left join run r on d.run_id=r.id
+ left join location l1 on r.depart_from=l1.id
+ left join location l2 on r.going_to=l2.id
+ where d.driver_team='$my_team'";
+*/
+
+  $w = array('1');
+  $w[] = "d.driver_team='$my_team'";
+  $sql_where = sql_where_join($w, $d=0, 'AND');
+
+  $clsdriver = new driver();
+  $sql_from = " FROM driver d";
+  $sql_join = ''
+     ." left join Ds on d.driver_stat=Ds.Ds"
+     ." left join run r on d.run_id=r.id"
+     ." left join location l1 on r.depart_from=l1.id"
+     ." left join location l2 on r.going_to=l2.id";
+
+  $sql_select = "select d.id, d.driver_name, d.driver_stat, d.chat_id"
+    .", Ds.DsName dstat"
+    .", r.start_time, r.end_time"
+    .", TIME(r.start_time) stime"
+    .", TIME(r.end_time) etime"
+    .", l1.loc_title loc1"
+    .", l2.loc_title loc2" ;
+
+  $sql_order = " ORDER BY d.driver_name";
+
+  $qry = $sql_select.$sql_from.$sql_join.$sql_where.$sql_order;
   $ret = db_query($qry);
+
+  print("<table class='table table-striped' width='100%'>");
+  print table_head_general(array('이름','상태', '출발시간<br>도착시간', '출발지<br>목적지<br>소요시간'));
+
   while ($row = db_fetch($ret)) {
     //dd($row);
 
-    $run_id = $row['run_id'];
-    $map =<<<EOS
-<input type='button' onclick="_map('$run_id')" class='btn btn-primary' value='지도'>
-EOS;
-    list($d, $t) = preg_split("/ /", $row['start_time']);
-    if ($row['end_time']) {
-      $e = GetTimeStamp($row['end_time']);
-      $el = $e - GetTimeStamp($row['start_time']);
-      $elapsed = sprintf("%d분", $el/60);
-    } else {
-      $e = time();
-      $el = $e - GetTimeStamp($row['start_time']);
-      $elapsed = sprintf("현재%d분", $el/60);
-    }
+    $driver_id = $row['id'];
+    $chat_id = $row['chat_id'];
+
+    if ($chat_id) $btn = "<input type='button' value='호출' class='btn btn-primary' onclick=\"_call('$driver_id')\">";
+    else $btn = '';
 
     print<<<EOS
 <tr>
-<td>&lt; {$row['loc1']}<br>&gt; {$row['loc2']}</td>
-<td>$d<br>{$row['stime']}<br>~{$row['etime']}</td>
-<td>$elapsed</td>
-<td>$map</td>
+<td>{$row['driver_name']}</td>
+<td>{$row['dstat']}</td>
+<td>{$row['stime']}~<br>{$row['etime']}</td>
+<td>&lt;-- {$row['loc1']}<br>--&gt; {$row['loc2']}</td>
+<td>$btn</td>
 </tr>
 EOS;
   }
-
   print("</table>");
+  hiddenframe($debug=0, 'hiddenframe', 600, 600);
+
   print<<<EOS
 <script>
-function _map(id) { var url = "$env[self]?mode=map&id="+id; urlGo(url); }
+function _call(id) {
+  var url = "$env[self]?mode=call&driver_id="+id;
+  hiddenframe.document.location = url;
+}
 </script>
 EOS;
-  ## }}
-*/
 
   record_tail();
   exit;

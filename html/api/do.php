@@ -412,8 +412,9 @@ if ($action == 'start_driving') {
   $depart_from_etc = $data['depart_from_etc'];
   $going_to_etc    = $data['going_to_etc'];
 
-  $depart_from = $clslocation->location_add($depart_from, $depart_from_etc);
-  $going_to = $clslocation->location_add($going_to, $going_to_etc);
+  // 기타장소 DB입력
+  $depart_from = $clslocation->location_add($depart_from, $depart_from_etc, $driver_row);
+  $going_to = $clslocation->location_add($going_to, $going_to_etc, $driver_row);
 
   // $depart_from : 출발지 ID
   // $going_to : 목적지 ID
@@ -424,6 +425,7 @@ if ($action == 'start_driving') {
   $prow = $clsperson->get_person($pid);
   $pobj = $clsperson->get_person_obj($prow);
 
+  usleep(10000); // 10ms
   $resp = array(
     'driver_id'=>$driver_id,
     'gps_interval'=>$interval,
@@ -450,6 +452,7 @@ if ($action == 'at_location') {
   $error = $clsdriver->at_location($row_driver, $driver_id, $run_id, $lat, $lng, $elapsed);
   if ($error) error_response($error);
 
+  usleep(10000); // 10ms
   $resp = array(
     'run_id'=>$run_id,
     'elapsed'=>$elapsed,
@@ -472,8 +475,7 @@ if ($action == 'finish_driving') {
   $error = $clsdriver->finish_driving($row_driver, $driver_id, $run_id, $elapsed);
   if ($error) error_response($error);
 
-  //$url = $conf['map_view_url']."?id=$run_id";
-
+  usleep(10000); // 10ms
   $resp = array(
     'run_id'=>$run_id,
     'elapsed'=>$elapsed,

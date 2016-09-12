@@ -17,10 +17,10 @@
   //print_r($_SESSION);
 
   $url = urlencode($_SERVER['REQUEST_URI']);
-  if ($url=='') $url = urlencode("/record/home.php");
+  if ($url=='') $url = urlencode("/team/home.php");
 
-  if (@$_SESSION['record_logined'] != true) {
-    ErrorRedir("로그인 후 사용하세요", "/record/index.php?url=$url");
+  if (@$_SESSION['team_logined'] != true) {
+    ErrorRedir("로그인 후 사용하세요", "/team/index.php?url=$url");
     exit;
   }
 

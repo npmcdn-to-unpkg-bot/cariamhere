@@ -68,6 +68,7 @@ class telegram {
     return $url;
   }
 
+/*
   // 메시지 전송 (사용금지)
   function send_msg($chat_id, $text, $mtype) {
     $url = $this->url($mtype);
@@ -82,6 +83,7 @@ class telegram {
     if ($info['ok']) return true; // success
     return false; // fail
   }
+*/
 
   // 사진 전송
   function send_photo($chat_id, $localpath, $mtype) {
@@ -107,6 +109,28 @@ class telegram {
     if ($info['ok']) return true; // success
     return false; // fail
   }
+  // 테스트 메시지 전송 (curl & post)
+  function send_contact($chat_id, $phone_number, $first_name='', $last_name='') {
+    if (!$chat_id) return;
+    $url = $this->url($mtype)."/sendContact";
+
+    $postfields = array('chat_id'=>$chat_id, 'phone_number'=>$phone_number, 
+     'first_name'=>$first_name, 'last_name'=>$last_name);
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // On dev server only!
+    $result = curl_exec($ch);
+
+    $info = json_decode($result, true);
+    //apilog($info);
+    if ($info['ok']) return true; // success
+    return false; // fail
+  }
 
   // 테스트 메시지 전송 (curl & post)
   function send_msg_post($chat_id, $text, $mtype, $reply_markup=null) {
@@ -114,6 +138,7 @@ class telegram {
     $url = $this->url($mtype)."/sendMessage";
 
     $postfields = array('chat_id'=>$chat_id, 'text'=>$text);
+
     if ($reply_markup) {
       $json = json_encode($reply_markup);
       $postfields['reply_markup'] = $json;
@@ -134,6 +159,7 @@ class telegram {
     if ($info['ok']) return true; // success
     return false; // fail
   }
+
   // 모니터링용봇
   function send_monitor_bot($chat_id, $obj, $reply_markup=null) {
     if (!$chat_id) return;
